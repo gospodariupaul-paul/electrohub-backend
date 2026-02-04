@@ -1,0 +1,47 @@
+### LOGIN
+POST https://electrohub-backend-1-10qa.onrender.com/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "parola"
+}
+
+### GET PRODUCTS
+GET https://electrohub-backend-1-10qa.onrender.com/products
+
+### CREATE PRODUCT
+POST https://electrohub-backend-1-10qa.onrender.com/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Laptop Lenovo",
+  "price": 3500,
+  "categoryId": 1
+}
+
+### UPDATE PRODUCT
+PATCH https://electrohub-backend-1-10qa.onrender.com/products/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "price": 2999
+}
+
+### DELETE PRODUCT
+DELETE https://electrohub-backend-1-10qa.onrender.com/products/1
+Authorization: Bearer {{token}}
+
+### GET CATEGORIES
+GET https://electrohub-backend-1-10qa.onrender.com/categories
+
+### CREATE CATEGORY
+POST https://electrohub-backend-1-10qa.onrender.com/categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Telefoane"
+}
