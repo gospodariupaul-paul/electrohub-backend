@@ -1,0 +1,8 @@
+await this.prisma.orderItem.create({
+  data: {
+    orderId: order.id,
+    productId: product.id,
+    quantity: item.quantity,
+    price: product.price, // ✔ înlocuiește priceAtPurchase
+  },
+});

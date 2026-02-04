@@ -1,46 +1,56 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateProductDto, userId: number) {
+  async create(data: {
+    name: string;
+    price: number;
+    stock: number;
+    categoryId: number;
+  }) {
     return this.prisma.product.create({
       data: {
-        ...dto,
-        user: {
-          connect: { id: userId },
-        },
+        name: data.name,
+        price: data.price,
+        stock: data.stock,
+        categoryId: data.categoryId,
+        // ❌ userId eliminat — nu există în schema Prisma
       },
     });
   }
 
   async findAll() {
     return this.prisma.product.findMany({
-      include: {
-        user: true,
-        category: true,
-      },
+      include: { category: true },
     });
   }
 
   async findOne(id: number) {
-    return this.prisma.product.findUnique({
+    const product = await this.prisma.product.findUnique({
       where: { id },
-      include: {
-        user: true,
-        category: true,
-      },
+      include: { category: true },
     });
+
+    if (!product) throw new NotFoundException('Product not found');
+
+    return product;
   }
 
-  async update(id: number, dto: UpdateProductDto) {
+  async update(
+    id: number,
+    data: Partial<{
+      name: string;
+      price: number;
+      stock: number;
+      categoryId: number;
+    }>,
+  ) {
     return this.prisma.product.update({
       where: { id },
-      data: dto,
+      data,
     });
   }
 

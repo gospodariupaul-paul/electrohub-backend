@@ -1,0 +1,73 @@
+### REGISTER
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@user.com",
+  "password": "123456"
+}
+
+### LOGIN
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@user.com",
+  "password": "123456"
+}
+
+### GET ALL PRODUCTS
+GET http://localhost:3000/products
+
+### GET PRODUCT BY ID
+GET http://localhost:3000/products/1
+
+### CREATE PRODUCT (ADMIN)
+POST http://localhost:3000/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Laptop HP",
+  "price": 3999,
+  "stock": 12,
+  "categoryId": 1
+}
+
+### UPDATE PRODUCT (ADMIN)
+PATCH http://localhost:3000/products/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "price": 2999
+}
+
+### DELETE PRODUCT (ADMIN)
+DELETE http://localhost:3000/products/1
+Authorization: Bearer {{token}}
+
+### GET ALL CATEGORIES
+GET http://localhost:3000/categories
+
+### CREATE CATEGORY (ADMIN)
+POST http://localhost:3000/categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Tablete"
+}
+
+### UPDATE CATEGORY (ADMIN)
+PATCH http://localhost:3000/categories/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Laptopuri Premium"
+}
+
+### DELETE CATEGORY (ADMIN)
+DELETE http://localhost:3000/categories/1
+Authorization: Bearer {{token}}

@@ -1,45 +1,32 @@
 import {
-  Body,
   Controller,
+  Post,
   Get,
   Param,
-  Post,
-  UseGuards,
+  Body,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('orders')
+@UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // -------------------------
-  // CREATE ORDER
-  // -------------------------
-  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Req() req: any, @Body() dto: CreateOrderDto) {
-    return this.ordersService.create(req.user.userId, dto);
+  create(@Req() req, @Body() dto: any) {
+    return this.ordersService.createOrder(req.user.userId, dto.items);
   }
 
-  // -------------------------
-  // GET ALL ORDERS FOR USER
-  // -------------------------
-  @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Req() req: any) {
-    return this.ordersService.findAll(req.user.userId);
+  findAll() {
+    return this.ordersService.findAll();
   }
 
-  // -------------------------
-  // GET ORDER BY ID
-  // -------------------------
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(@Req() req: any, @Param('id') id: string) {
-    return this.ordersService.findOne(req.user.userId, Number(id));
+  findOne(@Param('id') id: string) {
+    return this.ordersService.findOne(Number(id));
   }
 }

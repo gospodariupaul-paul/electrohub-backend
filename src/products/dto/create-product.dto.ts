@@ -1,20 +1,17 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsInt, IsString, Min, IsPositive } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
   name: string;
 
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   price: number;
 
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   stock: number;
 
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  imageUrl?: string;
+  @IsInt()
+  categoryId: number;
 }
