@@ -8,8 +8,8 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { RefreshTokenGuard } from './refresh-token.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
