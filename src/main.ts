@@ -7,16 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: [
-      'http://localhost:5173',                 // local dev (Vite)
-      'http://localhost:3000',                 // local fallback
-      'https://electrohub-frontend.netlify.app', // Netlify
-      'https://electrohub-frontend.vercel.app',  // Vercel
-      'https://electrohub-frontend.onrender.com' // Render frontend
-    ],
-    credentials: true,
+    origin: '*',
   });
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(3000);
 }
 bootstrap();
