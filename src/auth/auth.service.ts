@@ -14,6 +14,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     console.log("🔥 USER FOUND:", user);
+    console.log("TEST LOG 123"); // <-- linia de test
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
