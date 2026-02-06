@@ -29,7 +29,7 @@ export class AuthService {
     const hashed = await bcrypt.hash(refreshToken, 10);
 
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: Number(userId) },
       data: { refreshToken: hashed },
     });
   }
@@ -63,8 +63,10 @@ export class AuthService {
   }
 
   async logout(userId: number) {
+    console.log("LOGOUT userId =", userId, "typeof =", typeof userId);
+
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: Number(userId) },
       data: { refreshToken: null },
     });
 
@@ -73,7 +75,7 @@ export class AuthService {
 
   async refreshTokens(userId: number, refreshToken: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: Number(userId) },
     });
 
     if (!user || !user.refreshToken) {

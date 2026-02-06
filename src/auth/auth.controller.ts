@@ -29,6 +29,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: any) {
-    return this.authService.logout(req.user.sub);
+    // FIX: convertim sub la number
+    const userId = Number(req.user.sub);
+    return this.authService.logout(userId);
   }
 }
