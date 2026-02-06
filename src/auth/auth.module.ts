@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+
 import { PrismaModule } from '../prisma/prisma.module';
+
+// Strategiile mutate în common/strategies
 import { JwtStrategy } from '../common/strategies/jwt.strategy';
+import { AccessTokenStrategy } from '../common/strategies/access-token.strategy';
+import { RefreshTokenStrategy } from '../common/strategies/refresh-token.strategy';
 
 @Module({
   imports: [
@@ -16,6 +22,11 @@ import { JwtStrategy } from '../common/strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+  ],
 })
 export class AuthModule {}
