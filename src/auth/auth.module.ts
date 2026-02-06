@@ -1,23 +1,24 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigModule } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
 import { PrismaModule } from '../prisma/prisma.module';
 
-// Strategiile mutate în common/strategies
 import { JwtStrategy } from '../common/strategies/jwt.strategy';
 import { AccessTokenStrategy } from '../common/strategies/access-token.strategy';
 import { RefreshTokenStrategy } from '../common/strategies/refresh-token.strategy';
 
 @Module({
   imports: [
+    ConfigModule, // ← OBLIGATORIU pentru strategii
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secret123',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15m' },
     }),
   ],
