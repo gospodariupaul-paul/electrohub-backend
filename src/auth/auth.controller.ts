@@ -1,31 +1,38 @@
-import { Controller, Post, Get, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, Post, Req, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
+import { AccessTokenGuard } from './guards/access-token.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Req() req: Request) {
-    return this.authService.login(req.body);
+  async login(@Req() req) {
+    const { email, password } = req.body;
+    return this.authService.login(email, password);
   }
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
-  refresh(@Req() req: Request) {
-    return this.authService.refreshTokens(req.user);
+  async refresh(@Req() req) {
+    return this.authService.refreshTokens(req.user.sub, req.user.refreshToken);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Post('logout')
-  logout(@Req() req: Request) {
-    return this.authService.logout(req.body.userId);
+  async logout(@Req() req) {
+    return this.authService.logout(req.user.sub);
   }
 
-  // 🔥 Endpoint temporar pentru debugging
+  @UseGuards(AccessTokenGuard)
   @Get('debug')
-  debug(@Req() req: Request) {
-    return req.headers;
+  async debug(@Req() req) {
+    console.log('🔥 DEBUG USER:', req.user);
+    console.log('🔥 DEBUG HEADERS:', req.headers);
+    return {
+      user: req.user,
+      headers: req.headers,
+    };
   }
 }
