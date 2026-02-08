@@ -1,58 +1,69 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private readonly jwt: JwtService,
   ) {}
 
-  // 🔐 Verifică email + parolă
-  async validateUser(email: string, password: string) {
+  async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Email sau parolă greșită');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const passwordMatches = await bcrypt.compare(password, user.password);
-    if (!passwordMatches) {
-      throw new UnauthorizedException('Email sau parolă greșită');
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    return user;
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
-  // 🔥 Login — generează token JWT
-  async login(user: any) {
-    const payload = {
-      sub: user.id,       // ID-ul real din baza de date
-      role: user.role,    // rolul userului
-    };
+  async register(dto: RegisterDto) {
+    const hashed = await bcrypt.hash(dto.password, 10);
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-
-  // 🆕 Register — creează user + token
-  async register(dto: any) {
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    const newUser = await this.usersService.create({
-      ...dto,
-      password: hashedPassword,
+    const user = await this.usersService.create({
+      email: dto.email,
+      password: hashed,
+      name: dto.name,
     });
 
-    const payload = {
-      sub: newUser.id,
-      role: newUser.role,
-    };
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return tokens;
+  }
+
+  async refresh(refreshToken: string) {
+    const user = await this.usersService.findByRefreshToken(refreshToken);
+    if (!user) throw new UnauthorizedException('Invalid refresh token');
+
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
+
+  async logout(refreshToken: string) {
+    return this.usersService.clearRefreshToken(refreshToken);
+  }
+
+  async generateTokens(id: number, email: string, role: string) {
+    const payload = { sub: id, email, role };
+
+    const accessToken = await this.jwt.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
+    const refreshToken = await this.jwt.signAsync(payload, {
+      expiresIn: '7d',
+    });
+
+    return { accessToken, refreshToken };
   }
 }
