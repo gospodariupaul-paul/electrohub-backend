@@ -19,10 +19,9 @@ export class UsersController {
   @Get('me')
   getMe(@Req() req: any) {
     console.log("🔥 req.user =", req.user);
-    console.log("🔥 req.user.sub =", req.user.sub);
+    console.log("🔥 ID DIN TOKEN =", req.user.sub);
 
     const userId = Number(req.user.sub);
-
     console.log("🔥 userId (number) =", userId);
 
     return this.usersService.findById(userId);
