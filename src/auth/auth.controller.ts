@@ -36,7 +36,7 @@ export class AuthController {
     return this.authService.logout(token);
   }
 
-  // DEBUG endpoint ca să vedem EXACT ce ajunge la server
+  // DEBUG endpoint — verificăm ce ajunge la server
   @Get('debug')
   debug(@Headers() headers: any) {
     return headers;
