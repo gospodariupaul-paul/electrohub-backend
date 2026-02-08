@@ -38,7 +38,3 @@ export class AuthController {
 
   // DEBUG endpoint — verificăm ce ajunge la server
   @Get('debug')
-  debug(@Headers() headers: any) {
-    return headers;
-  }
-}
