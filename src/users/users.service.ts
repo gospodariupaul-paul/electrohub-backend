@@ -1,58 +1,68 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+export class AuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) return null;
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return null;
+
+    return user;
   }
 
-  create(data: any) {
-    return this.prisma.user.create({
-      data,
+  async login(user: any) {
+    const payload = { sub: user.id, email: user.email, role: user.role };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
     });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
+
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
-  findById(id: number) {
-    return this.prisma.user.findUnique({
-      where: { id },
+  async register(dto: any) {
+    const hashed = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.usersService.create({
+      email: dto.email,
+      password: hashed,
+      name: dto.name,
     });
+
+    return this.login(user);
   }
 
-  async changePassword(id: number, dto: any) {
-    const hashed = await bcrypt.hash(dto.newPassword, 10);
+  async refresh(refreshToken: string) {
+    const user = await this.usersService.findByRefreshToken(refreshToken);
 
-    return this.prisma.user.update({
-      where: { id },
-      data: { password: hashed },
-    });
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return this.login(user);
   }
 
-  updateRefreshToken(id: number, refreshToken: string) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { refreshToken },
-    });
-  }
-
-  findByRefreshToken(refreshToken: string) {
-    return this.prisma.user.findFirst({
-      where: { refreshToken },
-    });
-  }
-
-  // 🔥 AICI ESTE MODIFICAREA IMPORTANTĂ
-  async clearRefreshToken(refreshToken: string): Promise<boolean> {
-    const result = await this.prisma.user.updateMany({
-      where: { refreshToken },
-      data: { refreshToken: null },
-    });
-
-    return result.count > 0;
+  // 🔥 Logout returnează boolean
+  async logout(refreshToken: string): Promise<boolean> {
+    return this.usersService.clearRefreshToken(refreshToken);
   }
 }
