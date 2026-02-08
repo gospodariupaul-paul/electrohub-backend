@@ -1,68 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
-export class AuthService {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-  ) {}
+export class UsersService {
+  constructor(private readonly prisma: PrismaService) {}
 
-  async validateUser(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) return null;
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return null;
-
-    return user;
-  }
-
-  async login(user: any) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m',
+  async findById(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
     });
+  }
 
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: '7d',
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const hashed = await bcrypt.hash(dto.newPassword, 10);
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
     });
-
-    await this.usersService.updateRefreshToken(user.id, refreshToken);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async register(dto: any) {
-    const hashed = await bcrypt.hash(dto.password, 10);
-
-    const user = await this.usersService.create({
-      email: dto.email,
-      password: hashed,
-      name: dto.name,
-    });
-
-    return this.login(user);
-  }
-
-  async refresh(refreshToken: string) {
-    const user = await this.usersService.findByRefreshToken(refreshToken);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    return this.login(user);
-  }
-
-  // 🔥 Logout returnează boolean
-  async logout(refreshToken: string): Promise<boolean> {
-    return this.usersService.clearRefreshToken(refreshToken);
   }
 }

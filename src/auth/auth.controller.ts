@@ -5,19 +5,9 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  register(@Body() dto: any) {
-    return this.authService.register(dto);
-  }
-
   @Post('login')
-  login(@Body() dto: any) {
-    return this.authService.validateUser(dto.email, dto.password).then(user => {
-      if (!user) {
-        return { message: 'Invalid credentials' };
-      }
-      return this.authService.login(user);
-    });
+  login(@Body() dto: { email: string; password: string }) {
+    return this.authService.login(dto);
   }
 
   @Post('refresh')
