@@ -18,6 +18,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Req() req: any) {
+    console.log("🔥 req.user =", req.user);
+    console.log("🔥 typeof req.user.sub =", typeof req.user.sub);
     return this.usersService.findById(Number(req.user.sub));
   }
 

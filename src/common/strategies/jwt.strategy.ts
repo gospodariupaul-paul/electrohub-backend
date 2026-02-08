@@ -1,22 +1,21 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-
-  @Post('login')
-  login(@Body() dto: any) {
-    return this.authService.login(dto);
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
+    });
   }
 
-  @Post('refresh')
-  refresh(@Body() dto: any) {
-    return this.authService.refresh(dto.refreshToken);
-  }
-
-  @Post('logout')
-  logout(@Body() dto: any) {
-    return this.authService.logout(dto.refreshToken);
+  async validate(payload: any) {
+    return {
+      sub: payload.sub,
+      role: payload.role,
+    };
   }
 }
