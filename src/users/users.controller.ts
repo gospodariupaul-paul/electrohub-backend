@@ -15,24 +15,21 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // GET /users/me
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Req() req: any) {
-    return this.usersService.findById(req.user.sub);
+    return this.usersService.findById(Number(req.user.sub));
   }
 
-  // GET /users/:id
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findById(+id);
+    return this.usersService.findById(Number(id));
   }
 
-  // PATCH /users/change-password
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
-    return this.usersService.changePassword(req.user.sub, dto);
+    return this.usersService.changePassword(Number(req.user.sub), dto);
   }
 }

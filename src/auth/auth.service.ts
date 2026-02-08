@@ -1,97 +1,55 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
+    private jwt: JwtService,
   ) {}
 
-  private async getTokens(userId: number, role: string) {
-    const payload = { sub: userId, role };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m',
+  async login(dto: { email: string; password: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
 
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: '7d',
-      secret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-    });
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    const valid = await bcrypt.compare(dto.password, user.password);
+    if (!valid) throw new UnauthorizedException('Invalid credentials');
+
+    const accessToken = await this.jwt.signAsync(
+      { sub: user.id, role: user.role },
+      { expiresIn: '15m' },
+    );
+
+    const refreshToken = await this.jwt.signAsync(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
 
     return { accessToken, refreshToken };
   }
 
-  private async updateRefreshToken(userId: number, refreshToken: string) {
-    const hashed = await bcrypt.hash(refreshToken, 10);
+  async refresh(refreshToken: string) {
+    try {
+      const payload = await this.jwt.verifyAsync(refreshToken);
 
-    await this.prisma.user.update({
-      where: { id: Number(userId) },
-      data: { refreshToken: hashed },
-    });
+      const accessToken = await this.jwt.signAsync(
+        { sub: payload.sub },
+        { expiresIn: '15m' },
+      );
+
+      return { accessToken };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const valid = await bcrypt.compare(password, user.password);
-
-    if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const { accessToken, refreshToken } = await this.getTokens(
-      user.id,
-      user.role,
-    );
-
-    await this.updateRefreshToken(user.id, refreshToken);
-
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
-  }
-
-  async logout(userId: number) {
-    await this.prisma.user.update({
-      where: { id: Number(userId) },
-      data: { refreshToken: null },
-    });
-
-    return { success: true };
-  }
-
-  async refreshTokens(userId: number, refreshToken: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: Number(userId) },
-    });
-
-    if (!user || !user.refreshToken) {
-      throw new UnauthorizedException('Access denied');
-    }
-
-    const matches = await bcrypt.compare(refreshToken, user.refreshToken);
-
-    if (!matches) {
-      throw new UnauthorizedException('Access denied');
-    }
-
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.getTokens(user.id, user.role);
-
-    await this.updateRefreshToken(user.id, newRefreshToken);
-
-    return {
-      access_token: accessToken,
-      refresh_token: newRefreshToken,
-    };
+  async logout(refreshToken: string) {
+    // optional: poți invalida token-ul în DB dacă vrei
+    return { message: 'Logged out' };
   }
 }
