@@ -1,40 +1,25 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Headers,
-  Get
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GetUser } from './get-user.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() dto: { email: string; password: string }) {
+  login(@Body() dto: any) {
     return this.authService.login(dto);
   }
 
   @Post('refresh')
-  refresh(@Headers('authorization') authHeader: string) {
-    if (!authHeader) {
-      return { message: 'Missing Authorization header' };
-    }
-
-    const token = authHeader.split(' ')[1];
-    return this.authService.refresh(token);
+  refresh(@Body() dto: any) {
+    return this.authService.refresh(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(@Headers('authorization') authHeader: string) {
-    if (!authHeader) {
-      return { message: 'Missing Authorization header' };
-    }
-
-    const token = authHeader.split(' ')[1];
-    return this.authService.logout(token);
+  logout(@GetUser() user: any) {
+    return this.authService.logout(user.id);
   }
-
-  // DEBUG endpoint — verificăm ce ajunge la server
-  @Get('debug')
+}

@@ -1,23 +1,11 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../auth/get-user.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
-
-  // DEBUG: verificăm că UsersController e încărcat
-  @Get('debug')
-debug() {
-    return { message: 'UsersController is loaded' };
-  }
-
-  // DEBUG: verificăm Prisma + UsersService
-  @Get('debug2')
-  async debug2() {
-    return this.usersService.test();
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
