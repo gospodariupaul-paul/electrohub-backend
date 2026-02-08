@@ -1,9 +1,15 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Get
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Post('login')
   login(@Body() dto: { email: string; password: string }) {
@@ -11,12 +17,28 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refresh(@Body('refreshToken') refreshToken: string) {
-    return this.authService.refresh(refreshToken);
+  refresh(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      return { message: 'Missing Authorization header' };
+    }
+
+    const token = authHeader.split(' ')[1];
+    return this.authService.refresh(token);
   }
 
   @Post('logout')
-  logout(@Body('refreshToken') refreshToken: string) {
-    return this.authService.logout(refreshToken);
+  logout(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      return { message: 'Missing Authorization header' };
+    }
+
+    const token = authHeader.split(' ')[1];
+    return this.authService.logout(token);
+  }
+
+  // DEBUG endpoint ca să vedem EXACT ce ajunge la server
+  @Get('debug')
+  debug(@Headers() headers: any) {
+    return headers;
   }
 }
