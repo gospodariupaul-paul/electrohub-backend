@@ -27,16 +27,25 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // ACCESS TOKEN
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, role: user.role },
-      { expiresIn: '15m' },
+      {
+        expiresIn: '15m',
+        secret: process.env.JWT_ACCESS_SECRET,
+      },
     );
 
+    // REFRESH TOKEN
     const refreshToken = await this.jwt.signAsync(
       { sub: user.id },
-      { expiresIn: '7d' },
+      {
+        expiresIn: '7d',
+        secret: process.env.JWT_REFRESH_SECRET,
+      },
     );
 
+    // HASH REFRESH TOKEN
     const hashedRefresh = await bcrypt.hash(refreshToken, 10);
 
     await this.prisma.user.update({
@@ -53,7 +62,13 @@ export class AuthService {
     }
 
     try {
-      const payload = await this.jwt.verifyAsync<{ sub: number }>(refreshToken);
+      // VERIFY REFRESH TOKEN WITH CORRECT SECRET
+      const payload = await this.jwt.verifyAsync<{ sub: number }>(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
@@ -63,15 +78,20 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
+      // COMPARE HASHED TOKEN
       const valid = await bcrypt.compare(refreshToken, user.refreshToken);
 
       if (!valid) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
+      // GENERATE NEW ACCESS TOKEN
       const newAccessToken = await this.jwt.signAsync(
         { sub: user.id, role: user.role },
-        { expiresIn: '15m' },
+        {
+          expiresIn: '15m',
+          secret: process.env.JWT_ACCESS_SECRET,
+        },
       );
 
       return { accessToken: newAccessToken };
@@ -82,7 +102,12 @@ export class AuthService {
 
   async logout(refreshToken: string) {
     try {
-      const payload = await this.jwt.verifyAsync<{ sub: number }>(refreshToken);
+      const payload = await this.jwt.verifyAsync<{ sub: number }>(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
 
       await this.prisma.user.update({
         where: { id: payload.sub },
