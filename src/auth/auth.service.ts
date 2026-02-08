@@ -27,7 +27,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // ACCESS TOKEN
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, role: user.role },
       {
@@ -36,7 +35,6 @@ export class AuthService {
       },
     );
 
-    // REFRESH TOKEN
     const refreshToken = await this.jwt.signAsync(
       { sub: user.id },
       {
@@ -45,7 +43,6 @@ export class AuthService {
       },
     );
 
-    // HASH REFRESH TOKEN
     const hashedRefresh = await bcrypt.hash(refreshToken, 10);
 
     await this.prisma.user.update({
@@ -62,7 +59,6 @@ export class AuthService {
     }
 
     try {
-      // VERIFY REFRESH TOKEN WITH CORRECT SECRET
       const payload = await this.jwt.verifyAsync<{ sub: number }>(
         refreshToken,
         {
@@ -78,14 +74,12 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      // COMPARE HASHED TOKEN
       const valid = await bcrypt.compare(refreshToken, user.refreshToken);
 
       if (!valid) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      // GENERATE NEW ACCESS TOKEN
       const newAccessToken = await this.jwt.signAsync(
         { sub: user.id, role: user.role },
         {
