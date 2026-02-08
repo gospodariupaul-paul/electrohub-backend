@@ -1,24 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcryptjs';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async findById(id: number) {
-    return this.prisma.user.findUnique({
-      where: { id },
-    });
+  // DEBUG: vedem dacă Prisma și conexiunea la DB merg
+  async test() {
+    try {
+      const users = await this.prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+      return users;
+    } catch (err: any) {
+      return { error: err.message };
+    }
   }
 
-  async changePassword(userId: number, dto: ChangePasswordDto) {
-    const hashed = await bcrypt.hash(dto.newPassword, 10);
-
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { password: hashed },
+  async getUserById(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
     });
   }
 }

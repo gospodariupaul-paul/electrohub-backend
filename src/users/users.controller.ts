@@ -1,41 +1,33 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Body,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { GetUser } from '../auth/get-user.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private usersService: UsersService) {}
+
+  // DEBUG: verificăm că UsersController e încărcat
+  @Get('debug')
+debug() {
+    return { message: 'UsersController is loaded' };
+  }
+
+  // DEBUG: verificăm Prisma + UsersService
+  @Get('debug2')
+  async debug2() {
+    return this.usersService.test();
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getMe(@Req() req: any) {
-    console.log("🔥 req.user =", req.user);
-    console.log("🔥 ID DIN TOKEN =", req.user.sub);
-
-    const userId = Number(req.user.sub);
-    console.log("🔥 userId (number) =", userId);
-
-    return this.usersService.findById(userId);
+  getMe(@GetUser() user: any) {
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findById(Number(id));
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch('change-password')
-  changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
-    return this.usersService.changePassword(Number(req.user.sub), dto);
+  getUserById(@Param('id') id: string) {
+    return this.usersService.getUserById(Number(id));
   }
 }
