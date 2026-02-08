@@ -13,9 +13,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    console.log("🔥 JWT payload =", payload);
+
     return {
-      sub: payload.sub,
-      role: payload.role,
+      sub: payload.sub,   // aici e OK, tokenul tău are sub
+      name: payload.name,
+      admin: payload.admin,
     };
   }
 }

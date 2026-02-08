@@ -1,55 +1,58 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async login(dto: { email: string; password: string }) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+  // 🔐 Verifică email + parolă
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Email sau parolă greșită');
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password);
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Email sau parolă greșită');
+    }
+
+    return user;
+  }
+
+  // 🔥 Login — generează token JWT
+  async login(user: any) {
+    const payload = {
+      sub: user.id,       // ID-ul real din baza de date
+      role: user.role,    // rolul userului
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  // 🆕 Register — creează user + token
+  async register(dto: any) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const newUser = await this.usersService.create({
+      ...dto,
+      password: hashedPassword,
     });
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const payload = {
+      sub: newUser.id,
+      role: newUser.role,
+    };
 
-    const valid = await bcrypt.compare(dto.password, user.password);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
-
-    const accessToken = await this.jwt.signAsync(
-      { sub: user.id, role: user.role },
-      { expiresIn: '15m' },
-    );
-
-    const refreshToken = await this.jwt.signAsync(
-      { sub: user.id },
-      { expiresIn: '7d' },
-    );
-
-    return { accessToken, refreshToken };
-  }
-
-  async refresh(refreshToken: string) {
-    try {
-      const payload = await this.jwt.verifyAsync(refreshToken);
-
-      const accessToken = await this.jwt.signAsync(
-        { sub: payload.sub },
-        { expiresIn: '15m' },
-      );
-
-      return { accessToken };
-    } catch {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-  }
-
-  async logout(refreshToken: string) {
-    // optional: poți invalida token-ul în DB dacă vrei
-    return { message: 'Logged out' };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
