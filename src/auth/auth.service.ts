@@ -49,10 +49,12 @@ export class AuthService {
     return tokens;
   }
 
+  // 🔥 Logout returnează boolean
   async logout(refreshToken: string): Promise<boolean> {
-  return this.usersService.clearRefreshToken(refreshToken);
+    return this.usersService.clearRefreshToken(refreshToken);
+  }
 
-  async generateTokens(id: number, email: string, role: string) {
+  private async generateTokens(id: number, email: string, role: string) {
     const payload = { sub: id, email, role };
 
     const accessToken = await this.jwt.signAsync(payload, {
