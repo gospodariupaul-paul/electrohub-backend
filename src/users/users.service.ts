@@ -46,10 +46,13 @@ export class UsersService {
     });
   }
 
-  clearRefreshToken(refreshToken: string) {
-    return this.prisma.user.updateMany({
+  // 🔥 AICI ESTE MODIFICAREA IMPORTANTĂ
+  async clearRefreshToken(refreshToken: string): Promise<boolean> {
+    const result = await this.prisma.user.updateMany({
       where: { refreshToken },
       data: { refreshToken: null },
     });
+
+    return result.count > 0;
   }
 }

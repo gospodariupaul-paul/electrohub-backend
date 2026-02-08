@@ -49,9 +49,8 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(refreshToken: string) {
-    return this.usersService.clearRefreshToken(refreshToken);
-  }
+  async logout(refreshToken: string): Promise<boolean> {
+  return this.usersService.clearRefreshToken(refreshToken);
 
   async generateTokens(id: number, email: string, role: string) {
     const payload = { sub: id, email, role };
