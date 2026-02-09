@@ -28,6 +28,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // 🔥 Trimitem rolul către issueTokens
     const tokens = await this.issueTokens(user.id, user.email, user.role);
 
     await this.saveRefreshToken(user.id, tokens.refresh_token);
@@ -63,6 +64,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
+    // 🔥 Trimitem rolul către issueTokens
     const tokens = await this.issueTokens(user.id, user.email, user.role);
 
     await this.saveRefreshToken(user.id, tokens.refresh_token);
@@ -86,6 +88,7 @@ export class AuthService {
   // GENERARE TOKEN‑URI
   // -------------------------
   async issueTokens(userId: number, email: string, role: string) {
+    // 🔥 AICI adăugăm rolul în payload
     const payload = { sub: userId, email, role };
 
     const access_token = await this.jwt.signAsync(payload, {
