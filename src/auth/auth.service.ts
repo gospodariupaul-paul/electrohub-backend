@@ -28,7 +28,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.issueTokens(user.id, user.email);
+    const tokens = await this.issueTokens(user.id, user.email, user.role);
 
     await this.saveRefreshToken(user.id, tokens.refresh_token);
 
@@ -63,7 +63,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokens = await this.issueTokens(user.id, user.email);
+    const tokens = await this.issueTokens(user.id, user.email, user.role);
 
     await this.saveRefreshToken(user.id, tokens.refresh_token);
 
@@ -85,8 +85,8 @@ export class AuthService {
   // -------------------------
   // GENERARE TOKEN‑URI
   // -------------------------
-  async issueTokens(userId: number, email: string) {
-    const payload = { sub: userId, email };
+  async issueTokens(userId: number, email: string, role: string) {
+    const payload = { sub: userId, email, role };
 
     const access_token = await this.jwt.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
