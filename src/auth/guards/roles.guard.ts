@@ -13,7 +13,7 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    // 🔥 user.role este un string, nu un array
+    // user.role este un string, nu un array
     return requiredRoles.includes(user?.role);
   }
 }
