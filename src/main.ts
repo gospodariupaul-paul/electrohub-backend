@@ -1,35 +1,16 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
-const app = express();
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-// Body parser
-app.use(bodyParser.json());
+  app.enableCors({
+    origin: '*',
+  });
 
-// CORS FIX PENTRU VERCEL
-app.use(
-  cors({
-    origin: "https://electrohub-frontend.vercel.app",
-    credentials: true,
-  })
-);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
 
-// Exemplu de rută login (dacă ai alta, las-o pe a ta)
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  // Aici probabil folosești hash.js pentru verificare
-  // Eu las doar un exemplu minimal
-  if (email === "test@test.com" && password === "290372") {
-    return res.json({ token: "TOKEN_EXEMPLU" });
-  }
-
-  return res.status(401).json({ error: "Invalid credentials" });
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
-});
+  console.log(`Backend running on port ${port}`);
+}
+bootstrap();
