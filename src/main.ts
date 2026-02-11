@@ -1,17 +1,25 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import express from "express";
+import cors from "cors";
+import routes from "./routes"; // dacă ai un folder routes
+import bodyParser from "body-parser";
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const app = express();
 
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,POST,PATCH,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-  });
+app.use(bodyParser.json());
 
-  await app.listen(3000);
-  console.log("🔥🔥🔥 APP STARTED 🔥🔥🔥");
-}
+// CORS FIX PENTRU VERCEL
+app.use(
+  cors({
+    origin: "https://electrohub-frontend.vercel.app",
+    credentials: true,
+  })
+);
 
-bootstrap();
+// Dacă ai rute:
+app.use("/", routes);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
+});
