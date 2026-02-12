@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -13,23 +13,27 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    // Hash password
-    const hashed = await argon.hash(dto.password);
+    try {
+      const hashed = await argon.hash(dto.password);
 
-    // Create user in DB
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        password: hashed,
-        role: 'USER', // 🔥 OBLIGATORIU pentru schema ta Prisma
-      },
-    });
+      const user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          password: hashed,
+          role: 'USER',   // 🔥 OBLIGATORIU pentru schema ta
+          name: dto.email.split('@')[0], // 🔥 fallback pentru name (opțional)
+        },
+      });
 
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
+      return {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      };
+    } catch (err) {
+      console.error("REGISTER ERROR:", err);
+      throw new InternalServerErrorException("Register failed");
+    }
   }
 
   async login(dto: LoginDto) {
