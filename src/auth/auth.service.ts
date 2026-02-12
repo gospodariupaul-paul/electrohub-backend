@@ -13,17 +13,23 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    // Hash password
     const hashed = await argon.hash(dto.password);
 
+    // Create user in DB
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashed,
-        role: 'USER', // 🔥 OBLIGATORIU pentru schema ta
+        role: 'USER', // 🔥 OBLIGATORIU pentru schema ta Prisma
       },
     });
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
   }
 
   async login(dto: LoginDto) {
@@ -31,10 +37,14 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const passwordValid = await argon.verify(user.password, dto.password);
-    if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
+    if (!passwordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const access_token = await this.jwt.signAsync(
       { sub: user.id, email: user.email },
@@ -46,7 +56,15 @@ export class AuthService {
       { expiresIn: '7d' },
     );
 
-    return { access_token, refresh_token };
+    return {
+      access_token,
+      refresh_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   async refresh(refresh_token: string) {
