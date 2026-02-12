@@ -1,7 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../prisma/prisma.service';
+import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,110 +12,54 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  // -------------------------
-  // LOGIN
-  // -------------------------
-  async login(dto: { email: string; password: string }) {
+  async register(dto: RegisterDto) {
+    const hashed = await argon.hash(dto.password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashed,
+      },
+    });
+
+    return user;
+  }
+
+  async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const passwordValid = await bcrypt.compare(dto.password, user.password);
+    const passwordValid = await argon.verify(user.password, dto.password);
+    if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    if (!passwordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const access_token = await this.jwt.signAsync(
+      { sub: user.id, email: user.email },
+      { expiresIn: '15m' },
+    );
 
-    // 🔥 Trimitem rolul către issueTokens
-    const tokens = await this.issueTokens(user.id, user.email, user.role);
+    const refresh_token = await this.jwt.signAsync(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
 
-    await this.saveRefreshToken(user.id, tokens.refresh_token);
-
-    return tokens;
+    return { access_token, refresh_token };
   }
 
-  // -------------------------
-  // REFRESH TOKEN
-  // -------------------------
-  async refresh(dto: { refreshToken: string }) {
-    const { refreshToken } = dto;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token provided');
-    }
-
-    let payload: any;
-
+  async refresh(refresh_token: string) {
     try {
-      payload = this.jwt.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
-      });
-    } catch (e) {
+      const payload = await this.jwt.verifyAsync(refresh_token);
+
+      const access_token = await this.jwt.signAsync(
+        { sub: payload.sub },
+        { expiresIn: '15m' },
+      );
+
+      return { access_token };
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
-    });
-
-    if (!user || user.refreshToken !== refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    // 🔥 Trimitem rolul către issueTokens
-    const tokens = await this.issueTokens(user.id, user.email, user.role);
-
-    await this.saveRefreshToken(user.id, tokens.refresh_token);
-
-    return tokens;
-  }
-
-  // -------------------------
-  // LOGOUT
-  // -------------------------
-  async logout(userId: number) {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: null },
-    });
-
-    return { message: 'Logged out' };
-  }
-
-  // -------------------------
-  // GENERARE TOKEN‑URI
-  // -------------------------
-  async issueTokens(userId: number, email: string, role: string) {
-    // 🔥 AICI adăugăm rolul în payload
-    const payload = { sub: userId, email, role };
-
-    const access_token = await this.jwt.signAsync(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m',
-    });
-
-    const refresh_token = await this.jwt.signAsync(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: '7d',
-    });
-
-    return {
-      access_token,
-      refresh_token,
-    };
-  }
-
-  // -------------------------
-  // SALVARE REFRESH TOKEN
-  // -------------------------
-  async saveRefreshToken(userId: number, token: string) {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: token },
-    });
   }
 }
