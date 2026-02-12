@@ -19,6 +19,7 @@ export class AuthService {
       data: {
         email: dto.email,
         password: hashed,
+        role: 'USER', // 🔥 OBLIGATORIU pentru schema ta
       },
     });
 
