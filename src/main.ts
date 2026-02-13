@@ -5,16 +5,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: [
-      "http://localhost:3000",
-      "https://electrohub-frontend.vercel.app"
-    ],
+    origin: "https://electrohub-frontend-git-main-gospodariupaul-pauls-projects.vercel.app",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   });
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
+  app.setGlobalPrefix("api");
 
-  console.log(`Backend running on port ${port}`);
+  await app.listen(process.env.PORT || 10000);
+  console.log("Backend running on port " + (process.env.PORT || 10000));
 }
 bootstrap();
