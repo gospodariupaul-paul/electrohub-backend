@@ -2,7 +2,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -18,12 +18,12 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response
   ) {
-    const { token, user } = await this.authService.login(dto);
+    const { access_token, user } = await this.authService.login(dto);
 
-    res.cookie('token', token, {
+    res.cookie('token', access_token, {
       httpOnly: true,
-      secure: true,       // necesar pe Render (HTTPS)
-      sameSite: 'none',   // necesar pentru Vercel <-> Render
+      secure: true,
+      sameSite: 'none',
       path: '/',
     });
 

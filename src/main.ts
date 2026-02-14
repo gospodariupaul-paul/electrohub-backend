@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +11,7 @@ async function bootstrap() {
     origin: [
       "http://localhost:3000",
       "https://electrohub-frontend.vercel.app",
-      /\.vercel\.app$/, // permite toate domeniile Vercel (preview deploys)
+      /\.vercel\.app$/,
     ],
     credentials: true,
   });
