@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -13,8 +14,20 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { token, user } = await this.authService.login(dto);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,       // necesar pe Render (HTTPS)
+      sameSite: 'none',   // necesar pentru Vercel <-> Render
+      path: '/',
+    });
+
+    return { user };
   }
 
   @Post('refresh')
@@ -23,7 +36,14 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout() {
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+    });
+
     return { message: 'Logged out' };
   }
 }
