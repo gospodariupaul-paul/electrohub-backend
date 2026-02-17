@@ -1,68 +1,54 @@
-import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as argon from 'argon2';
-import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import * as argon2 from "argon2";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwt: JwtService,
+    private jwt: JwtService
   ) {}
 
-  async register(dto: RegisterDto) {
-    try {
-      const hashed = await argon.hash(dto.password);
+  // REGISTER
+  async register(dto: { email: string; password: string }) {
+    const hashed = await argon2.hash(dto.password);
 
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          password: hashed,
-          role: 'USER',   // 🔥 OBLIGATORIU pentru schema ta
-          name: dto.email.split('@')[0], // 🔥 fallback pentru name (opțional)
-        },
-      });
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashed,
+        role: "USER",
+      },
+    });
 
-      return {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      };
-    } catch (err) {
-      console.error("REGISTER ERROR:", err);
-      throw new InternalServerErrorException("Register failed");
-    }
+    return { user };
   }
 
-  async login(dto: LoginDto) {
+  // LOGIN
+  async login(dto: { email: string; password: string }) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
-    const passwordValid = await argon.verify(user.password, dto.password);
-    if (!passwordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+    const passwordMatches = await argon2.verify(user.password, dto.password);
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException("Invalid credentials");
     }
 
-    const access_token = await this.jwt.signAsync(
-      { sub: user.id, email: user.email },
-      { expiresIn: '15m' },
-    );
-
-    const refresh_token = await this.jwt.signAsync(
-      { sub: user.id },
-      { expiresIn: '7d' },
-    );
+    const access_token = await this.jwt.signAsync({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     return {
       access_token,
-      refresh_token,
       user: {
         id: user.id,
         email: user.email,
@@ -71,18 +57,24 @@ export class AuthService {
     };
   }
 
+  // REFRESH TOKEN
   async refresh(refresh_token: string) {
-    try {
-      const payload = await this.jwt.verifyAsync(refresh_token);
+    const payload = await this.jwt.verifyAsync(refresh_token);
 
-      const access_token = await this.jwt.signAsync(
-        { sub: payload.sub },
-        { expiresIn: '15m' },
-      );
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
 
-      return { access_token };
-    } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+    if (!user) {
+      throw new UnauthorizedException("Invalid refresh token");
     }
+
+    const new_access_token = await this.jwt.signAsync({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return { access_token: new_access_token };
   }
 }
