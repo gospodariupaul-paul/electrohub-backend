@@ -36,7 +36,11 @@ model Product {
   price       Float
   stock       Int      @default(0)
   description String?
-  imageUrl    String?
+
+  // 🔥 AICI ESTE MODIFICAREA IMPORTANTĂ
+  // imageUrl    String?   ❌ SE ȘTERGE
+  images      String[]     // ✔ MULTIPLE IMAGINI
+
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])
   orderItems  OrderItem[]

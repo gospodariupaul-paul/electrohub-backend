@@ -3,13 +3,13 @@ import {
   Post,
   Body,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   Get,
   Param,
   Delete,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('products')
@@ -20,9 +20,9 @@ export class ProductsController {
   ) {}
 
   @Post('create')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('images', 10))
   async create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @Body()
     body: {
       name: string;
@@ -40,7 +40,7 @@ export class ProductsController {
       description,
       categoryId: Number(categoryId),
       stock: Number(stock),
-      image: file,
+      images: files,
     });
   }
 

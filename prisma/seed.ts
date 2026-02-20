@@ -1,6 +1,10 @@
+import 'dotenv/config';
+import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-export async function runSeed(prisma) {
+const prisma = new PrismaClient();
+
+export async function runSeed() {
   console.log("🌱 Running automatic seed...");
 
   // --- ADMIN USER ---
@@ -35,3 +39,15 @@ export async function runSeed(prisma) {
 
   console.log("🌱 Seed completed!");
 }
+
+async function main() {
+  await runSeed();
+}
+
+main()
+  .then(() => prisma.$disconnect())
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

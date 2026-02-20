@@ -15,22 +15,27 @@ export class ProductsService {
     description: string;
     categoryId: number;
     stock: number;
-    image: Express.Multer.File;
+    images: Express.Multer.File[];
   }) {
-    const { name, price, description, categoryId, stock, image } = data;
+    const { name, price, description, categoryId, stock, images } = data;
 
-    const uploadResult: any = await this.cloudinaryService.uploadImage(image);
+    // Upload multiple images to Cloudinary
+    const uploadedImages: string[] = [];
 
+    for (const img of images) {
+      const uploadResult: any = await this.cloudinaryService.uploadImage(img);
+      uploadedImages.push(uploadResult.secure_url);
+    }
+
+    // Save product with images array
     return this.prisma.product.create({
       data: {
         name,
         price,
         description,
         stock,
-        imageUrl: uploadResult.secure_url,
-        category: categoryId
-          ? { connect: { id: categoryId } }
-          : undefined,
+        images: uploadedImages, // ARRAY DE IMAGINI
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
       },
     });
   }
