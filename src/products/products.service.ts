@@ -19,7 +19,6 @@ export class ProductsService {
   }) {
     const { name, price, description, categoryId, stock, image } = data;
 
-    // Upload imagine în Cloudinary
     const uploadResult: any = await this.cloudinaryService.uploadImage(image);
 
     return this.prisma.product.create({
@@ -27,33 +26,12 @@ export class ProductsService {
         name,
         price,
         description,
-        stock, // 🔥 AICI ERA PROBLEMA — ACUM ESTE INCLUS
+        stock, // 🔥 AICI ESTE CHEIA
         imageUrl: uploadResult.secure_url,
-
-        // RELAȚIA CORECTĂ CU PRISMA
         category: categoryId
           ? { connect: { id: categoryId } }
           : undefined,
       },
-    });
-  }
-
-  async findAll() {
-    return this.prisma.product.findMany({
-      include: { category: true },
-    });
-  }
-
-  async findOne(id: number) {
-    return this.prisma.product.findUnique({
-      where: { id },
-      include: { category: true },
-    });
-  }
-
-  async remove(id: number) {
-    return this.prisma.product.delete({
-      where: { id },
     });
   }
 }
