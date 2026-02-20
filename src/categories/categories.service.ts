@@ -1,38 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
-  create(dto: CreateCategoryDto) {
+  async uploadImage(file: Express.Multer.File) {
+    return this.cloudinary.uploadImage(file);
+  }
+
+  async create(data: any) {
     return this.prisma.category.create({
-      data: { name: dto.name },
-    });
-  }
-
-  findAll() {
-    return this.prisma.category.findMany();
-  }
-
-  findOne(id: number) {
-    return this.prisma.category.findUnique({
-      where: { id },
-    });
-  }
-
-  update(id: number, dto: UpdateCategoryDto) {
-    return this.prisma.category.update({
-      where: { id },
-      data: dto,
-    });
-  }
-
-  remove(id: number) {
-    return this.prisma.category.delete({
-      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        imageUrl: data.imageUrl,
+      },
     });
   }
 }
