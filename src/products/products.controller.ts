@@ -28,17 +28,20 @@ export class ProductsController {
   ) {
     let imageUrl = null;
 
+    // Upload imagine dacă există
     if (file) {
       const uploaded: any = await this.productsService.uploadImage(file);
       imageUrl = uploaded.secure_url;
     }
 
+    // Creare produs cu toate câmpurile necesare
     return this.productsService.create({
       name: body.name,
       price: Number(body.price),
       stock: Number(body.stock),
       description: body.description,
       imageUrl,
+      categoryId: Number(body.categoryId), // FIX ESENȚIAL
     });
   }
 }
