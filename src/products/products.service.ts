@@ -22,33 +22,32 @@ export class ProductsService {
     // Upload imagine în Cloudinary
     const uploadResult: any = await this.cloudinaryService.uploadImage(image);
 
-    // Salvare în baza de date
     return this.prisma.product.create({
       data: {
         name,
         price,
         description,
-        categoryId,
-        stock, // <-- AICI era problema
+        stock,
         imageUrl: uploadResult.secure_url,
+
+        // RELAȚIA CORECTĂ CU PRISMA
+        category: categoryId
+          ? { connect: { id: categoryId } }
+          : undefined,
       },
     });
   }
 
   async findAll() {
     return this.prisma.product.findMany({
-      include: {
-        category: true,
-      },
+      include: { category: true },
     });
   }
 
   async findOne(id: number) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: {
-        category: true,
-      },
+      include: { category: true },
     });
   }
 

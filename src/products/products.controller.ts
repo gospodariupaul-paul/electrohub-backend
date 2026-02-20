@@ -26,18 +26,14 @@ export class ProductsController {
     @Body()
     body: {
       name: string;
-      price: number;
+      price: string;
       description: string;
-      categoryId: number;
-      stock: number;
+      categoryId: string;
+      stock: string;
     },
   ) {
     const { name, price, description, categoryId, stock } = body;
 
-    // Upload imagine în Cloudinary
-    const uploaded: any = await this.cloudinaryService.uploadImage(file);
-
-    // Trimitem datele către service
     return this.productsService.create({
       name,
       price: Number(price),
