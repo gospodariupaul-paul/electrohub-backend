@@ -1,47 +1,65 @@
 import {
   Controller,
   Post,
+  Body,
   UseInterceptors,
   UploadedFile,
-  Body,
-  UseGuards,
+  Get,
+  Param,
+  Delete,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-
 import { ProductsService } from './products.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post('create')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   @UseInterceptors(FileInterceptor('image'))
-  async createProduct(
+  async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: any,
+    @Body()
+    body: {
+      name: string;
+      price: number;
+      description: string;
+      categoryId: number;
+      stock: number;
+    },
   ) {
-    let imageUrl = null;
+    const { name, price, description, categoryId, stock } = body;
 
-    // Upload imagine dacă există
-    if (file) {
-      const uploaded: any = await this.productsService.uploadImage(file);
-      imageUrl = uploaded.secure_url;
-    }
+    // Upload imagine în Cloudinary
+    const uploaded: any = await this.cloudinaryService.uploadImage(file);
 
-    // Creare produs cu toate câmpurile necesare
+    // Trimitem datele către service
     return this.productsService.create({
-      name: body.name,
-      price: Number(body.price),
-      stock: Number(body.stock),
-      description: body.description,
-      imageUrl,
-      categoryId: Number(body.categoryId), // FIX ESENȚIAL
+      name,
+      price: Number(price),
+      description,
+      categoryId: Number(categoryId),
+      stock: Number(stock),
+      image: file,
     });
+  }
+
+  @Get()
+  findAll() {
+    return this.productsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(+id);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.productsService.remove(+id);
   }
 }
