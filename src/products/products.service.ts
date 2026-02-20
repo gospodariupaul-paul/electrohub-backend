@@ -27,7 +27,7 @@ export class ProductsService {
         name,
         price,
         description,
-        stock,
+        stock, // 🔥 AICI ERA PROBLEMA — ACUM ESTE INCLUS
         imageUrl: uploadResult.secure_url,
 
         // RELAȚIA CORECTĂ CU PRISMA
