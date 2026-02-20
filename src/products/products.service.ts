@@ -26,12 +26,31 @@ export class ProductsService {
         name,
         price,
         description,
-        stock, // 🔥 AICI ESTE CHEIA
+        stock,
         imageUrl: uploadResult.secure_url,
         category: categoryId
           ? { connect: { id: categoryId } }
           : undefined,
       },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.product.findMany({
+      include: { category: true },
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.product.findUnique({
+      where: { id },
+      include: { category: true },
+    });
+  }
+
+  async remove(id: number) {
+    return this.prisma.product.delete({
+      where: { id },
     });
   }
 }
