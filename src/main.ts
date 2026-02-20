@@ -6,13 +6,14 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
+      'https://electrohub-frontend.vercel.app', // frontend-ul tău
       'http://localhost:3000',
-      'https://electrohub-frontend.vercel.app'
+      'http://localhost:5173',
     ],
+    methods: 'GET,POST,PATCH,DELETE',
     credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
-  await app.listen(process.env.PORT || 5000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

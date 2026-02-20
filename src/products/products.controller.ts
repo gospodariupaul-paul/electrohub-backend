@@ -1,54 +1,44 @@
 import {
-  Body,
   Controller,
-  Get,
   Post,
-  Param,
-  Patch,
-  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Body,
   UseGuards,
-  Req,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+import { ProductsService } from './products.service';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Post()
-  create(@Body() dto: CreateProductDto, @Req() req: any) {
-    return this.productsService.create(dto);
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('image'))
+  async createProduct(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    let imageUrl = null;
 
-  }
+    if (file) {
+      const uploaded: any = await this.productsService.uploadImage(file);
+      imageUrl = uploaded.secure_url;
+    }
 
-  @Get()
-  findAll() {
-    return this.productsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.productsService.update(+id, dto);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+    return this.productsService.create({
+      name: body.name,
+      price: Number(body.price),
+      stock: Number(body.stock),
+      description: body.description,
+      imageUrl,
+    });
   }
 }

@@ -1,53 +1,31 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,          // 🔥 Acum este disponibil
+    private cloudinary: CloudinaryService,  // OK
+  ) {}
 
-  async create(data: {
-    name: string;
-    price: number;
-    stock: number;
-    categoryId: number;
-  }) {
-    return this.prisma.product.create({
-      data: {
-        name: data.name,
-        price: data.price,
-        stock: data.stock,
-        categoryId: data.categoryId,
-        // ❌ userId eliminat — nu există în schema Prisma
-      },
-    });
+  async uploadImage(file: Express.Multer.File) {
+    return this.cloudinary.uploadImage(file);
+  }
+
+  async create(data: any) {
+    return this.prisma.product.create({ data });
   }
 
   async findAll() {
-    return this.prisma.product.findMany({
-      include: { category: true },
-    });
+    return this.prisma.product.findMany();
   }
 
   async findOne(id: number) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
-      include: { category: true },
-    });
-
-    if (!product) throw new NotFoundException('Product not found');
-
-    return product;
+    return this.prisma.product.findUnique({ where: { id } });
   }
 
-  async update(
-    id: number,
-    data: Partial<{
-      name: string;
-      price: number;
-      stock: number;
-      categoryId: number;
-    }>,
-  ) {
+  async update(id: number, data: any) {
     return this.prisma.product.update({
       where: { id },
       data,
@@ -55,8 +33,6 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    return this.prisma.product.delete({
-      where: { id },
-    });
+    return this.prisma.product.delete({ where: { id } });
   }
 }

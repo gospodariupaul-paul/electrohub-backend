@@ -1,52 +1,42 @@
 import {
-  Body,
   Controller,
-  Get,
   Post,
-  Param,
-  Patch,
-  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Body,
   UseGuards,
 } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+import { CategoriesService } from './categories.service';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Post()
-  create(@Body() dto: CreateCategoryDto) {
-    return this.categoriesService.create(dto);
-  }
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('image'))
+  async createCategory(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    let imageUrl = null;
 
-  @Get()
-  findAll() {
-    return this.categoriesService.findAll();
-  }
+    if (file) {
+      const uploaded: any = await this.categoriesService.uploadImage(file);
+      imageUrl = uploaded.secure_url;
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, dto);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+    return this.categoriesService.create({
+      name: body.name,
+      description: body.description,
+      imageUrl,
+    });
   }
 }
