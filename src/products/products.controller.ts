@@ -6,18 +6,26 @@ import {
   Param,
   Delete,
   Patch,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // 🔥 MULTIPLE IMAGINI + FORM DATA
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @UseInterceptors(FilesInterceptor('images'))
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    return this.productsService.create(createProductDto, images);
   }
 
   @Get()
@@ -35,6 +43,7 @@ export class ProductsController {
     return this.productsService.update(Number(id), updateProductDto);
   }
 
+  // 🔥 DELETE FUNCȚIONAL
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));

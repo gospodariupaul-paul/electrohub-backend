@@ -7,9 +7,16 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateProductDto) {
+  async create(data: CreateProductDto, images: Express.Multer.File[]) {
+    const imageUrls = images.map((file) => {
+      return `https://electrohub-backend-1-10qa.onrender.com/uploads/${file.filename}`;
+    });
+
     return this.prisma.product.create({
-      data,
+      data: {
+        ...data,
+        imageUrl: imageUrls[0] || null, // prima imagine
+      },
     });
   }
 
