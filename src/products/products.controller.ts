@@ -1,31 +1,45 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
+  UseInterceptors,
+  UploadedFiles,
+  Get,
   Param,
   Delete,
-  Patch,
-  UploadedFiles,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  // 🔥 MULTIPLE IMAGINI + FORM DATA
-  @Post()
-  @UseInterceptors(FilesInterceptor('images'))
-  create(
-    @Body() createProductDto: CreateProductDto,
-    @UploadedFiles() images: Express.Multer.File[],
+  // 🔥 RUTA TA ORIGINALĂ — O LĂSĂM AȘA
+  @Post('create')
+  @UseInterceptors(FilesInterceptor('images', 10))
+  async create(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body()
+    body: {
+      name: string;
+      price: number;
+      description: string;
+      categoryId: number;
+      stock: number;
+    },
   ) {
-    return this.productsService.create(createProductDto, images);
+    return this.productsService.create({
+      ...body,
+      price: Number(body.price),
+      categoryId: Number(body.categoryId),
+      stock: Number(body.stock),
+      images: files,
+    });
   }
 
   @Get()
@@ -38,12 +52,7 @@ export class ProductsController {
     return this.productsService.findOne(Number(id));
   }
 
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(Number(id), updateProductDto);
-  }
-
-  // 🔥 DELETE FUNCȚIONAL
+  // 🔥 DELETE — FĂRĂ SĂ ATINGEM UPLOAD-UL
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));

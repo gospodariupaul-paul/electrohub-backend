@@ -1,21 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
-  async create(data: CreateProductDto, images: Express.Multer.File[]) {
-    const imageUrls = images.map((file) => {
-      return `https://electrohub-backend-1-10qa.onrender.com/uploads/${file.filename}`;
-    });
+  async create(data: {
+    name: string;
+    price: number;
+    description: string;
+    categoryId: number;
+    stock: number;
+    images: Express.Multer.File[];
+  }) {
+    const { name, price, description, categoryId, stock, images } = data;
+
+    const uploadedImages: string[] = [];
+
+    for (const img of images) {
+      const uploadResult: any = await this.cloudinaryService.uploadImage(img);
+      uploadedImages.push(uploadResult.secure_url);
+    }
 
     return this.prisma.product.create({
       data: {
-        ...data,
-        imageUrl: imageUrls[0] || null, // prima imagine
+        name,
+        price,
+        description,
+        stock,
+        images: uploadedImages,
+        category: { connect: { id: categoryId } },
       },
     });
   }
@@ -25,21 +43,10 @@ export class ProductsService {
   }
 
   findOne(id: number) {
-    return this.prisma.product.findUnique({
-      where: { id },
-    });
+    return this.prisma.product.findUnique({ where: { id } });
   }
 
-  update(id: number, data: UpdateProductDto) {
-    return this.prisma.product.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async remove(id: number) {
-    return this.prisma.product.delete({
-      where: { id },
-    });
+  remove(id: number) {
+    return this.prisma.product.delete({ where: { id } });
   }
 }
