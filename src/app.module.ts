@@ -8,6 +8,11 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { CategoriesModule } from './categories/categories.module';
 
+// 🔥 Modulele noi pentru chat
+import { ConversationModule } from './conversation/conversation.module';
+import { MessageModule } from './message/message.module';
+import { PusherModule } from './pusher/pusher.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,6 +24,11 @@ import { CategoriesModule } from './categories/categories.module';
     ProductsModule,
     OrdersModule,
     CategoriesModule,
+
+    // 🔥 Modulele pentru chat în timp real
+    ConversationModule,
+    MessageModule,
+    PusherModule,
   ],
 })
 export class AppModule {}
