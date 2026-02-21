@@ -1,58 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    private prisma: PrismaService,
-    private cloudinaryService: CloudinaryService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(data: {
-    name: string;
-    price: number;
-    description: string;
-    categoryId: number;
-    stock: number;
-    images: Express.Multer.File[];
-  }) {
-    const { name, price, description, categoryId, stock, images } = data;
-
-    // Upload multiple images to Cloudinary
-    const uploadedImages: string[] = [];
-
-    for (const img of images) {
-      const uploadResult: any = await this.cloudinaryService.uploadImage(img);
-      uploadedImages.push(uploadResult.secure_url);
-    }
-
-    // Save product with images array
+  create(data: CreateProductDto) {
     return this.prisma.product.create({
-      data: {
-        name,
-        price,
-        description,
-        stock,
-        images: uploadedImages, // ARRAY DE IMAGINI
-        category: categoryId ? { connect: { id: categoryId } } : undefined,
-      },
+      data,
     });
   }
 
-  async findAll() {
-    return this.prisma.product.findMany({
-      include: { category: true },
-    });
+  findAll() {
+    return this.prisma.product.findMany();
   }
 
-  async findOne(id: number) {
+  findOne(id: number) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: { category: true },
     });
   }
 
+  update(id: number, data: UpdateProductDto) {
+    return this.prisma.product.update({
+      where: { id },
+      data,
+    });
+  }
+
+  // 🔥 DELETE PRODUCT — COMPLET ȘI CORECT
   async remove(id: number) {
     return this.prisma.product.delete({
       where: { id },
