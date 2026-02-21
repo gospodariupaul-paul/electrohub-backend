@@ -35,7 +35,6 @@ export class ProductsController {
     return this.productsService.update(Number(id), updateProductDto);
   }
 
-  // 🔥 DELETE PRODUCT — COMPLET ȘI CORECT
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));
