@@ -5,7 +5,7 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // 🔥 ACUM ACCEPTĂ URL-URI, NU FIȘIERE
+  // 🔥 ACUM ACCEPTĂ ȘI userId
   @Post('create')
   async create(
     @Body()
@@ -15,7 +15,8 @@ export class ProductsController {
       description: string;
       categoryId: number;
       stock: number;
-      images: string[]; // 🔥 URL-uri Cloudinary
+      images: string[];
+      userId: number; // 🔥 ADĂUGAT
     },
   ) {
     return this.productsService.create({
@@ -23,7 +24,8 @@ export class ProductsController {
       price: Number(body.price),
       categoryId: Number(body.categoryId),
       stock: Number(body.stock),
-      images: body.images, // 🔥 URL-uri Cloudinary
+      userId: Number(body.userId), // 🔥 ADĂUGAT
+      images: body.images,
     });
   }
 
