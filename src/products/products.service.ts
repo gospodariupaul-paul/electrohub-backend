@@ -11,34 +11,38 @@ export class ProductsService {
     description: string;
     categoryId: number;
     stock: number;
-    images: string[]; // 🔥 URL-uri Cloudinary, nu fișiere
+    images: string[];
+    userId: number; // 🔥 ADĂUGAT
   }) {
-    const { name, price, description, categoryId, stock, images } = data;
-
-    // 🔥 NU MAI FACEM UPLOAD LA CLOUDINARY AICI
-    // 🔥 PRIMIM DIRECT URL-URILE DIN FRONTEND
-
     return this.prisma.product.create({
       data: {
-        name,
-        price,
-        description,
-        stock,
-        images, // 🔥 URL-urile Cloudinary sunt salvate direct
-        category: { connect: { id: categoryId } },
+        name: data.name,
+        price: data.price,
+        description: data.description,
+        stock: data.stock,
+        images: data.images,
+        category: { connect: { id: data.categoryId } },
+        user: { connect: { id: data.userId } }, // 🔥 AICI ERA PROBLEMA
       },
     });
   }
 
-  findAll() {
-    return this.prisma.product.findMany();
+  async findAll() {
+    return this.prisma.product.findMany({
+      include: { category: true, user: true },
+    });
   }
 
-  findOne(id: number) {
-    return this.prisma.product.findUnique({ where: { id } });
+  async findOne(id: number) {
+    return this.prisma.product.findUnique({
+      where: { id },
+      include: { category: true, user: true },
+    });
   }
 
-  remove(id: number) {
-    return this.prisma.product.delete({ where: { id } });
+  async remove(id: number) {
+    return this.prisma.product.delete({
+      where: { id },
+    });
   }
 }
