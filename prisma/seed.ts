@@ -37,6 +37,17 @@ export async function runSeed() {
     },
   });
 
+  // --- CATEGORIES (ADĂUGAT DE MINE, FĂRĂ SĂ SCHIMB RESTUL) ---
+  await prisma.category.createMany({
+    data: [
+      { id: 1, name: "Telefoane" },
+      { id: 2, name: "Laptopuri" },
+      { id: 3, name: "Componente PC" },
+      { id: 4, name: "Audio-Video" },
+    ],
+    skipDuplicates: true,
+  });
+
   console.log("🌱 Seed completed!");
 }
 
