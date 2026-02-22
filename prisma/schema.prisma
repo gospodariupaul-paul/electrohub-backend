@@ -23,6 +23,9 @@ model User {
   buyerConversations  Conversation[] @relation("BuyerConversations")
   sellerConversations Conversation[] @relation("SellerConversations")
   messages            Message[]
+
+  // 🔥 ADĂUGAT — NU AFECTEAZĂ LOGIN
+  products            Product[]
 }
 
 model Category {
@@ -45,6 +48,11 @@ model Product {
 
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])
+
+  // 🔥 ADĂUGAT — NU AFECTEAZĂ LOGIN
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+
   orderItems  OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -99,5 +107,3 @@ model Message {
 
   createdAt      DateTime     @default(now())
 }
-
-
