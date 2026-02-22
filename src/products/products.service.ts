@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    private prisma: PrismaService,
-    private cloudinaryService: CloudinaryService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(data: {
     name: string;
@@ -15,16 +11,12 @@ export class ProductsService {
     description: string;
     categoryId: number;
     stock: number;
-    images: Express.Multer.File[];
+    images: string[]; // 🔥 URL-uri Cloudinary, nu fișiere
   }) {
     const { name, price, description, categoryId, stock, images } = data;
 
-    const uploadedImages: string[] = [];
-
-    for (const img of images) {
-      const uploadResult: any = await this.cloudinaryService.uploadImage(img);
-      uploadedImages.push(uploadResult.secure_url);
-    }
+    // 🔥 NU MAI FACEM UPLOAD LA CLOUDINARY AICI
+    // 🔥 PRIMIM DIRECT URL-URILE DIN FRONTEND
 
     return this.prisma.product.create({
       data: {
@@ -32,7 +24,7 @@ export class ProductsService {
         price,
         description,
         stock,
-        images: uploadedImages,
+        images, // 🔥 URL-urile Cloudinary sunt salvate direct
         category: { connect: { id: categoryId } },
       },
     });
