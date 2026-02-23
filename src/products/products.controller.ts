@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, BadRequestException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -19,6 +19,11 @@ export class ProductsController {
       userId: number;
     },
   ) {
+    // 🔥 VALIDARE userId — REZOLVĂ PROBLEMA
+    if (!body.userId || isNaN(Number(body.userId))) {
+      throw new BadRequestException('Invalid userId');
+    }
+
     return this.productsService.create({
       ...body,
       price: Number(body.price),
@@ -29,25 +34,21 @@ export class ProductsController {
     });
   }
 
-  // 🔥 GET ALL PRODUCTS
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
-  // 🔥 GET PRODUCT BY ID
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.productsService.findOne(Number(id));
   }
 
-  // 🔥 GET PRODUCTS BY USER — RUTA LIPSĂ (REPARĂ 404)
   @Get('user/:id')
   async getProductsByUser(@Param('id') id: string) {
     return this.productsService.getProductsByUser(Number(id));
   }
 
-  // 🔥 DELETE PRODUCT
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));
