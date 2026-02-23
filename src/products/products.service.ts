@@ -23,9 +23,9 @@ export class ProductsService {
         stock: data.stock,
         images: data.images,
 
-        // 🔥 SINGURA MODIFICARE — conectăm categoria DOAR dacă există
-        ...(data.categoryId
-          ? { category: { connect: { id: data.categoryId } } }
+        // 🔥 FIX FINAL — conectăm categoria doar dacă există în DB
+        ...(data.categoryId && data.categoryId !== 0
+          ? { category: { connect: { id: Number(data.categoryId) } } }
           : {}),
 
         user: { connect: { id: data.userId } },
