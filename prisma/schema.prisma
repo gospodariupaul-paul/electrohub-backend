@@ -45,6 +45,10 @@ model Product {
   description   String?
   images        String[]
   userId        Int
+
+  // 🔥 ADĂUGAT — status produs (active / sold / deleted)
+  status        String         @default("active")
+
   conversations Conversation[]
   orderItems    OrderItem[]
   category      Category?      @relation(fields: [categoryId], references: [id])

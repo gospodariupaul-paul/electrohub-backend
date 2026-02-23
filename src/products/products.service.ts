@@ -28,9 +28,10 @@ export class ProductsService {
     });
   }
 
-  // GET ALL PRODUCTS
+  // GET ALL PRODUCTS (doar active)
   async findAll() {
     return this.prisma.product.findMany({
+      where: { status: 'active' }, // 🔥 ascunde produsele vândute
       include: {
         category: true,
         user: true,
@@ -49,7 +50,7 @@ export class ProductsService {
     });
   }
 
-  // 🔥 GET PRODUCTS BY USER — AICI ERA PROBLEMA
+  // GET PRODUCTS BY USER
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
       where: { userId },
@@ -64,6 +65,14 @@ export class ProductsService {
   async remove(id: number) {
     return this.prisma.product.delete({
       where: { id },
+    });
+  }
+
+  // 🔥 NOU — MARCHEAZĂ PRODUSUL CA VÂNDUT
+  async markAsSold(id: number) {
+    return this.prisma.product.update({
+      where: { id },
+      data: { status: 'sold' },
     });
   }
 }

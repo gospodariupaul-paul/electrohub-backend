@@ -53,4 +53,10 @@ export class ProductsController {
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));
   }
+
+  // 🔥 NOU — MARCHEAZĂ PRODUSUL CA VÂNDUT
+  @Post('mark-sold/:id')
+  async markAsSold(@Param('id') id: string) {
+    return this.productsService.markAsSold(Number(id));
+  }
 }
