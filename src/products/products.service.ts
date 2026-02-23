@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  // 🔥 CREATE PRODUCT
+  // CREATE PRODUCT
   async create(data: {
     name: string;
     price: number;
@@ -21,41 +21,46 @@ export class ProductsService {
         price: data.price,
         description: data.description,
         stock: data.stock,
-        images: data.images,
+        images: data.images, // <-- corect, e array
         category: { connect: { id: data.categoryId } },
         user: { connect: { id: data.userId } },
       },
     });
   }
 
-  // 🔥 GET ALL PRODUCTS
+  // GET ALL PRODUCTS
   async findAll() {
     return this.prisma.product.findMany({
-      include: { category: true, user: true },
+      include: {
+        category: true,
+        user: true,
+      },
     });
   }
 
-  // 🔥 GET PRODUCT BY ID
+  // GET PRODUCT BY ID
   async findOne(id: number) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: { category: true, user: true },
+      include: {
+        category: true,
+        user: true,
+      },
     });
   }
 
-  // 🔥 GET PRODUCTS BY USER — METODA LIPSĂ (REPARĂ 404)
+  // 🔥 GET PRODUCTS BY USER — AICI ERA PROBLEMA
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
       where: { userId },
       include: {
         category: true,
         user: true,
-        images: true, // dacă ai tabel separat pentru imagini
       },
     });
   }
 
-  // 🔥 DELETE PRODUCT
+  // DELETE PRODUCT
   async remove(id: number) {
     return this.prisma.product.delete({
       where: { id },
