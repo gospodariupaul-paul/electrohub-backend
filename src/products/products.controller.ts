@@ -5,7 +5,7 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // 🔥 ACUM ACCEPTĂ ȘI userId
+  // 🔥 CREATE PRODUCT
   @Post('create')
   async create(
     @Body()
@@ -16,7 +16,7 @@ export class ProductsController {
       categoryId: number;
       stock: number;
       images: string[];
-      userId: number; // 🔥 ADĂUGAT
+      userId: number;
     },
   ) {
     return this.productsService.create({
@@ -24,21 +24,30 @@ export class ProductsController {
       price: Number(body.price),
       categoryId: Number(body.categoryId),
       stock: Number(body.stock),
-      userId: Number(body.userId), // 🔥 ADĂUGAT
+      userId: Number(body.userId),
       images: body.images,
     });
   }
 
+  // 🔥 GET ALL PRODUCTS
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  // 🔥 GET PRODUCT BY ID
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.productsService.findOne(Number(id));
   }
 
+  // 🔥 GET PRODUCTS BY USER — RUTA LIPSĂ (REPARĂ 404)
+  @Get('user/:id')
+  async getProductsByUser(@Param('id') id: string) {
+    return this.productsService.getProductsByUser(Number(id));
+  }
+
+  // 🔥 DELETE PRODUCT
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(Number(id));
