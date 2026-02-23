@@ -8,78 +8,70 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  role        String   @default("user")
-  description String?
-  imageUrl    String?
-  orders      Order[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // 🔥 Relații pentru chat (nu afectează loginul)
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  password            String
+  name                String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  description         String?
+  imageUrl            String?
+  role                String         @default("user")
   buyerConversations  Conversation[] @relation("BuyerConversations")
   sellerConversations Conversation[] @relation("SellerConversations")
   messages            Message[]
-
-  // 🔥 ADĂUGAT — NU AFECTEAZĂ LOGIN
-  products            Product[]
+  orders              Order[]
+  products            Product[]      // 🔥 ADĂUGAT AUTOMAT DE RELAȚIE (NU afectează login-ul)
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   description String?
   imageUrl    String?
   products    Product[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Float
-  stock       Int      @default(0)
-  description String?
-  images      String[]
-
-  categoryId  Int?
-  category    Category? @relation(fields: [categoryId], references: [id])
-
-  // 🔥 ADĂUGAT — NU AFECTEAZĂ LOGIN
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-
-  orderItems  OrderItem[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // 🔥 Relație pentru chat
+  id            Int            @id @default(autoincrement())
+  name          String
+  price         Float
+  stock         Int            @default(0)
+  categoryId    Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  description   String?
+  images        String[]
   conversations Conversation[]
+  orderItems    OrderItem[]
+  category      Category?      @relation(fields: [categoryId], references: [id])
+
+  // 🔥 SINGURA MODIFICARE CERUTĂ
+  userId        Int
+  user          User           @relation(fields: [userId], references: [id])
 }
 
 model Order {
   id        Int         @id @default(autoincrement())
   userId    Int
-  user      User        @relation(fields: [userId], references: [id])
   total     Float
-  status    String      @default("pending")
-  items     OrderItem[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  status    String      @default("pending")
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   orderId   Int
   productId Int
   quantity  Int
   price     Float
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }
 
 model Conversation {
@@ -87,13 +79,11 @@ model Conversation {
   buyerId   Int
   sellerId  Int
   productId Int
-
-  buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
-  seller    User      @relation("SellerConversations", fields: [sellerId], references: [id])
-  product   Product   @relation(fields: [productId], references: [id])
-  messages  Message[]
-
   createdAt DateTime  @default(now())
+  buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  seller    User      @relation("SellerConversations", fields: [sellerId], references: [id])
+  messages  Message[]
 }
 
 model Message {
@@ -101,9 +91,7 @@ model Message {
   conversationId Int
   senderId       Int
   text           String
-
+  createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation(fields: [senderId], references: [id])
-
-  createdAt      DateTime     @default(now())
 }
