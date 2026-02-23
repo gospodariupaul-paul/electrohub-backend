@@ -21,7 +21,7 @@ model User {
   sellerConversations Conversation[] @relation("SellerConversations")
   messages            Message[]
   orders              Order[]
-  products            Product[]      // 🔥 ADĂUGAT AUTOMAT DE RELAȚIE (NU afectează login-ul)
+  products            Product[]
 }
 
 model Category {
@@ -44,13 +44,11 @@ model Product {
   updatedAt     DateTime       @updatedAt
   description   String?
   images        String[]
+  userId        Int
   conversations Conversation[]
   orderItems    OrderItem[]
   category      Category?      @relation(fields: [categoryId], references: [id])
-
-  // 🔥 SINGURA MODIFICARE CERUTĂ
-  userId        Int
-  user          User           @relation(fields: [userId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Order {
