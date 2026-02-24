@@ -1,5 +1,11 @@
-const bcrypt = require("bcryptjs");
+import bcrypt from "bcrypt";
 
-bcrypt.hash("290372", 10).then(hash => {
-  console.log("HASH GENERAT:", hash);
-});
+const parola = "PAROLA_TA_NOUA"; // pune aici parola ta reală
+
+async function generateHash() {
+  const hash = await bcrypt.hash(parola, 10);
+  console.log("Hash-ul generat este:");
+  console.log(hash);
+}
+
+generateHash();
