@@ -23,6 +23,9 @@ export class ProductsService {
         stock: data.stock,
         images: data.images,
 
+        // 🔥 ADĂUGAT — produsul devine activ automat
+        status: "active",
+
         // 🔥 FIX FINAL — conectăm categoria doar dacă există în DB
         ...(data.categoryId && data.categoryId !== 0
           ? { category: { connect: { id: Number(data.categoryId) } } }
