@@ -5,7 +5,7 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // 🔥 CREATE PRODUCT
+  // CREATE PRODUCT
   @Post('create')
   async create(
     @Body()
@@ -19,7 +19,6 @@ export class ProductsController {
       userId: number;
     },
   ) {
-    // 🔥 VALIDARE userId — REZOLVĂ PROBLEMA
     if (!body.userId || isNaN(Number(body.userId))) {
       throw new BadRequestException('Invalid userId');
     }
@@ -39,14 +38,15 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.productsService.findOne(Number(id));
-  }
-
+  // 🔥 MUTAT AICI — TREBUIE SĂ FIE ÎNAINTE DE ":id"
   @Get('user/:id')
   async getProductsByUser(@Param('id') id: string) {
     return this.productsService.getProductsByUser(Number(id));
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.productsService.findOne(Number(id));
   }
 
   @Delete(':id')
@@ -54,7 +54,6 @@ export class ProductsController {
     return this.productsService.remove(Number(id));
   }
 
-  // 🔥 NOU — MARCHEAZĂ PRODUSUL CA VÂNDUT
   @Post('mark-sold/:id')
   async markAsSold(@Param('id') id: string) {
     return this.productsService.markAsSold(Number(id));
