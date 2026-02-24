@@ -23,15 +23,16 @@ export class ProductsService {
         stock: data.stock,
         images: data.images,
 
-        // 🔥 ADĂUGAT — produsul devine activ automat
+        // produsul devine activ automat
         status: "active",
 
-        // 🔥 FIX FINAL — conectăm categoria doar dacă există în DB
+        // conectăm categoria doar dacă există în DB
         ...(data.categoryId && data.categoryId !== 0
           ? { category: { connect: { id: Number(data.categoryId) } } }
           : {}),
 
-        user: { connect: { id: data.userId } },
+        // FIX CRITIC — userId trebuie convertit la number
+        user: { connect: { id: Number(data.userId) } },
       },
     });
   }
@@ -61,7 +62,7 @@ export class ProductsService {
   // GET PRODUCTS BY USER
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
-      where: { userId },
+      where: { userId: Number(userId) }, // FIX — ne asigurăm că e number
       include: {
         category: true,
         user: true,
@@ -76,7 +77,7 @@ export class ProductsService {
     });
   }
 
-  // 🔥 MARCHEAZĂ PRODUSUL CA VÂNDUT
+  // MARCHEAZĂ PRODUSUL CA VÂNDUT
   async markAsSold(id: number) {
     return this.prisma.product.update({
       where: { id },
