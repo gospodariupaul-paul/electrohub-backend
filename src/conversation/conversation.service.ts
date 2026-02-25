@@ -1,3 +1,6 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
 @Injectable()
 export class ConversationService {
   constructor(private prisma: PrismaService) {}
@@ -17,7 +20,6 @@ export class ConversationService {
     });
   }
 
-  // 🔥 NOU — exact ce îți trebuie pentru /conversations/:id
   getConversationById(id: number) {
     return this.prisma.conversation.findUnique({
       where: { id },
