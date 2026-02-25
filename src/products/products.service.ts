@@ -24,7 +24,7 @@ export class ProductsService {
         images: data.images,
 
         // produsul devine activ automat
-        status: "active",
+        status: 'active',
 
         // conectăm categoria doar dacă există în DB
         ...(data.categoryId && data.categoryId !== 0
@@ -82,6 +82,27 @@ export class ProductsService {
     return this.prisma.product.update({
       where: { id },
       data: { status: 'sold' },
+    });
+  }
+
+  // ✅ UPDATE PRODUCT
+  async update(
+    id: number,
+    data: {
+      name?: string;
+      price?: number;
+      description?: string;
+      images?: string[];
+    },
+  ) {
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.price && { price: Number(data.price) }),
+        ...(data.description && { description: data.description }),
+        ...(data.images && { images: data.images }),
+      },
     });
   }
 }

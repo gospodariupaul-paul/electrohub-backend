@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, BadRequestException, Put } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -57,5 +57,20 @@ export class ProductsController {
   @Post('mark-sold/:id')
   async markAsSold(@Param('id') id: string) {
     return this.productsService.markAsSold(Number(id));
+  }
+
+  // ✅ UPDATE PRODUCT
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      name?: string;
+      price?: number;
+      description?: string;
+      images?: string[];
+    },
+  ) {
+    return this.productsService.update(Number(id), body);
   }
 }
