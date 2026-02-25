@@ -6,7 +6,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   // CREATE PRODUCT
-  @Post('create')
+  @Post()
   async create(
     @Body()
     body: {
