@@ -8,7 +8,9 @@ export class MessageController {
   @Post()
   create(@Body() body: any) {
     return this.service.createMessage(
-      body.conversationId,
+      body.buyerId,
+      body.sellerId,
+      body.productId,
       body.senderId,
       body.text,
     );
