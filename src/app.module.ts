@@ -12,19 +12,8 @@ import { MessageService } from './message/message.service';
 // Pusher
 import { PusherService } from './pusher/pusher.service';
 
-// MODULELE TALE ORIGINALE (IMPORTANT!)
-import { AuthModule } from './auth/auth.module';
-import { ProductModule } from './product/product.module';
-import { UserModule } from './user/user.module';
-import { MailModule } from './mail/mail.module';
-
 @Module({
-  imports: [
-    AuthModule,
-    ProductModule,
-    UserModule,
-    MailModule,
-  ],
+  imports: [],
   controllers: [
     ConversationController,
     MessageController,
