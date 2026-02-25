@@ -1,6 +1,3 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { ConversationService } from './conversation.service';
-
 @Controller('conversations')
 export class ConversationController {
   constructor(private service: ConversationService) {}
@@ -14,11 +11,18 @@ export class ConversationController {
     );
   }
 
+  // 🔥 EXISTENT — caută conversația după buyer + product
   @Get()
   get(@Query() query: any) {
     return this.service.getConversation(
       Number(query.buyerId),
       Number(query.productId),
     );
+  }
+
+  // 🔥 NOU — exact ce îți trebuie pentru frontend
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    return this.service.getConversationById(Number(id));
   }
 }

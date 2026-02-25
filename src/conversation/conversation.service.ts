@@ -1,17 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-
 @Injectable()
 export class ConversationService {
   constructor(private prisma: PrismaService) {}
 
   createConversation(buyerId: number, sellerId: number, productId: number) {
     return this.prisma.conversation.create({
-      data: {
-        buyerId,
-        sellerId,
-        productId,
-      },
+      data: { buyerId, sellerId, productId },
     });
   }
 
@@ -19,9 +12,17 @@ export class ConversationService {
     return this.prisma.conversation.findFirst({
       where: { buyerId, productId },
       include: {
-        messages: {
-          orderBy: { createdAt: 'asc' },
-        },
+        messages: { orderBy: { createdAt: 'asc' } },
+      },
+    });
+  }
+
+  // 🔥 NOU — exact ce îți trebuie pentru /conversations/:id
+  getConversationById(id: number) {
+    return this.prisma.conversation.findUnique({
+      where: { id },
+      include: {
+        messages: { orderBy: { createdAt: 'asc' } },
       },
     });
   }
