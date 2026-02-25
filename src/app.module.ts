@@ -1,34 +1,21 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './prisma/prisma.module';
-
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
-import { OrdersModule } from './orders/orders.module';
-import { CategoriesModule } from './categories/categories.module';
-
-// 🔥 Modulele noi pentru chat
-import { ConversationModule } from './conversation/conversation.module';
-import { MessageModule } from './message/message.module';
-import { PusherModule } from './pusher/pusher.module';
+import { ConversationController } from './conversation/conversation.controller';
+import { ConversationService } from './conversation/conversation.service';
+import { MessageController } from './message/message.controller';
+import { MessageService } from './message/message.service';
+import { PrismaService } from './prisma/prisma.service';
+import { PusherService } from './pusher/pusher.service';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    PrismaModule,
-    AuthModule,
-    UsersModule,
-    ProductsModule,
-    OrdersModule,
-    CategoriesModule,
-
-    // 🔥 Modulele pentru chat în timp real
-    ConversationModule,
-    MessageModule,
-    PusherModule,
+  controllers: [
+    ConversationController,
+    MessageController,
+  ],
+  providers: [
+    ConversationService,
+    MessageService,
+    PrismaService,
+    PusherService,
   ],
 })
 export class AppModule {}

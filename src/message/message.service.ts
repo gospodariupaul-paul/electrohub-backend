@@ -9,7 +9,6 @@ export class MessageService {
     private pusher: PusherService,
   ) {}
 
-  // 🔥 Creează conversația dacă nu există
   async getOrCreateConversation(buyerId: number, sellerId: number, productId: number) {
     let conversation = await this.prisma.conversation.findFirst({
       where: { buyerId, sellerId, productId },
@@ -24,7 +23,6 @@ export class MessageService {
     return conversation;
   }
 
-  // 🔥 Trimite mesaj + broadcast în timp real
   async createMessage(
     buyerId: number,
     sellerId: number,
@@ -55,7 +53,6 @@ export class MessageService {
     return { conversationId: conversation.id, message };
   }
 
-  // 🔥 Ia toate mesajele din conversație
   getMessages(conversationId: number) {
     return this.prisma.message.findMany({
       where: { conversationId },
