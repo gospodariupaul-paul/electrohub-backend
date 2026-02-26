@@ -1,20 +1,20 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from './prisma/prisma.service';
 
 // Auth
 import { AuthModule } from './auth/auth.module';
 
 // Users
-import { UserModule } from './user/user.module';
+import { UsersModule } from './users/users.module';
 
 // Products
-import { ProductModule } from './product/product.module';
+import { ProductsModule } from './products/products.module';
 
 // Categories
-import { CategoryModule } from './category/category.module';
+import { CategoriesModule } from './categories/categories.module';
 
 // Orders
-import { OrderModule } from './order/order.module';
+import { OrdersModule } from './orders/orders.module';
 
 // Conversations
 import { ConversationModule } from './conversation/conversation.module';
@@ -28,10 +28,10 @@ import { PusherService } from './pusher/pusher.service';
 @Module({
   imports: [
     AuthModule,
-    UserModule,
-    ProductModule,
-    CategoryModule,
-    OrderModule,
+    UsersModule,
+    ProductsModule,
+    CategoriesModule,
+    OrdersModule,
     ConversationModule,
     MessageModule,
   ],
