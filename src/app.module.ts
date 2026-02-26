@@ -1,28 +1,41 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
+import { PrismaService } from './prisma.service';
 
-// Conversații
-import { ConversationController } from './conversation/conversation.controller';
-import { ConversationService } from './conversation/conversation.service';
+// Auth
+import { AuthModule } from './auth/auth.module';
 
-// Mesaje
-import { MessageController } from './message/message.controller';
-import { MessageService } from './message/message.service';
+// Users
+import { UserModule } from './user/user.module';
+
+// Products
+import { ProductModule } from './product/product.module';
+
+// Categories
+import { CategoryModule } from './category/category.module';
+
+// Orders
+import { OrderModule } from './order/order.module';
+
+// Conversations
+import { ConversationModule } from './conversation/conversation.module';
+
+// Messages
+import { MessageModule } from './message/message.module';
 
 // Pusher
 import { PusherService } from './pusher/pusher.service';
 
 @Module({
-  imports: [],
-  controllers: [
-    ConversationController,
-    MessageController,
+  imports: [
+    AuthModule,
+    UserModule,
+    ProductModule,
+    CategoryModule,
+    OrderModule,
+    ConversationModule,
+    MessageModule,
   ],
-  providers: [
-    PrismaService,
-    ConversationService,
-    MessageService,
-    PusherService,
-  ],
+  controllers: [],
+  providers: [PrismaService, PusherService],
 })
 export class AppModule {}
