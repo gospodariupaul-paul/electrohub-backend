@@ -81,7 +81,10 @@ model Conversation {
   buyerId   Int
   sellerId  Int
   productId Int
+
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt   // 🔥 SINGURA MODIFICARE
+
   buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
   product   Product   @relation(fields: [productId], references: [id])
   seller    User      @relation("SellerConversations", fields: [sellerId], references: [id])
