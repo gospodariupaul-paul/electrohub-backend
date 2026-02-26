@@ -1,3 +1,5 @@
+// rebuild
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,8 +47,6 @@ model Product {
   description   String?
   images        String[]
   userId        Int
-
-  // 🔥 ADĂUGAT — status produs (active / sold / deleted)
   status        String         @default("active")
 
   conversations Conversation[]
@@ -81,9 +81,8 @@ model Conversation {
   buyerId   Int
   sellerId  Int
   productId Int
-
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt   // 🔥 SINGURA MODIFICARE
+  updatedAt DateTime  @updatedAt
 
   buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
   product   Product   @relation(fields: [productId], references: [id])
