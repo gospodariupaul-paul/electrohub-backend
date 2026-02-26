@@ -44,6 +44,13 @@ export class MessageService {
       },
     });
 
+    // 🔥 Actualizează updatedAt pentru sortare corectă
+    await this.prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { updatedAt: new Date() },
+    });
+
+    // 🔥 Trimite mesajul prin Pusher
     await this.pusher.trigger(
       `conversation-${conversation.id}`,
       'new-message',

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ConversationService {
@@ -26,6 +27,19 @@ export class ConversationService {
       include: {
         messages: { orderBy: { createdAt: 'asc' } },
       },
+    });
+  }
+
+  // 🔥 METODA LIPSĂ — OBLIGATORIE PENTRU LISTA VANZATORULUI
+  getConversationsForUser(userId: number) {
+    return this.prisma.conversation.findMany({
+      where: {
+        OR: [
+          { buyerId: userId },
+          { sellerId: userId },
+        ],
+      },
+      orderBy: { updatedAt: 'desc' },
     });
   }
 }

@@ -17,7 +17,7 @@ export class MessageController {
   }
 
   @Get()
-  get(@Query() query: any) {
-    return this.service.getMessages(Number(query.conversationId));
+  get(@Query('conversationId') conversationId: string) {
+    return this.service.getMessages(Number(conversationId));
   }
 }
