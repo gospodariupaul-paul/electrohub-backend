@@ -29,7 +29,7 @@ export class MessageService {
       data: {
         conversationId,
         senderId,
-        text, // 🔥 AICI este câmpul corect
+        text,
       },
     });
 
