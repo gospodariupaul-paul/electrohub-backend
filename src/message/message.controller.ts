@@ -6,7 +6,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class MessageController {
   constructor(private service: MessageService) {}
 
-  // 🔥 Trimitere mesaj
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
@@ -34,20 +33,6 @@ export class MessageController {
     );
   }
 
-  // 🔥 Citire mesaje prin query
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  get(@Req() req, @Query('conversationId') conversationId: string) {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      throw new BadRequestException('User not authenticated');
-    }
-
-    return this.service.getMessages(Number(conversationId));
-  }
-
-  // 🔥 Citire mesaje prin /messages/:conversationId
   @UseGuards(JwtAuthGuard)
   @Get(':conversationId')
   getById(@Req() req, @Param('conversationId') conversationId: string) {

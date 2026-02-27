@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PusherService } from '../pusher/pusher.service';
 
@@ -9,58 +9,48 @@ export class MessageService {
     private pusher: PusherService,
   ) {}
 
-  async getOrCreateConversation(buyerId: number, sellerId: number, productId: number) {
-    let conversation = await this.prisma.conversation.findFirst({
-      where: { buyerId, sellerId, productId },
+  // 🔥 Creează mesaj într-o conversație EXISTENTĂ
+  async createMessage(conversationId: number, senderId: number, content: string) {
+    if (!conversationId || !senderId || !content) {
+      throw new BadRequestException('Missing fields');
+    }
+
+    // 🔥 Verificăm dacă conversația există
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
     });
 
     if (!conversation) {
-      conversation = await this.prisma.conversation.create({
-        data: { buyerId, sellerId, productId },
-      });
+      throw new BadRequestException('Conversation not found');
     }
 
-    return conversation;
-  }
-
-  async createMessage(
-    buyerId: number,
-    sellerId: number,
-    productId: number,
-    senderId: number,
-    text: string,
-  ) {
-    const conversation = await this.getOrCreateConversation(
-      buyerId,
-      sellerId,
-      productId,
-    );
-
+    // 🔥 Creăm mesajul
     const message = await this.prisma.message.create({
       data: {
-        conversationId: conversation.id,
+        conversationId,
         senderId,
-        text,
+        content,
       },
     });
 
-    // 🔥 Actualizează updatedAt pentru sortare corectă
+    // 🔥 Actualizăm updatedAt pentru sortare corectă
     await this.prisma.conversation.update({
-      where: { id: conversation.id },
+      where: { id: conversationId },
       data: { updatedAt: new Date() },
     });
 
-    // 🔥 Trimite mesajul prin Pusher
+    // 🔥 Trimitem mesajul prin Pusher
     await this.pusher.trigger(
-      `conversation-${conversation.id}`,
+      `conversation-${conversationId}`,
       'new-message',
       message,
     );
 
-    return { conversationId: conversation.id, message };
+    return message;
   }
 
-  getMessages(conversationId: number) {
+  // 🔥 Returnează toate mesajele din conversație
+  async getMessages(conversationId: number) {
     return this.prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
