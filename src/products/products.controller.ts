@@ -11,13 +11,12 @@ import {
   Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // 🔥 CREATE PRODUCT — PROTEJAT CU JWT
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
@@ -43,7 +42,7 @@ export class ProductsController {
       price: Number(body.price),
       categoryId: Number(body.categoryId),
       stock: Number(body.stock),
-      userId: Number(userId), // 🔥 userId din token
+      userId: Number(userId),
       images: body.images,
     });
   }
