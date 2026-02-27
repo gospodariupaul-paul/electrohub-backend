@@ -16,7 +16,7 @@ export class ConversationController {
       productId: number;
     },
   ) {
-    const buyerId = req.user?.id; // 🔥 Cine inițiază chatul = buyer
+    const buyerId = req.user?.id; // Cine inițiază chatul = buyer
 
     if (!buyerId) {
       throw new BadRequestException('User not authenticated');
@@ -26,7 +26,6 @@ export class ConversationController {
       throw new BadRequestException('Product ID missing');
     }
 
-    // 🔥 Seller-ul îl luăm din produs, în service
     return this.service.createConversation(buyerId, body.productId);
   }
 
@@ -53,4 +52,23 @@ export class ConversationController {
       throw new BadRequestException('User not authenticated');
     }
 
-    return this.service.getConversationById(Number(id), user
+    return this.service.getConversationById(Number(id), userId);
+  }
+
+  // 🔥 Conversațiile pentru vânzător
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:userId')
+  getForUser(@Req() req, @Param('userId') userId: string) {
+    const authUserId = req.user?.id;
+
+    if (!authUserId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    if (Number(userId) !== authUserId) {
+      throw new BadRequestException('Access denied');
+    }
+
+    return this.service.getConversationsForUser(Number(userId));
+  }
+}
