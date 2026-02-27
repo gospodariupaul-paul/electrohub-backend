@@ -1,35 +1,56 @@
-import { Controller, Post, Get, Body, Query, Param } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Param, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('conversations')
 export class ConversationController {
   constructor(private service: ConversationService) {}
 
+  // 🔥 Crearea conversației trebuie să fie protejată
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() body: any) {
-    return this.service.createConversation(
-      body.buyerId,
-      body.sellerId,
-      body.productId,
-    );
+  create(
+    @Req() req,
+    @Body()
+    body: {
+      productId: number;
+    },
+  ) {
+    const buyerId = req.user?.id; // 🔥 Cine inițiază chatul = buyer
+
+    if (!buyerId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    if (!body.productId) {
+      throw new BadRequestException('Product ID missing');
+    }
+
+    // 🔥 Seller-ul îl luăm din produs, în service
+    return this.service.createConversation(buyerId, body.productId);
   }
 
+  // 🔥 Căutăm conversația DOAR după productId și buyerId (din token)
+  @UseGuards(JwtAuthGuard)
   @Get()
-  get(@Query() query: any) {
-    return this.service.getConversation(
-      Number(query.buyerId),
-      Number(query.productId),
-    );
+  get(@Req() req, @Query('productId') productId: string) {
+    const buyerId = req.user?.id;
+
+    if (!buyerId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    return this.service.getConversation(buyerId, Number(productId));
   }
 
+  // 🔥 Obținem conversația după ID
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  getById(@Param('id') id: string) {
-    return this.service.getConversationById(Number(id));
-  }
+  getById(@Req() req, @Param('id') id: string) {
+    const userId = req.user?.id;
 
-  // 🔥 RUTA LIPSĂ — OBLIGATORIE PENTRU VANZATOR
-  @Get('user/:userId')
-  getForUser(@Param('userId') userId: string) {
-    return this.service.getConversationsForUser(Number(userId));
-  }
-}
+    if (!userId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    return this.service.getConversationById(Number(id), user
