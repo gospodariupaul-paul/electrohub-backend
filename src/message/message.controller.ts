@@ -6,17 +6,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class MessageController {
   constructor(private service: MessageService) {}
 
-  // 🔥 Mesajele trebuie trimise DOAR de useri autentificați
+  // 🔥 Trimitere mesaj
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
     @Req() req,
     @Body()
     body: {
-      buyerId: number;
-      sellerId: number;
-      productId: number;
-      text: string;
+      conversationId: number;
+      content: string;
     },
   ) {
     const senderId = req.user?.id;
@@ -25,16 +23,18 @@ export class MessageController {
       throw new BadRequestException('User not authenticated');
     }
 
+    if (!body.conversationId || !body.content) {
+      throw new BadRequestException('Missing fields');
+    }
+
     return this.service.createMessage(
-      body.buyerId,
-      body.sellerId,
-      body.productId,
+      body.conversationId,
       senderId,
-      body.text,
+      body.content,
     );
   }
 
-  // 🔥 Citirea mesajelor prin query (?conversationId=)
+  // 🔥 Citire mesaje prin query
   @UseGuards(JwtAuthGuard)
   @Get()
   get(@Req() req, @Query('conversationId') conversationId: string) {
@@ -47,7 +47,7 @@ export class MessageController {
     return this.service.getMessages(Number(conversationId));
   }
 
-  // 🔥 Ruta pe care o cere frontend-ul: /messages/:conversationId
+  // 🔥 Citire mesaje prin /messages/:conversationId
   @UseGuards(JwtAuthGuard)
   @Get(':conversationId')
   getById(@Req() req, @Param('conversationId') conversationId: string) {
