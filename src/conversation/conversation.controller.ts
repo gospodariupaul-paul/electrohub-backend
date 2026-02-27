@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, Query, Param, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Query,
+  Param,
+  UseGuards,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -29,6 +39,24 @@ export class ConversationController {
     return this.service.createConversation(buyerId, body.productId);
   }
 
+  // 🔥 Conversațiile pentru vânzător sau cumpărător (user)
+  // IMPORTANT: ruta asta trebuie să fie înainte de ':id'
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:userId')
+  getForUser(@Req() req, @Param('userId') userId: string) {
+    const authUserId = req.user?.id;
+
+    if (!authUserId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    if (Number(userId) !== authUserId) {
+      throw new BadRequestException('Access denied');
+    }
+
+    return this.service.getConversationsForUser(Number(userId));
+  }
+
   // 🔥 Căutăm conversația DOAR după productId și buyerId (din token)
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -53,22 +81,5 @@ export class ConversationController {
     }
 
     return this.service.getConversationById(Number(id), userId);
-  }
-
-  // 🔥 Conversațiile pentru vânzător
-  @UseGuards(JwtAuthGuard)
-  @Get('user/:userId')
-  getForUser(@Req() req, @Param('userId') userId: string) {
-    const authUserId = req.user?.id;
-
-    if (!authUserId) {
-      throw new BadRequestException('User not authenticated');
-    }
-
-    if (Number(userId) !== authUserId) {
-      throw new BadRequestException('Access denied');
-    }
-
-    return this.service.getConversationsForUser(Number(userId));
   }
 }

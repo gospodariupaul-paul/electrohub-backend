@@ -67,10 +67,7 @@ export class ConversationService {
   getConversationsForUser(userId: number) {
     return this.prisma.conversation.findMany({
       where: {
-        OR: [
-          { buyerId: userId },
-          { sellerId: userId },
-        ],
+        OR: [{ buyerId: userId }, { sellerId: userId }],
       },
       orderBy: { updatedAt: 'desc' },
     });
