@@ -1,13 +1,27 @@
-import { Controller, Post, Body, Get, Param, Delete, BadRequestException, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Delete,
+  BadRequestException,
+  Put,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // CREATE PRODUCT
+  // 🔥 CREATE PRODUCT — PROTEJAT CU JWT
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
+    @Req() req,
     @Body()
     body: {
       name: string;
@@ -16,11 +30,12 @@ export class ProductsController {
       categoryId: number;
       stock: number;
       images: string[];
-      userId: number;
     },
   ) {
-    if (!body.userId || isNaN(Number(body.userId))) {
-      throw new BadRequestException('Invalid userId');
+    const userId = req.user?.sub;
+
+    if (!userId) {
+      throw new BadRequestException('User not authenticated');
     }
 
     return this.productsService.create({
@@ -28,7 +43,7 @@ export class ProductsController {
       price: Number(body.price),
       categoryId: Number(body.categoryId),
       stock: Number(body.stock),
-      userId: Number(body.userId),
+      userId: Number(userId), // 🔥 userId din token, nu din frontend
       images: body.images,
     });
   }
@@ -38,7 +53,7 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  // 🔥 MUTAT AICI — TREBUIE SĂ FIE ÎNAINTE DE ":id"
+  // 🔥 GET PRODUCTS BY USER
   @Get('user/:id')
   async getProductsByUser(@Param('id') id: string) {
     return this.productsService.getProductsByUser(Number(id));
@@ -59,7 +74,7 @@ export class ProductsController {
     return this.productsService.markAsSold(Number(id));
   }
 
-  // ✅ UPDATE PRODUCT
+  // 🔥 UPDATE PRODUCT
   @Put(':id')
   async update(
     @Param('id') id: string,
