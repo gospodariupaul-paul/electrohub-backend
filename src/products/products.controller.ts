@@ -31,7 +31,8 @@ export class ProductsController {
       images: string[];
     },
   ) {
-    const userId = req.user?.sub;
+    // 🔥 FIX CRITIC: token-ul tău conține "id", nu "sub"
+    const userId = req.user?.id;
 
     if (!userId) {
       throw new BadRequestException('User not authenticated');
