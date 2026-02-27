@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseGuards, Req, BadRequestException, Param } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -19,7 +19,6 @@ export class MessageController {
       text: string;
     },
   ) {
-    // 🔥 FIX CRITIC: luăm ID-ul userului din token, nu din frontend
     const senderId = req.user?.id;
 
     if (!senderId) {
@@ -30,15 +29,28 @@ export class MessageController {
       body.buyerId,
       body.sellerId,
       body.productId,
-      senderId, // 🔥 senderId vine din token, nu din frontend
+      senderId,
       body.text,
     );
   }
 
-  // 🔥 Citirea mesajelor trebuie să fie protejată
+  // 🔥 Citirea mesajelor prin query (?conversationId=)
   @UseGuards(JwtAuthGuard)
   @Get()
   get(@Req() req, @Query('conversationId') conversationId: string) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    return this.service.getMessages(Number(conversationId));
+  }
+
+  // 🔥 Ruta pe care o cere frontend-ul: /messages/:conversationId
+  @UseGuards(JwtAuthGuard)
+  @Get(':conversationId')
+  getById(@Req() req, @Param('conversationId') conversationId: string) {
     const userId = req.user?.id;
 
     if (!userId) {
