@@ -10,8 +10,8 @@ export class MessageService {
   ) {}
 
   // 🔥 Creează mesaj într-o conversație EXISTENTĂ
-  async createMessage(conversationId: number, senderId: number, content: string) {
-    if (!conversationId || !senderId || !content) {
+  async createMessage(conversationId: number, senderId: number, text: string) {
+    if (!conversationId || !senderId || !text) {
       throw new BadRequestException('Missing fields');
     }
 
@@ -29,7 +29,7 @@ export class MessageService {
       data: {
         conversationId,
         senderId,
-        content,
+        text, // 🔥 AICI este câmpul corect
       },
     });
 

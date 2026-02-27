@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Get, Query, UseGuards, Req, BadRequestException, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Req,
+  BadRequestException,
+  Param,
+} from '@nestjs/common';
 import { MessageService } from './message.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -6,6 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class MessageController {
   constructor(private service: MessageService) {}
 
+  // 🔥 Trimitere mesaj într-o conversație EXISTENTĂ
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
@@ -13,7 +23,7 @@ export class MessageController {
     @Body()
     body: {
       conversationId: number;
-      content: string;
+      text: string;
     },
   ) {
     const senderId = req.user?.id;
@@ -22,17 +32,18 @@ export class MessageController {
       throw new BadRequestException('User not authenticated');
     }
 
-    if (!body.conversationId || !body.content) {
+    if (!body.conversationId || !body.text) {
       throw new BadRequestException('Missing fields');
     }
 
     return this.service.createMessage(
       body.conversationId,
       senderId,
-      body.content,
+      body.text,
     );
   }
 
+  // 🔥 Citire mesaje: /messages/:conversationId
   @UseGuards(JwtAuthGuard)
   @Get(':conversationId')
   getById(@Req() req, @Param('conversationId') conversationId: string) {
