@@ -11,7 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -43,7 +43,7 @@ export class ProductsController {
       price: Number(body.price),
       categoryId: Number(body.categoryId),
       stock: Number(body.stock),
-      userId: Number(userId), // 🔥 userId din token, nu din frontend
+      userId: Number(userId), // 🔥 userId din token
       images: body.images,
     });
   }
@@ -53,7 +53,6 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  // 🔥 GET PRODUCTS BY USER
   @Get('user/:id')
   async getProductsByUser(@Param('id') id: string) {
     return this.productsService.getProductsByUser(Number(id));
@@ -74,7 +73,6 @@ export class ProductsController {
     return this.productsService.markAsSold(Number(id));
   }
 
-  // 🔥 UPDATE PRODUCT
   @Put(':id')
   async update(
     @Param('id') id: string,
