@@ -77,7 +77,6 @@ export class ConversationService {
         seller: { select: { id: true, name: true } },
         product: { select: { id: true, name: true } },
 
-        // Ultimul mesaj
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -85,17 +84,16 @@ export class ConversationService {
             id: true,
             text: true,
             createdAt: true,
-            read: true,
+            isRead: true,
             senderId: true,
           },
         },
 
-        // Număr mesaje necitite
         _count: {
           select: {
             messages: {
               where: {
-                read: false,
+                isRead: false,
                 senderId: { not: userId },
               },
             },
@@ -108,16 +106,9 @@ export class ConversationService {
       id: c.id,
       updatedAt: c.updatedAt,
 
-      // 🔥 Numele persoanei cu care vorbești
       otherUserName: c.buyerId === userId ? c.seller?.name : c.buyer?.name,
-
-      // 🔥 Numele produsului
       productName: c.product?.name || 'Produs necunoscut',
-
-      // 🔥 Ultimul mesaj
       lastMessage: c.messages[0]?.text || '—',
-
-      // 🔥 Număr mesaje necitite
       unreadCount: c._count.messages,
     }));
   }
