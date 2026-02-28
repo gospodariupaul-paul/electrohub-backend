@@ -66,29 +66,59 @@ export class ConversationService {
 
   // 🔥 Conversațiile pentru vânzător sau cumpărător (LISTA)
   async getConversationsForUser(userId: number) {
-    return this.prisma.conversation.findMany({
+    const conversations = await this.prisma.conversation.findMany({
       where: {
         OR: [{ buyerId: userId }, { sellerId: userId }],
       },
       orderBy: { updatedAt: 'desc' },
 
-      // 🔥 FIX: includem TOT ce are nevoie frontend-ul
       include: {
-        buyer: {
-          select: { id: true, name: true, email: true },
-        },
-        seller: {
-          select: { id: true, name: true, email: true },
-        },
-        product: {
-          select: { id: true, name: true, price: true },
-        },
+        buyer: { select: { id: true, name: true } },
+        seller: { select: { id: true, name: true } },
+        product: { select: { id: true, name: true } },
+
+        // Ultimul mesaj
         messages: {
-          take: 1,
           orderBy: { createdAt: 'desc' },
-          select: { text: true, createdAt: true },
+          take: 1,
+          select: {
+            id: true,
+            text: true,
+            createdAt: true,
+            read: true,
+            senderId: true,
+          },
+        },
+
+        // Număr mesaje necitite
+        _count: {
+          select: {
+            messages: {
+              where: {
+                read: false,
+                senderId: { not: userId },
+              },
+            },
+          },
         },
       },
     });
+
+    return conversations.map((c) => ({
+      id: c.id,
+      updatedAt: c.updatedAt,
+
+      // 🔥 Numele persoanei cu care vorbești
+      otherUserName: c.buyerId === userId ? c.seller?.name : c.buyer?.name,
+
+      // 🔥 Numele produsului
+      productName: c.product?.name || 'Produs necunoscut',
+
+      // 🔥 Ultimul mesaj
+      lastMessage: c.messages[0]?.text || '—',
+
+      // 🔥 Număr mesaje necitite
+      unreadCount: c._count.messages,
+    }));
   }
 }
