@@ -5,7 +5,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  // CREATE PRODUCT
   async create(data: {
     name: string;
     price: number;
@@ -13,9 +12,9 @@ export class ProductsService {
     stock: number;
     images: string[];
     userId: number;
-    category: string; // categoria detectată automat
+    category: string; // ex: "Telefoane"
   }) {
-    // 🔥 1. Căutăm categoria după nume (sau slug, dar tu nu ai slug)
+    // Căutăm categoria după numele real din DB
     const category = await this.prisma.category.findFirst({
       where: {
         name: {
@@ -31,7 +30,6 @@ export class ProductsService {
       );
     }
 
-    // 🔥 2. Creăm produsul conectând categoria după ID (singurul câmp unic)
     return this.prisma.product.create({
       data: {
         name: data.name,
