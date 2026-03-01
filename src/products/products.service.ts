@@ -13,7 +13,7 @@ export class ProductsService {
     stock: number;
     images: string[];
     userId: number;
-    category: string; // 🔥 ADĂUGAT — categoria detectată automat
+    category: string; // categoria detectată automat
   }) {
     return this.prisma.product.create({
       data: {
@@ -24,10 +24,10 @@ export class ProductsService {
         images: data.images,
         status: 'active',
 
-        // 🔥 Conectăm categoria după SLUG, nu după ID
+        // 🔥 Conectăm categoria după category_slug (UNIQUE în DB)
         category: {
           connect: {
-            slug: data.category, // ex: "telefoane", "laptopuri"
+            category_slug: data.category, // ex: "telefoane", "laptopuri"
           },
         },
 
@@ -36,47 +36,31 @@ export class ProductsService {
     });
   }
 
-  // GET ALL PRODUCTS (doar active)
   async findAll() {
     return this.prisma.product.findMany({
       where: { status: 'active' },
-      include: {
-        category: true,
-        user: true,
-      },
+      include: { category: true, user: true },
     });
   }
 
-  // GET PRODUCT BY ID
   async findOne(id: number) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: {
-        category: true,
-        user: true,
-      },
+      include: { category: true, user: true },
     });
   }
 
-  // GET PRODUCTS BY USER
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
       where: { userId: Number(userId) },
-      include: {
-        category: true,
-        user: true,
-      },
+      include: { category: true, user: true },
     });
   }
 
-  // DELETE PRODUCT
   async remove(id: number) {
-    return this.prisma.product.delete({
-      where: { id },
-    });
+    return this.prisma.product.delete({ where: { id } });
   }
 
-  // MARCHEAZĂ PRODUSUL CA VÂNDUT
   async markAsSold(id: number) {
     return this.prisma.product.update({
       where: { id },
@@ -84,15 +68,9 @@ export class ProductsService {
     });
   }
 
-  // UPDATE PRODUCT
   async update(
     id: number,
-    data: {
-      name?: string;
-      price?: number;
-      description?: string;
-      images?: string[];
-    },
+    data: { name?: string; price?: number; description?: string; images?: string[] },
   ) {
     return this.prisma.product.update({
       where: { id },
