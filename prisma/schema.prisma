@@ -1,5 +1,3 @@
-// rebuild
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -48,7 +46,6 @@ model Product {
   images        String[]
   userId        Int
   status        String         @default("active")
-
   conversations Conversation[]
   orderItems    OrderItem[]
   category      Category?      @relation(fields: [categoryId], references: [id])
@@ -82,7 +79,7 @@ model Conversation {
   sellerId  Int
   productId Int
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 
   buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
   product   Product   @relation(fields: [productId], references: [id])
@@ -96,6 +93,10 @@ model Message {
   senderId       Int
   text           String
   createdAt      DateTime     @default(now())
+
+  // 🔥 ADĂUGAT — necesar pentru unreadCount
+  isRead         Boolean      @default(false)
+
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation(fields: [senderId], references: [id])
 }
