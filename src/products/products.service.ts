@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -13,8 +13,20 @@ export class ProductsService {
     stock: number;
     images: string[];
     userId: number;
-    category: string; // categoria detectată automat
+    category: string; // categoria detectată automat (slug)
   }) {
+    // 🔥 1. Căutăm categoria după slug
+    const category = await this.prisma.category.findUnique({
+      where: { slug: data.category },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        `Categoria '${data.category}' nu există în baza de date.`,
+      );
+    }
+
+    // 🔥 2. Creăm produsul conectând categoria după ID (singurul câmp unic)
     return this.prisma.product.create({
       data: {
         name: data.name,
@@ -24,11 +36,8 @@ export class ProductsService {
         images: data.images,
         status: 'active',
 
-        // 🔥 Conectăm categoria după category_slug (UNIQUE în DB)
         category: {
-          connect: {
-            category_slug: data.category, // ex: "telefoane", "laptopuri"
-          },
+          connect: { id: category.id },
         },
 
         user: { connect: { id: Number(data.userId) } },
