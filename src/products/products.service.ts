@@ -13,11 +13,16 @@ export class ProductsService {
     stock: number;
     images: string[];
     userId: number;
-    category: string; // categoria detectată automat (slug)
+    category: string; // categoria detectată automat
   }) {
-    // 🔥 1. Căutăm categoria după slug
-    const category = await this.prisma.category.findUnique({
-      where: { slug: data.category },
+    // 🔥 1. Căutăm categoria după nume (sau slug, dar tu nu ai slug)
+    const category = await this.prisma.category.findFirst({
+      where: {
+        name: {
+          equals: data.category,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!category) {
