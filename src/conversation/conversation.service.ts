@@ -10,9 +10,7 @@ export class ConversationService {
       where: { id: productId },
     });
 
-    if (!product) {
-      throw new BadRequestException('Produsul nu există');
-    }
+    if (!product) throw new BadRequestException('Produsul nu există');
 
     const sellerId = product.userId;
 
@@ -49,18 +47,15 @@ export class ConversationService {
       },
     });
 
-    if (!conversation) {
+    if (!conversation)
       throw new BadRequestException('Conversația nu există');
-    }
 
-    if (conversation.buyerId !== userId && conversation.sellerId !== userId) {
+    if (conversation.buyerId !== userId && conversation.sellerId !== userId)
       throw new BadRequestException('Nu ai acces la această conversație');
-    }
 
     return conversation;
   }
 
-  // 🔥 Conversațiile pentru user (LISTA)
   async getConversationsForUser(userId: number) {
     const conversations = await this.prisma.conversation.findMany({
       where: {
@@ -81,6 +76,7 @@ export class ConversationService {
             text: true,
             createdAt: true,
             senderId: true,
+            deletedForAll: true,
           },
         },
 
@@ -103,11 +99,11 @@ export class ConversationService {
       otherUserName: c.buyerId === userId ? c.seller?.name : c.buyer?.name,
       productName: c.product?.name || 'Produs necunoscut',
       lastMessage: c.messages[0]?.text || '—',
+      lastMessageDeletedForAll: c.messages[0]?.deletedForAll || false,
       unreadCount: c._count.messages,
     }));
   }
 
-  // 🔥 Marchează mesajele ca citite
   async markMessagesAsRead(conversationId: number, userId: number) {
     return this.prisma.message.updateMany({
       where: {
@@ -116,6 +112,47 @@ export class ConversationService {
         isRead: false,
       },
       data: { isRead: true },
+    });
+  }
+
+  // 🔥 ȘTERGE O CONVERSAȚIE
+  async deleteConversation(id: number, userId: number) {
+    const conv = await this.prisma.conversation.findUnique({
+      where: { id },
+    });
+
+    if (!conv) throw new BadRequestException('Conversația nu există');
+
+    if (conv.buyerId !== userId && conv.sellerId !== userId)
+      throw new BadRequestException('Nu ai voie să ștergi această conversație');
+
+    await this.prisma.message.deleteMany({
+      where: { conversationId: id },
+    });
+
+    return this.prisma.conversation.delete({
+      where: { id },
+    });
+  }
+
+  // 🔥 ȘTERGE TOATE CONVERSAȚIILE USERULUI
+  async deleteAllConversations(userId: number) {
+    const convs = await this.prisma.conversation.findMany({
+      where: {
+        OR: [{ buyerId: userId }, { sellerId: userId }],
+      },
+    });
+
+    for (const c of convs) {
+      await this.prisma.message.deleteMany({
+        where: { conversationId: c.id },
+      });
+    }
+
+    return this.prisma.conversation.deleteMany({
+      where: {
+        OR: [{ buyerId: userId }, { sellerId: userId }],
+      },
     });
   }
 }
