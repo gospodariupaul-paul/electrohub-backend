@@ -10,10 +10,10 @@ export class ProductsService {
     name: string;
     price: number;
     description: string;
-    categoryId: number;
     stock: number;
     images: string[];
     userId: number;
+    category: string; // 🔥 ADĂUGAT — categoria detectată automat
   }) {
     return this.prisma.product.create({
       data: {
@@ -22,16 +22,15 @@ export class ProductsService {
         description: data.description,
         stock: data.stock,
         images: data.images,
-
-        // produsul devine activ automat
         status: 'active',
 
-        // conectăm categoria doar dacă există în DB
-        ...(data.categoryId && data.categoryId !== 0
-          ? { category: { connect: { id: Number(data.categoryId) } } }
-          : {}),
+        // 🔥 Conectăm categoria după SLUG, nu după ID
+        category: {
+          connect: {
+            slug: data.category, // ex: "telefoane", "laptopuri"
+          },
+        },
 
-        // FIX CRITIC — userId trebuie convertit la number
         user: { connect: { id: Number(data.userId) } },
       },
     });
@@ -62,7 +61,7 @@ export class ProductsService {
   // GET PRODUCTS BY USER
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
-      where: { userId: Number(userId) }, // FIX — ne asigurăm că e number
+      where: { userId: Number(userId) },
       include: {
         category: true,
         user: true,
@@ -85,7 +84,7 @@ export class ProductsService {
     });
   }
 
-  // ✅ UPDATE PRODUCT
+  // UPDATE PRODUCT
   async update(
     id: number,
     data: {
