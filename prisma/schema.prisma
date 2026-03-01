@@ -94,8 +94,12 @@ model Message {
   text           String
   createdAt      DateTime     @default(now())
 
-  // 🔥 ADĂUGAT — necesar pentru unreadCount
+  // 🔥 necesar pentru unreadCount
   isRead         Boolean      @default(false)
+
+  // 🔥 necesar pentru ștergere tip WhatsApp (A2)
+  deletedForUserIds Int[]     @default([])
+  deletedForAll     Boolean   @default(false)
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation(fields: [senderId], references: [id])
