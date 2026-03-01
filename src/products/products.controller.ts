@@ -17,6 +17,19 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // 🔥 Detectare automată categorie după numele produsului
+  private detectCategory(name: string): string {
+    const n = name.toLowerCase();
+
+    if (n.includes("lapt")) return "laptopuri";
+    if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "telefoane";
+    if (n.includes("dron")) return "drones";
+    if (n.includes("tv") || n.includes("televizor")) return "audio-video";
+    if (n.includes("casetofon")) return "audio-video";
+
+    return "altele";
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
@@ -26,25 +39,26 @@ export class ProductsController {
       name: string;
       price: number;
       description: string;
-      categoryId: number;
       stock: number;
       images: string[];
     },
   ) {
-    // 🔥 FIX CRITIC: token-ul tău conține "id", nu "sub"
     const userId = req.user?.id;
 
     if (!userId) {
       throw new BadRequestException('User not authenticated');
     }
 
+    // 🔥 Categoria se generează automat aici
+    const category = this.detectCategory(body.name);
+
     return this.productsService.create({
       ...body,
       price: Number(body.price),
-      categoryId: Number(body.categoryId),
       stock: Number(body.stock),
       userId: Number(userId),
       images: body.images,
+      category: category, // 🔥 categoria finală trimisă în DB
     });
   }
 
