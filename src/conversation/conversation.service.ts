@@ -83,19 +83,39 @@ export class ConversationService {
             senderId: true,
           },
         },
+
+        _count: {
+          select: {
+            messages: {
+              where: {
+                isRead: false,
+                senderId: { not: userId },
+              },
+            },
+          },
+        },
       },
     });
 
     return conversations.map((c) => ({
       id: c.id,
       updatedAt: c.updatedAt,
-
       otherUserName: c.buyerId === userId ? c.seller?.name : c.buyer?.name,
       productName: c.product?.name || 'Produs necunoscut',
       lastMessage: c.messages[0]?.text || '—',
-
-      // 🔥 Nu există isRead în schema ta → nu putem calcula unreadCount
-      unreadCount: 0,
+      unreadCount: c._count.messages,
     }));
+  }
+
+  // 🔥 Marchează mesajele ca citite
+  async markMessagesAsRead(conversationId: number, userId: number) {
+    return this.prisma.message.updateMany({
+      where: {
+        conversationId,
+        senderId: { not: userId },
+        isRead: false,
+      },
+      data: { isRead: true },
+    });
   }
 }

@@ -82,4 +82,17 @@ export class ConversationController {
 
     return this.service.getConversationById(Number(id), userId);
   }
+
+  // 🔥 Marchează mesajele ca citite în conversație
+  @UseGuards(JwtAuthGuard)
+  @Post('mark-read/:id')
+  markRead(@Req() req, @Param('id') id: string) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    return this.service.markMessagesAsRead(Number(id), userId);
+  }
 }
