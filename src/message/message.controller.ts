@@ -55,4 +55,17 @@ export class MessageController {
 
     return this.service.getMessages(Number(conversationId));
   }
+
+  // 🔥 Marchează TOATE mesajele ca citite
+  @UseGuards(JwtAuthGuard)
+  @Post('mark-all-read')
+  markAllRead(@Req() req) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new BadRequestException('User not authenticated');
+    }
+
+    return this.service.markAllAsRead(userId);
+  }
 }

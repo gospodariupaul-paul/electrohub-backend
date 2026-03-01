@@ -15,7 +15,6 @@ export class MessageService {
       throw new BadRequestException('Missing fields');
     }
 
-    // 🔥 Verificăm dacă conversația există
     const conversation = await this.prisma.conversation.findUnique({
       where: { id: conversationId },
     });
@@ -24,7 +23,6 @@ export class MessageService {
       throw new BadRequestException('Conversation not found');
     }
 
-    // 🔥 Creăm mesajul
     const message = await this.prisma.message.create({
       data: {
         conversationId,
@@ -33,13 +31,11 @@ export class MessageService {
       },
     });
 
-    // 🔥 Actualizăm updatedAt pentru sortare corectă
     await this.prisma.conversation.update({
       where: { id: conversationId },
       data: { updatedAt: new Date() },
     });
 
-    // 🔥 Trimitem mesajul prin Pusher
     await this.pusher.trigger(
       `conversation-${conversationId}`,
       'new-message',
@@ -54,6 +50,20 @@ export class MessageService {
     return this.prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  // 🔥 Marchează TOATE mesajele necitite ca citite
+  async markAllAsRead(userId: number) {
+    return this.prisma.message.updateMany({
+      where: {
+        senderId: { not: userId },
+        isRead: false,
+        conversation: {
+          OR: [{ buyerId: userId }, { sellerId: userId }],
+        },
+      },
+      data: { isRead: true },
     });
   }
 }
