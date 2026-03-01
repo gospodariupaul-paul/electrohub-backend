@@ -5,7 +5,6 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ConversationService {
   constructor(private prisma: PrismaService) {}
 
-  // 🔥 Creează conversația pe baza buyerId + productId
   async createConversation(buyerId: number, productId: number) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -17,7 +16,6 @@ export class ConversationService {
 
     const sellerId = product.userId;
 
-    // 🔥 Verificăm dacă există deja conversația
     let conversation = await this.prisma.conversation.findFirst({
       where: { buyerId, sellerId, productId },
     });
@@ -31,7 +29,6 @@ export class ConversationService {
     return conversation;
   }
 
-  // 🔥 Căutăm conversația pentru buyer + product
   async getConversation(buyerId: number, productId: number) {
     return this.prisma.conversation.findFirst({
       where: { buyerId, productId },
@@ -41,7 +38,6 @@ export class ConversationService {
     });
   }
 
-  // 🔥 Obținem conversația după ID, dar verificăm accesul
   async getConversationById(id: number, userId: number) {
     const conversation = await this.prisma.conversation.findUnique({
       where: { id },
@@ -64,7 +60,7 @@ export class ConversationService {
     return conversation;
   }
 
-  // 🔥 Conversațiile pentru vânzător sau cumpărător (LISTA)
+  // 🔥 Conversațiile pentru user (LISTA)
   async getConversationsForUser(userId: number) {
     const conversations = await this.prisma.conversation.findMany({
       where: {
@@ -84,19 +80,7 @@ export class ConversationService {
             id: true,
             text: true,
             createdAt: true,
-            isRead: true,
             senderId: true,
-          },
-        },
-
-        _count: {
-          select: {
-            messages: {
-              where: {
-                isRead: false,
-                senderId: { not: userId },
-              },
-            },
           },
         },
       },
@@ -109,7 +93,9 @@ export class ConversationService {
       otherUserName: c.buyerId === userId ? c.seller?.name : c.buyer?.name,
       productName: c.product?.name || 'Produs necunoscut',
       lastMessage: c.messages[0]?.text || '—',
-      unreadCount: c._count.messages,
+
+      // 🔥 Nu există isRead în schema ta → nu putem calcula unreadCount
+      unreadCount: 0,
     }));
   }
 }
