@@ -17,17 +17,16 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // Detectare automată categorie după numele produsului
   private detectCategory(name: string): string {
     const n = name.toLowerCase();
 
-    if (n.includes("lapt")) return "laptopuri";
-    if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "telefoane";
-    if (n.includes("dron")) return "Componente PC"; // dacă vrei alt mapping, îl schimbăm
-    if (n.includes("tv") || n.includes("televizor")) return "audio-video";
-    if (n.includes("casetofon")) return "audio-video";
+    if (n.includes("lapt")) return "Laptopuri";
+    if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "Telefoane";
+    if (n.includes("dron")) return "Drones";
+    if (n.includes("tv") || n.includes("televizor")) return "Audio-Video";
+    if (n.includes("casetofon")) return "Audio-Video";
 
-    return "altele"; // atenție: nu există în DB
+    return "Componente PC";
   }
 
   @UseGuards(JwtAuthGuard)
@@ -64,6 +63,11 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @Get('category/:slug')
+  async findByCategory(@Param('slug') slug: string) {
+    return this.productsService.findByCategory(slug);
   }
 
   @Get('user/:id')
