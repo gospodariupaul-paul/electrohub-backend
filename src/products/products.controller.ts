@@ -21,13 +21,13 @@ export class ProductsController {
   private detectCategory(name: string): string {
     const n = name.toLowerCase();
 
-    if (n.includes("lapt")) return "Laptopuri";
-    if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "Telefoane";
-    if (n.includes("dron")) return "Drones";
-    if (n.includes("tv") || n.includes("televizor")) return "Audio-Video";
-    if (n.includes("casetofon")) return "Audio-Video";
+    if (n.includes("lapt")) return "laptopuri";
+    if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "telefoane";
+    if (n.includes("dron")) return "Componente PC"; // dacă vrei alt mapping, îl schimbăm
+    if (n.includes("tv") || n.includes("televizor")) return "audio-video";
+    if (n.includes("casetofon")) return "audio-video";
 
-    return "Altele";
+    return "altele"; // atenție: nu există în DB
   }
 
   @UseGuards(JwtAuthGuard)

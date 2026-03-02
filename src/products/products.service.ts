@@ -12,9 +12,8 @@ export class ProductsService {
     stock: number;
     images: string[];
     userId: number;
-    category: string; // ex: "Telefoane"
+    category: string;
   }) {
-    // Căutăm categoria după numele real din DB
     const category = await this.prisma.category.findFirst({
       where: {
         name: {
