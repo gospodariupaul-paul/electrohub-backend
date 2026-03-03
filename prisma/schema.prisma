@@ -22,6 +22,8 @@ model User {
   messages            Message[]
   orders              Order[]
   products            Product[]
+
+  notifications       Notification[]   // 🔥 ADĂUGAT
 }
 
 model Category {
@@ -94,13 +96,21 @@ model Message {
   text           String
   createdAt      DateTime     @default(now())
 
-  // 🔥 necesar pentru unreadCount
   isRead         Boolean      @default(false)
-
-  // 🔥 necesar pentru ștergere tip WhatsApp (A2)
   deletedForUserIds Int[]     @default([])
   deletedForAll     Boolean   @default(false)
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation(fields: [senderId], references: [id])
+}
+
+model Notification {               // 🔥 MODEL COMPLET ADĂUGAT
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  text      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
 }
