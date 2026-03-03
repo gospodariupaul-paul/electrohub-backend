@@ -12,6 +12,9 @@ import { MessageModule } from './message/message.module';
 
 import { PusherService } from './pusher/pusher.service';
 
+// 🔥 ADĂUGAT
+import { NotificationModule } from './notification/notification.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -21,6 +24,9 @@ import { PusherService } from './pusher/pusher.service';
     OrdersModule,
     ConversationModule,
     MessageModule,
+
+    // 🔥 ADĂUGAT
+    NotificationModule,
   ],
   controllers: [],
   providers: [PrismaService, PusherService],
