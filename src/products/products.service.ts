@@ -50,17 +50,23 @@ export class ProductsService {
     // 🔥 2. Ia toți userii din baza de date
     const users = await this.prisma.user.findMany();
 
-    // 🔥 3. Creează notificări pentru TOȚI userii
-    for (const u of users) {
-      await this.prisma.notification.create({
-        data: {
-          userId: u.id,
-          text: `Un utilizator a publicat un anunț nou: ${product.name}`,
-          link: `/product/${product.id}`,
-          read: false,
-        },
-      });
-    }
+    // 🔥 3. Creează notificări pentru TOȚI userii (fără să pice endpoint-ul)
+    await Promise.all(
+      users.map((u) =>
+        this.prisma.notification
+          .create({
+            data: {
+              userId: u.id,
+              text: `Un utilizator a publicat un anunț nou: ${product.name}`,
+              link: `/product/${product.id}`,
+              read: false,
+            },
+          })
+          .catch((err) => {
+            console.error('Eroare notificare pentru user:', u.id, err);
+          }),
+      ),
+    );
 
     return product;
   }
@@ -100,8 +106,12 @@ export class ProductsService {
     });
   }
 
+  // 🔥 SOFT DELETE — REZOLVĂ EROAREA TA
   async remove(id: number) {
-    return this.prisma.product.delete({ where: { id } });
+    return this.prisma.product.update({
+      where: { id },
+      data: { status: 'deleted' },
+    });
   }
 
   async markAsSold(id: number) {
