@@ -29,7 +29,8 @@ export class ProductsService {
       );
     }
 
-    return this.prisma.product.create({
+    // 🔥 1. Creează produsul
+    const product = await this.prisma.product.create({
       data: {
         name: data.name,
         price: data.price,
@@ -45,6 +46,23 @@ export class ProductsService {
         user: { connect: { id: Number(data.userId) } },
       },
     });
+
+    // 🔥 2. Ia toți userii din baza de date
+    const users = await this.prisma.user.findMany();
+
+    // 🔥 3. Creează notificări pentru TOȚI userii
+    for (const u of users) {
+      await this.prisma.notification.create({
+        data: {
+          userId: u.id,
+          text: `Un utilizator a publicat un anunț nou: ${product.name}`,
+          link: `/product/${product.id}`,
+          read: false,
+        },
+      });
+    }
+
+    return product;
   }
 
   async findAll() {
