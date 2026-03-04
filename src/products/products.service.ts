@@ -59,7 +59,7 @@ export class ProductsService {
               userId: u.id,
               text: `Un utilizator a publicat un anunț nou: ${product.name}`,
               link: `/product/${product.id}`,
-              images: product.images, // 🔥 AICI ESTE FIX-UL
+              images: product.images, // 🔥 FIX
               read: false,
             },
           })
@@ -100,10 +100,21 @@ export class ProductsService {
     });
   }
 
+  // 🔥 AICI ESTE SINGURA MODIFICARE
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
       where: { userId: Number(userId) },
-      include: { category: true, user: true },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        description: true,
+        images: true,   // 🔥 FIX — trimite toate pozele către frontend
+        stock: true,
+        status: true,
+        category: true,
+        user: true,
+      },
     });
   }
 
