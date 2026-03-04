@@ -50,7 +50,7 @@ export class ProductsService {
     // 🔥 2. Ia toți userii din baza de date
     const users = await this.prisma.user.findMany();
 
-    // 🔥 3. Creează notificări pentru TOȚI userii (fără să pice endpoint-ul)
+    // 🔥 3. Creează notificări pentru TOȚI userii cu TOATE POZELE
     await Promise.all(
       users.map((u) =>
         this.prisma.notification
@@ -59,6 +59,7 @@ export class ProductsService {
               userId: u.id,
               text: `Un utilizator a publicat un anunț nou: ${product.name}`,
               link: `/product/${product.id}`,
+              images: product.images, // 🔥 AICI ESTE FIX-UL
               read: false,
             },
           })
@@ -106,7 +107,6 @@ export class ProductsService {
     });
   }
 
-  // 🔥 SOFT DELETE — REZOLVĂ EROAREA TA
   async remove(id: number) {
     return this.prisma.product.update({
       where: { id },
