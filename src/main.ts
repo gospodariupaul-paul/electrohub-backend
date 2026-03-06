@@ -9,12 +9,12 @@ async function bootstrap() {
       'https://electrohub-frontend.vercel.app',
       'http://localhost:3000'
     ],
-    methods: 'GET,POST,PUT,PATCH,DELETE',
     credentials: true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
   });
 
   // IMPORTANT pentru Render:
-  // Render setează automat PORT (ex: 10000)
   const port = process.env.PORT || 3000;
 
   await app.listen(port, '0.0.0.0');
