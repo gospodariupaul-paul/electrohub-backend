@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Necesare pentru cookie-uri cross-site
+  app.use(cookieParser());
 
   app.enableCors({
     origin: [
@@ -11,7 +15,8 @@ async function bootstrap() {
     ],
     credentials: true,
     methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Set-Cookie'],
   });
 
   const port = process.env.PORT || 3000;
