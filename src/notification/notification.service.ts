@@ -27,12 +27,11 @@ export class NotificationService {
   }
 
   // 🔥 NOU — GET SETTINGS
-  async getSettings(userId: string) {
+  async getSettings(userId: number) {
     let settings = await this.prisma.notificationSettings.findUnique({
       where: { userId },
     });
 
-    // Dacă nu există, îl creăm automat
     if (!settings) {
       settings = await this.prisma.notificationSettings.create({
         data: { userId },
@@ -43,7 +42,7 @@ export class NotificationService {
   }
 
   // 🔥 NOU — UPDATE SETTINGS
-  async updateSettings(userId: string, dto: any) {
+  async updateSettings(userId: number, dto: any) {
     return this.prisma.notificationSettings.upsert({
       where: { userId },
       update: dto,
