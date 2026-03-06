@@ -10,7 +10,7 @@ import {
   UseGuards 
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 
 @Controller('notifications')
