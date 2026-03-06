@@ -17,21 +17,20 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
-  // 🔥 NOU — GET SETTINGS (trebuie să fie înainte de :userId)
+  // 🔥 SETTINGS — trebuie să fie primele!
   @UseGuards(JwtAuthGuard)
   @Get('settings/me')
   getSettings(@Req() req) {
-    return this.notificationService.getSettings(req.user.id);
+    return this.notificationService.getSettings(Number(req.user.id));
   }
 
-  // 🔥 NOU — UPDATE SETTINGS
   @UseGuards(JwtAuthGuard)
   @Post('settings')
   updateSettings(@Req() req, @Body() dto: UpdateSettingsDto) {
-    return this.notificationService.updateSettings(req.user.id, dto);
+    return this.notificationService.updateSettings(Number(req.user.id), dto);
   }
 
-  // 🔥 EXISTENTE — trebuie să rămână DUPĂ settings
+  // 🔥 NOTIFICĂRI NORMALE
   @Get(':userId')
   getByUser(@Param('userId') userId: string) {
     return this.notificationService.getByUser(Number(userId));
