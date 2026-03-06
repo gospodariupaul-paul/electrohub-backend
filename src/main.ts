@@ -14,15 +14,6 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization',
   });
 
-  // 🔥 Răspuns corect pentru preflight OPTIONS (obligatoriu pentru cookie-uri)
-  app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://electrohub-frontend.vercel.app');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.sendStatus(200);
-  });
-
   // IMPORTANT pentru Render:
   const port = process.env.PORT || 3000;
 
