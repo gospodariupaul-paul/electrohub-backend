@@ -12,21 +12,20 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: any, @Res() res: Response) {
+  async login(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
-    // Setează cookie-ul JWT
     res.cookie('jwt', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
     });
 
-    return res.json({
+    return {
       message: 'Login successful',
       user,
       refreshToken,
-    });
+    };
   }
 
   @Post('refresh')
