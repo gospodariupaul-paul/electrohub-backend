@@ -11,8 +11,6 @@ import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
 
 import { PusherService } from './pusher/pusher.service';
-
-// 🔥 ADĂUGAT
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
@@ -24,8 +22,6 @@ import { NotificationModule } from './notification/notification.module';
     OrdersModule,
     ConversationModule,
     MessageModule,
-
-    // 🔥 ADĂUGAT
     NotificationModule,
   ],
   controllers: [],
