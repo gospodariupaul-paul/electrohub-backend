@@ -109,9 +109,22 @@ model Notification {
   userId    Int
   text      String
   link      String?
-  images    String[]  @default([])   // 🔥 ADĂUGAT — ACUM POȚI TRIMITE TOATE POZELE
+  images    String[]  @default([])
   read      Boolean   @default(false)
   createdAt DateTime  @default(now())
 
   user      User      @relation(fields: [userId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+// 🔥 MODELUL NotificationSettings — FĂRĂ RELAȚIE
+//////////////////////////////////////////////////////
+
+model NotificationSettings {
+  userId              Int     @id
+  email_notifications Boolean @default(false)
+  push_notifications  Boolean @default(false)
+  product_alerts      Boolean @default(false)
+  message_alerts      Boolean @default(false)
+  price_alerts        Boolean @default(false)
 }
