@@ -15,7 +15,7 @@ export class AuthController {
   async login(@Body() dto: any, @Res() res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
-    // 🔥 Setează cookie-ul JWT pentru autentificare
+    // Setează cookie-ul JWT
     res.cookie('jwt', accessToken, {
       httpOnly: true,
       secure: true,
