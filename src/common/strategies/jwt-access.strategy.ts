@@ -1,25 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request } from 'express';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser'; // 🔥 import corect pentru Node 22
 
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req?.cookies?.jwt || null,
-      ]),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_ACCESS_SECRET,
-    });
-  }
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-  async validate(payload: any) {
-    return {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
-    };
-  }
+  app.use(cookieParser()); // 🔥 OBLIGATORIU pentru JWT în cookie
+
+  app.enableCors({
+    origin: [
+      'https://electrohub-frontend.vercel.app',
+      'http://localhost:3000'
+    ],
+    credentials: true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
+  });
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Server running on port ${port}`);
 }
+
+bootstrap();
