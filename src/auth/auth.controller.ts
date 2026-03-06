@@ -1,4 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -11,15 +12,21 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: any) {
+  async login(@Body() dto: any, @Res() res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
-    return {
+    // 🔥 Setează cookie-ul JWT pentru autentificare
+    res.cookie('jwt', accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
+
+    return res.json({
       message: 'Login successful',
-      accessToken,
-      refreshToken,
       user,
-    };
+      refreshToken,
+    });
   }
 
   @Post('refresh')
