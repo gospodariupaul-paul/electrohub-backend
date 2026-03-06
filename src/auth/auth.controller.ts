@@ -15,20 +15,20 @@ export class AuthController {
   async login(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
-    // 🔥 COOKIE JWT (pentru autentificare)
+    // JWT COOKIE
     res.cookie('jwt', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      path: '/', // important pentru Vercel + Render
+      path: '/', // OBLIGATORIU
     });
 
-    // 🔥 COOKIE REFRESH TOKEN (pentru reînnoire)
+    // REFRESH TOKEN COOKIE
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      path: '/',
+      path: '/', // OBLIGATORIU
     });
 
     return {
@@ -41,7 +41,6 @@ export class AuthController {
   async refresh(@Body() body: any, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.refresh(body.refresh_token);
 
-    // 🔥 Actualizăm cookie-urile
     res.cookie('jwt', accessToken, {
       httpOnly: true,
       secure: true,
