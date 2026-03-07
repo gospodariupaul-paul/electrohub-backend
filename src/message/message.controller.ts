@@ -68,4 +68,20 @@ export class MessageController {
 
     return this.service.markAllAsRead(userId);
   }
+
+  // 🔥 Șterge mesaj DOAR pentru tine
+  @UseGuards(JwtAuthGuard)
+  @Post('delete-for-me/:id')
+  deleteForMe(@Req() req, @Param('id') id: string) {
+    const userId = req.user?.id;
+    return this.service.deleteForMe(Number(id), userId);
+  }
+
+  // 🔥 Șterge mesaj pentru TOȚI
+  @UseGuards(JwtAuthGuard)
+  @Post('delete-for-all/:id')
+  deleteForAll(@Req() req, @Param('id') id: string) {
+    const userId = req.user?.id;
+    return this.service.deleteForAll(Number(id), userId);
+  }
 }

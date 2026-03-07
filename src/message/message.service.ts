@@ -66,4 +66,37 @@ export class MessageService {
       data: { isRead: true },
     });
   }
+
+  // 🔥 Șterge mesaj DOAR pentru tine
+  async deleteForMe(messageId: number, userId: number) {
+    return this.prisma.messageUser.deleteMany({
+      where: {
+        messageId,
+        userId,
+      },
+    });
+  }
+
+  // 🔥 Șterge mesaj pentru TOȚI
+  async deleteForAll(messageId: number, userId: number) {
+    const msg = await this.prisma.message.findUnique({
+      where: { id: messageId },
+    });
+
+    if (!msg) {
+      throw new BadRequestException('Mesajul nu există');
+    }
+
+    if (msg.senderId !== userId) {
+      throw new BadRequestException('Nu poți șterge pentru toți');
+    }
+
+    return this.prisma.message.update({
+      where: { id: messageId },
+      data: {
+        deletedForAll: true,
+        text: 'Acest mesaj a fost șters',
+      },
+    });
+  }
 }
