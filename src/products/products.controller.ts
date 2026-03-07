@@ -26,7 +26,6 @@ export class ProductsController {
     if (n.includes("tv") || n.includes("televizor")) return "Audio-Video";
     if (n.includes("casetofon") || n.includes("radio") || n.includes("boxa")) return "Audio-Video";
 
-    // 🔥 fallback corect
     return "Altele";
   }
 
@@ -65,6 +64,21 @@ export class ProductsController {
   findAll() {
     return this.productsService.findAll();
   }
+
+  // 🔥🔥🔥 RUTA DE SEARCH — ADĂUGATĂ CORECT 🔥🔥🔥
+  @Get("search")
+  async search(@Req() req) {
+    const q = (req.query.q || "").toLowerCase();
+
+    const all = await this.productsService.findAll();
+
+    const filtered = all.filter(p =>
+      p?.name?.toLowerCase().includes(q)
+    );
+
+    return filtered;
+  }
+  // 🔥🔥🔥 SFÂRȘIT RUTA SEARCH 🔥🔥🔥
 
   @Get('category/:slug')
   async findByCategory(@Param('slug') slug: string) {
