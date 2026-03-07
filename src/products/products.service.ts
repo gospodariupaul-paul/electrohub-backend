@@ -29,7 +29,6 @@ export class ProductsService {
       );
     }
 
-    // 🔥 1. Creează produsul
     const product = await this.prisma.product.create({
       data: {
         name: data.name,
@@ -47,10 +46,8 @@ export class ProductsService {
       },
     });
 
-    // 🔥 2. Ia toți userii din baza de date
     const users = await this.prisma.user.findMany();
 
-    // 🔥 3. Creează notificări pentru TOȚI userii cu TOATE POZELE
     await Promise.all(
       users.map((u) =>
         this.prisma.notification
@@ -59,7 +56,7 @@ export class ProductsService {
               userId: u.id,
               text: `Un utilizator a publicat un anunț nou: ${product.name}`,
               link: `/product/${product.id}`,
-              images: product.images, // 🔥 FIX
+              images: product.images,
               read: false,
             },
           })
@@ -100,7 +97,6 @@ export class ProductsService {
     });
   }
 
-  // 🔥 AICI ESTE SINGURA MODIFICARE
   async getProductsByUser(userId: number) {
     return this.prisma.product.findMany({
       where: { userId: Number(userId) },
@@ -109,7 +105,7 @@ export class ProductsService {
         name: true,
         price: true,
         description: true,
-        images: true,   // 🔥 FIX — trimite toate pozele către frontend
+        images: true,
         stock: true,
         status: true,
         category: true,

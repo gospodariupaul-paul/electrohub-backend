@@ -24,9 +24,10 @@ export class ProductsController {
     if (n.includes("tel") || n.includes("samsung") || n.includes("iphone")) return "Telefoane";
     if (n.includes("dron")) return "Drones";
     if (n.includes("tv") || n.includes("televizor")) return "Audio-Video";
-    if (n.includes("casetofon")) return "Audio-Video";
+    if (n.includes("casetofon") || n.includes("radio") || n.includes("boxa")) return "Audio-Video";
 
-    return "Componente PC";
+    // 🔥 fallback corect
+    return "Altele";
   }
 
   @UseGuards(JwtAuthGuard)
