@@ -67,14 +67,18 @@ export class MessageService {
     });
   }
 
-  // 🔥 Șterge mesaj DOAR pentru tine
+  // 🔥 Șterge mesaj DOAR pentru tine (frontend îl ascunde)
   async deleteForMe(messageId: number, userId: number) {
-    return this.prisma.messageUser.deleteMany({
-      where: {
-        messageId,
-        userId,
-      },
+    const msg = await this.prisma.message.findUnique({
+      where: { id: messageId },
     });
+
+    if (!msg) {
+      throw new BadRequestException('Mesajul nu există');
+    }
+
+    // backend doar confirmă
+    return { success: true };
   }
 
   // 🔥 Șterge mesaj pentru TOȚI
@@ -94,7 +98,6 @@ export class MessageService {
     return this.prisma.message.update({
       where: { id: messageId },
       data: {
-        deletedForAll: true,
         text: 'Acest mesaj a fost șters',
       },
     });
