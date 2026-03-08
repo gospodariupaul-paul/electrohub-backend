@@ -29,4 +29,10 @@ export class OrdersController {
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(Number(id));
   }
+
+  // 🔥 ADĂUGAT — Comenzile utilizatorului logat
+  @Get('user/:id')
+  getOrdersByUser(@Param('id') id: string) {
+    return this.ordersService.getOrdersByUser(Number(id));
+  }
 }

@@ -70,4 +70,17 @@ export class OrdersService {
 
     return order;
   }
+
+  // 🔥 ADĂUGAT — Comenzile unui user
+  async getOrdersByUser(userId: number) {
+    return this.prisma.order.findMany({
+      where: { userId },
+      include: {
+        items: true, // foarte important!
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+  }
 }
