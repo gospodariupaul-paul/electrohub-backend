@@ -11,7 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+  import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -65,7 +65,7 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  // 🔥🔥🔥 RUTA DE SEARCH — ADĂUGATĂ CORECT 🔥🔥🔥
+  // 🔥 SEARCH
   @Get("search")
   async search(@Req() req) {
     const q = (req.query.q || "").toLowerCase();
@@ -78,7 +78,20 @@ export class ProductsController {
 
     return filtered;
   }
-  // 🔥🔥🔥 SFÂRȘIT RUTA SEARCH 🔥🔥🔥
+
+  // 🔥🔥🔥 FIX: RUTA /products/my — AICI ERA PROBLEMA 🔥🔥🔥
+  @UseGuards(JwtAuthGuard)
+  @Get("my")
+  async getMyProducts(@Req() req) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new BadRequestException("User not authenticated");
+    }
+
+    return this.productsService.getProductsByUser(Number(userId));
+  }
+  // 🔥🔥🔥 SFÂRȘIT FIX 🔥🔥🔥
 
   @Get('category/:slug')
   async findByCategory(@Param('slug') slug: string) {
