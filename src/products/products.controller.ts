@@ -11,7 +11,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
 
 @Controller('products')
 export class ProductsController {
