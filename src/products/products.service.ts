@@ -1,108 +1,76 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
+  // CREATE PRODUCT
   async create(data: any) {
     const category = await this.prisma.category.findFirst({
       where: {
-        name: {
-          equals: data.category,
-          mode: 'insensitive',
-        },
+        name: { equals: data.category, mode: 'insensitive' },
       },
     });
 
     if (!category) {
-      throw new NotFoundException(
-        `Categoria '${data.category}' nu există în baza de date.`,
-      );
+      throw new NotFoundException(`Categoria '${data.category}' nu există.`);
     }
 
-    const product = await this.prisma.product.create({
+    return this.prisma.product.create({
       data: {
-        name: data.name,
-        price: data.price,
-        description: data.description,
-        stock: data.stock,
-        images: data.images,
-        status: 'active',
-        category: { connect: { id: category.id } },
-        user: { connect: { id: Number(data.userId) } },
+        name: data.name || "",
+        price: Number(data.price) || 0,
+        stock: Number(data.stock) || 0,
+        description: data.description || "",
+        images: Array.isArray(data.images) ? data.images : [],
+        status: "active",
+        categoryId: category.id,
+        userId: Number(data.userId),
       },
     });
+  }
 
-    const users = await this.prisma.user.findMany();
+  // GET ALL PRODUCTS
+  async findAll() {
+    return this.prisma.product.findMany({
+      where: { status: "active" },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 
-    await Promise.all(
-      users.map((u) =>
-        this.prisma.notification
-          .create({
-            data: {
-              userId: u.id,
-              text: `Un utilizator a publicat un anunț nou: ${product.name}`,
-              link: `/product/${product.id}`,
-              images: product.images,
-              read: false,
-            },
-          })
-          .catch((err) => {
-            console.error('Eroare notificare pentru user:', u.id, err);
-          }),
-      ),
-    );
+  // GET PRODUCT BY ID
+  async findOne(id: number) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException("Produsul nu există");
+    }
 
     return product;
   }
 
-  async findAll() {
-    return this.prisma.product.findMany({
-      where: { status: 'active' },
-      include: { category: true, user: true },
-    });
-  }
+  // UPDATE PRODUCT
+  async update(id: number, data: any) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
 
-  async findByCategory(slug: string) {
-    return this.prisma.product.findMany({
-      where: {
-        category: {
-          name: {
-            equals: slug,
-            mode: 'insensitive',
-          },
-        },
-      },
-      include: { category: true, user: true },
-    });
-  }
+    if (!product) {
+      throw new NotFoundException("Produsul nu există");
+    }
 
-  async findOne(id: number) {
-    return this.prisma.product.findUnique({
+    return this.prisma.product.update({
       where: { id },
-      include: { category: true, user: true },
-    });
-  }
-
-  async getProductsByUser(userId: number) {
-    return this.prisma.product.findMany({
-      where: { userId: Number(userId) },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        description: true,
-        images: true,
-        stock: true,
-        status: true,
-        category: true,
-        user: true,
+      data: {
+        name: data.name ?? undefined,
+        description: data.description ?? undefined,
+        price: data.price !== undefined ? Number(data.price) || 0 : undefined,
+        stock: data.stock !== undefined ? Number(data.stock) || 0 : undefined,
+        images: Array.isArray(data.images) ? data.images : undefined,
       },
     });
   }
 
-  // 🔥 REMOVE SIMPLU: doar soft-delete după id
+  // DELETE PRODUCT (SOFT DELETE)
   async remove(id: number) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
@@ -112,26 +80,15 @@ export class ProductsService {
 
     return this.prisma.product.update({
       where: { id },
-      data: { status: 'deleted' },
+      data: { status: "deleted" },
     });
   }
 
-  async markAsSold(id: number) {
-    return this.prisma.product.update({
-      where: { id },
-      data: { status: 'sold' },
-    });
-  }
-
-  async update(id: number, data: any) {
-    return this.prisma.product.update({
-      where: { id },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.price && { price: Number(data.price) }),
-        ...(data.description && { description: data.description }),
-        ...(data.images && { images: data.images }),
-      },
+  // GET PRODUCTS BY USER
+  async findByUser(userId: number) {
+    return this.prisma.product.findMany({
+      where: { userId, status: "active" },
+      orderBy: { createdAt: "desc" },
     });
   }
 }
