@@ -24,6 +24,9 @@ model User {
   products            Product[]
 
   notifications       Notification[]
+
+  // 🔥 SINGURA MODIFICARE CERUTĂ
+  isOnline            Boolean        @default(false)
 }
 
 model Category {

@@ -5,6 +5,7 @@ import {
   UploadedFile,
   Body,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -41,5 +42,12 @@ export class UsersController {
       description: body.description,
       imageUrl,
     });
+  }
+
+  // 🔥 ENDPOINT NOU — returnează utilizatorii online
+  @Get('online')
+  @UseGuards(JwtAuthGuard)
+  async getOnlineUsers() {
+    return this.usersService.getOnlineUsers();
   }
 }
