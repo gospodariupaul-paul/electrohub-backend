@@ -39,6 +39,12 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
+    // 🔥 MARCHEAZĂ USERUL CA ONLINE
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { isOnline: true },
+    });
+
     const payload = {
       sub: user.id,
       email: user.email,
@@ -100,5 +106,15 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  // 🔥 METODA DE LOGOUT — MARCHEAZĂ USERUL CA OFFLINE
+  async logout(userId: number) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isOnline: false },
+    });
+
+    return { message: 'User logged out' };
   }
 }

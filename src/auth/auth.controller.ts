@@ -20,7 +20,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      path: '/', // OBLIGATORIU
+      path: '/',
     });
 
     // REFRESH TOKEN COOKIE
@@ -28,7 +28,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      path: '/', // OBLIGATORIU
+      path: '/',
     });
 
     return {
@@ -56,5 +56,16 @@ export class AuthController {
     });
 
     return { message: 'Token refreshed' };
+  }
+
+  // 🔥 LOGOUT — setează userul ca offline + șterge cookie-urile
+  @Post('logout')
+  async logout(@Body() body: any, @Res({ passthrough: true }) res: Response) {
+    await this.authService.logout(body.userId);
+
+    res.clearCookie('jwt', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+
+    return { message: 'Logged out successfully' };
   }
 }
