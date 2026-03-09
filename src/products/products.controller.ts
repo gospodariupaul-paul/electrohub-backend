@@ -11,7 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-  import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -31,17 +31,7 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(
-    @Req() req,
-    @Body()
-    body: {
-      name: string;
-      price: number;
-      description: string;
-      stock: number;
-      images: string[];
-    },
-  ) {
+  async create(@Req() req, @Body() body: any) {
     const userId = req.user?.id;
 
     if (!userId) {
@@ -65,21 +55,13 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  // 🔥 SEARCH
   @Get("search")
   async search(@Req() req) {
     const q = (req.query.q || "").toLowerCase();
-
     const all = await this.productsService.findAll();
-
-    const filtered = all.filter(p =>
-      p?.name?.toLowerCase().includes(q)
-    );
-
-    return filtered;
+    return all.filter(p => p?.name?.toLowerCase().includes(q));
   }
 
-  // 🔥🔥🔥 FIX: RUTA /products/my — AICI ERA PROBLEMA 🔥🔥🔥
   @UseGuards(JwtAuthGuard)
   @Get("my")
   async getMyProducts(@Req() req) {
@@ -91,7 +73,6 @@ export class ProductsController {
 
     return this.productsService.getProductsByUser(Number(userId));
   }
-  // 🔥🔥🔥 SFÂRȘIT FIX 🔥🔥🔥
 
   @Get('category/:slug')
   async findByCategory(@Param('slug') slug: string) {
@@ -108,9 +89,14 @@ export class ProductsController {
     return this.productsService.findOne(Number(id));
   }
 
+  // 🔥 FIX: DELETE PROTEJAT + userId + role
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.productsService.remove(Number(id));
+  remove(@Param('id') id: number, @Req() req) {
+    const userId = req.user?.id;
+    const role = req.user?.role;
+
+    return this.productsService.remove(Number(id), userId, role);
   }
 
   @Post('mark-sold/:id')
@@ -119,16 +105,7 @@ export class ProductsController {
   }
 
   @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      name?: string;
-      price?: number;
-      description?: string;
-      images?: string[];
-    },
-  ) {
+  async update(@Param('id') id: string, @Body() body: any) {
     return this.productsService.update(Number(id), body);
   }
 }

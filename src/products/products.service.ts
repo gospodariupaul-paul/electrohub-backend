@@ -1,19 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: {
-    name: string;
-    price: number;
-    description: string;
-    stock: number;
-    images: string[];
-    userId: number;
-    category: string;
-  }) {
+  async create(data: any) {
     const category = await this.prisma.category.findFirst({
       where: {
         name: {
@@ -38,10 +30,7 @@ export class ProductsService {
         images: data.images,
         status: 'active',
 
-        category: {
-          connect: { id: category.id },
-        },
-
+        category: { connect: { id: category.id } },
         user: { connect: { id: Number(data.userId) } },
       },
     });
@@ -114,7 +103,19 @@ export class ProductsService {
     });
   }
 
-  async remove(id: number) {
+  // 🔥 FIX COMPLET: verificare user + admin
+  async remove(id: number, userId: number, role: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException("Produsul nu există");
+    }
+
+    // 🔥 Adminul poate șterge ORICE
+    if (role !== "admin" && product.userId !== userId) {
+      throw new ForbiddenException("Nu ai voie să ștergi acest produs");
+    }
+
     return this.prisma.product.update({
       where: { id },
       data: { status: 'deleted' },
@@ -128,10 +129,7 @@ export class ProductsService {
     });
   }
 
-  async update(
-    id: number,
-    data: { name?: string; price?: number; description?: string; images?: string[] },
-  ) {
+  async update(id: number, data: any) {
     return this.prisma.product.update({
       where: { id },
       data: {
