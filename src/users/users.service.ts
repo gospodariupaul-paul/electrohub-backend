@@ -17,7 +17,23 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
-  // 🔥 METODĂ NOUĂ — returnează utilizatorii online
+  // 🔥 SETEAZĂ USERUL ONLINE LA LOGIN
+  async setUserOnline(userId: number) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { isOnline: true },
+    });
+  }
+
+  // 🔥 SETEAZĂ USERUL OFFLINE LA LOGOUT
+  async setUserOffline(userId: number) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { isOnline: false },
+    });
+  }
+
+  // 🔥 RETURNARE UTILIZATORI ONLINE
   getOnlineUsers() {
     return this.prisma.user.findMany({
       where: { isOnline: true },
