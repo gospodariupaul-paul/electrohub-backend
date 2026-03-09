@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Controller, Post, Body, Res, Req, UseGuards } from '@nestjs/common';
+import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -58,10 +59,13 @@ export class AuthController {
     return { message: 'Token refreshed' };
   }
 
-  // 🔥 LOGOUT — setează userul ca offline + șterge cookie-urile
+  // 🔥 LOGOUT CORECT — ia userul din JWT, nu din body
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Body() body: any, @Res({ passthrough: true }) res: Response) {
-    await this.authService.logout(body.userId);
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const user = req.user as any;
+
+    await this.authService.logout(user.sub);
 
     res.clearCookie('jwt', { path: '/' });
     res.clearCookie('refreshToken', { path: '/' });

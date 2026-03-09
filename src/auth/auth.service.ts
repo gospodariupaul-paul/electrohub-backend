@@ -108,7 +108,7 @@ export class AuthService {
     }
   }
 
-  // 🔥 METODA DE LOGOUT — MARCHEAZĂ USERUL CA OFFLINE
+  // 🔥 LOGOUT CORECT — marchează userul ca offline
   async logout(userId: number) {
     await this.prisma.user.update({
       where: { id: userId },
