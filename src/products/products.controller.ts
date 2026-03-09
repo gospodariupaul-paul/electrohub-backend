@@ -89,14 +89,10 @@ export class ProductsController {
     return this.productsService.findOne(Number(id));
   }
 
-  // 🔥 FIX: DELETE PROTEJAT + userId + role
-  @UseGuards(JwtAuthGuard)
+  // 🔥 DELETE SIMPLIFICAT: doar după id, fără user/role (ca să nu mai dea 500)
   @Delete(':id')
-  remove(@Param('id') id: number, @Req() req) {
-    const userId = req.user?.id;
-    const role = req.user?.role;
-
-    return this.productsService.remove(Number(id), userId, role);
+  remove(@Param('id') id: number) {
+    return this.productsService.remove(Number(id));
   }
 
   @Post('mark-sold/:id')

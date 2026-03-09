@@ -29,7 +29,6 @@ export class ProductsService {
         stock: data.stock,
         images: data.images,
         status: 'active',
-
         category: { connect: { id: category.id } },
         user: { connect: { id: Number(data.userId) } },
       },
@@ -103,17 +102,12 @@ export class ProductsService {
     });
   }
 
-  // 🔥 FIX COMPLET: verificare user + admin
-  async remove(id: number, userId: number, role: string) {
+  // 🔥 REMOVE SIMPLU: doar soft-delete după id
+  async remove(id: number) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
     if (!product) {
       throw new NotFoundException("Produsul nu există");
-    }
-
-    // 🔥 Adminul poate șterge ORICE
-    if (role !== "admin" && product.userId !== userId) {
-      throw new ForbiddenException("Nu ai voie să ștergi acest produs");
     }
 
     return this.prisma.product.update({
