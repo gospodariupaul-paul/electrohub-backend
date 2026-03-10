@@ -22,10 +22,7 @@ model User {
   messages            Message[]
   orders              Order[]
   products            Product[]
-
   notifications       Notification[]
-
-  // 🔥 SINGURA MODIFICARE CERUTĂ
   isOnline            Boolean        @default(false)
 }
 
@@ -51,8 +48,10 @@ model Product {
   images        String[]
   userId        Int
   status        String         @default("active")
+
   conversations Conversation[]
   orderItems    OrderItem[]
+
   category      Category?      @relation(fields: [categoryId], references: [id])
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -74,8 +73,11 @@ model OrderItem {
   productId Int
   quantity  Int
   price     Float
+
   order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+
+  // 🔥 FIX CORECT — onDelete pe partea cu fields/references
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Conversation {
@@ -87,7 +89,10 @@ model Conversation {
   updatedAt DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 
   buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
-  product   Product   @relation(fields: [productId], references: [id])
+
+  // 🔥 FIX CORECT — onDelete pe partea cu fields/references
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   seller    User      @relation("SellerConversations", fields: [sellerId], references: [id])
   messages  Message[]
 }
@@ -98,7 +103,6 @@ model Message {
   senderId       Int
   text           String
   createdAt      DateTime     @default(now())
-
   isRead            Boolean      @default(false)
   deletedForUserIds Int[]        @default([])
   deletedForAll     Boolean      @default(false)
@@ -118,10 +122,6 @@ model Notification {
 
   user      User      @relation(fields: [userId], references: [id])
 }
-
-//////////////////////////////////////////////////////
-// 🔥 MODELUL NotificationSettings — FĂRĂ RELAȚIE
-//////////////////////////////////////////////////////
 
 model NotificationSettings {
   userId              Int     @id
