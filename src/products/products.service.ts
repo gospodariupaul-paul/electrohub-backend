@@ -77,31 +77,22 @@ export class ProductsService {
     });
   }
 
-  // 🔥 DELETE CARE FUNCȚIONEAZĂ 100%
+  // 🔥 DELETE CARE FUNCȚIONEAZĂ 100% (SOFT DELETE SIMPLU)
   async remove(id: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: {
-        favorites: true,
-        messages: true,
-      },
     });
 
     if (!product) {
       throw new NotFoundException("Produsul nu există");
     }
 
-    // Dacă produsul are relații → SOFT DELETE
-    if (product.favorites.length > 0 || product.messages.length > 0) {
-      return this.prisma.product.update({
-        where: { id },
-        data: { status: "deleted" },
-      });
-    }
-
-    // Dacă nu are relații → HARD DELETE
-    return this.prisma.product.delete({
+    // Soft delete – schimbăm statusul
+    return this.prisma.product.update({
       where: { id },
+      data: {
+        status: "deleted",
+      },
     });
   }
 
