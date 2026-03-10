@@ -57,7 +57,7 @@ export class ProductsService {
     return product;
   }
 
-  // UPDATE PRODUCT
+  // UPDATE PRODUCT — FIXAT COMPLET
   async update(id: number, data: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
@@ -73,11 +73,12 @@ export class ProductsService {
         price: data.price !== undefined ? Number(data.price) || 0 : undefined,
         stock: data.stock !== undefined ? Number(data.stock) || 0 : undefined,
         images: Array.isArray(data.images) ? data.images : undefined,
+        status: data.status ?? undefined, // DOAR câmpuri valide
       },
     });
   }
 
-  // 🔥 DELETE CARE FUNCȚIONEAZĂ 100% (SOFT DELETE SIMPLU)
+  // DELETE PRODUCT (SOFT DELETE)
   async remove(id: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -87,7 +88,6 @@ export class ProductsService {
       throw new NotFoundException("Produsul nu există");
     }
 
-    // Soft delete – schimbăm statusul
     return this.prisma.product.update({
       where: { id },
       data: {
@@ -104,3 +104,7 @@ export class ProductsService {
     });
   }
 }
+cd backend
+git add src/products/products.service.ts
+git commit -m "Fix product update: allow only valid fields, prevent Prisma column errors"
+git push
