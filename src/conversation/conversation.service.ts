@@ -115,7 +115,6 @@ export class ConversationService {
     });
   }
 
-  // 🔥 ȘTERGE O CONVERSAȚIE
   async deleteConversation(id: number, userId: number) {
     const conv = await this.prisma.conversation.findUnique({
       where: { id },
@@ -135,7 +134,6 @@ export class ConversationService {
     });
   }
 
-  // 🔥 ȘTERGE TOATE CONVERSAȚIILE USERULUI
   async deleteAllConversations(userId: number) {
     const convs = await this.prisma.conversation.findMany({
       where: {

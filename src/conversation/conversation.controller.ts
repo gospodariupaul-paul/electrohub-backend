@@ -63,7 +63,13 @@ export class ConversationController {
 
     if (!userId) throw new BadRequestException('User not authenticated');
 
-    return this.service.getConversationById(Number(id), userId);
+    const convId = Number(id);
+
+    if (!convId || isNaN(convId)) {
+      throw new BadRequestException('Invalid conversation ID');
+    }
+
+    return this.service.getConversationById(convId, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -76,7 +82,6 @@ export class ConversationController {
     return this.service.markMessagesAsRead(Number(id), userId);
   }
 
-  // 🔥 ȘTERGE O CONVERSAȚIE
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   deleteConversation(@Req() req, @Param('id') id: string) {
@@ -86,7 +91,6 @@ export class ConversationController {
     return this.service.deleteConversation(Number(id), userId);
   }
 
-  // 🔥 ȘTERGE TOATE CONVERSAȚIILE USERULUI
   @UseGuards(JwtAuthGuard)
   @Delete('delete-all')
   deleteAll(@Req() req) {
