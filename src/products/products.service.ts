@@ -31,10 +31,17 @@ export class ProductsService {
     });
   }
 
-  // GET ALL PRODUCTS
+  // GET ACTIVE PRODUCTS
   async findAll() {
     return this.prisma.product.findMany({
       where: { status: "active" },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  // 🔥 GET ALL PRODUCTS FOR ADMIN
+  async findAllAdmin() {
+    return this.prisma.product.findMany({
       orderBy: { createdAt: "desc" },
     });
   }
@@ -70,7 +77,7 @@ export class ProductsService {
     });
   }
 
-  // DELETE PRODUCT (HARD DELETE)
+  // 🔥 HARD DELETE
   async remove(id: number) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
@@ -78,7 +85,6 @@ export class ProductsService {
       throw new NotFoundException("Produsul nu există");
     }
 
-    // 🔥 HARD DELETE — șterge produsul complet din DB
     return this.prisma.product.delete({
       where: { id },
     });
