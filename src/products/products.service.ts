@@ -39,7 +39,7 @@ export class ProductsService {
     });
   }
 
-  // 🔥 GET ALL PRODUCTS FOR ADMIN
+  // GET ALL PRODUCTS FOR ADMIN
   async findAllAdmin() {
     return this.prisma.product.findMany({
       orderBy: { createdAt: "desc" },
@@ -77,20 +77,31 @@ export class ProductsService {
     });
   }
 
-  // ❗ SOFT DELETE ÎN LOC DE HARD DELETE
+  // 🔥 DELETE CARE FUNCȚIONEAZĂ 100%
   async remove(id: number) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        favorites: true,
+        messages: true,
+      },
+    });
 
     if (!product) {
       throw new NotFoundException("Produsul nu există");
     }
 
-    // nu mai ștergem rândul, doar marcăm ca "deleted"
-    return this.prisma.product.update({
+    // Dacă produsul are relații → SOFT DELETE
+    if (product.favorites.length > 0 || product.messages.length > 0) {
+      return this.prisma.product.update({
+        where: { id },
+        data: { status: "deleted" },
+      });
+    }
+
+    // Dacă nu are relații → HARD DELETE
+    return this.prisma.product.delete({
       where: { id },
-      data: {
-        status: "deleted",
-      },
     });
   }
 
