@@ -70,7 +70,7 @@ export class ProductsService {
     });
   }
 
-  // DELETE PRODUCT (SOFT DELETE)
+  // DELETE PRODUCT (HARD DELETE)
   async remove(id: number) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
@@ -78,9 +78,9 @@ export class ProductsService {
       throw new NotFoundException("Produsul nu există");
     }
 
-    return this.prisma.product.update({
+    // 🔥 HARD DELETE — șterge produsul complet din DB
+    return this.prisma.product.delete({
       where: { id },
-      data: { status: "deleted" },
     });
   }
 
