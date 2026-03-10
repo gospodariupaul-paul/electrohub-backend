@@ -104,7 +104,3 @@ export class ProductsService {
     });
   }
 }
-cd backend
-git add src/products/products.service.ts
-git commit -m "Fix product update: allow only valid fields, prevent Prisma column errors"
-git push
