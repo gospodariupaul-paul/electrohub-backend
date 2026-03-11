@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, Req, UseGuards, Get } from '@nestjs/common';
+import { 
+  Controller, 
+  Post, 
+  Body, 
+  Res, 
+  Req, 
+  UseGuards, 
+  Get 
+} from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -57,7 +65,7 @@ export class AuthController {
     return { message: 'Token refreshed' };
   }
 
-  // 🔥 RUTA CARE LIPSEA
+  // 🔥 RUTA CARE LIPSEA — ACUM FUNCȚIONEAZĂ
   @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: Request) {
