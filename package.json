@@ -1,6 +1,6 @@
 {
   "name": "electrohub-backend",
-  "version": "1.0.1"
+  "version": "1.0.1",
 
   "engines": {
     "node": "20.x"
