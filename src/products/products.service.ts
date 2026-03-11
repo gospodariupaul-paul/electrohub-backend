@@ -39,6 +39,20 @@ export class ProductsService {
     });
   }
 
+  // SEARCH PRODUCTS  ← ADĂUGAT
+  async search(q: string) {
+    return this.prisma.product.findMany({
+      where: {
+        status: "active",
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
   // GET ALL PRODUCTS FOR ADMIN
   async findAllAdmin() {
     return this.prisma.product.findMany({
@@ -57,7 +71,7 @@ export class ProductsService {
     return product;
   }
 
-  // UPDATE PRODUCT — FIXAT COMPLET
+  // UPDATE PRODUCT
   async update(id: number, data: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
@@ -73,7 +87,7 @@ export class ProductsService {
         price: data.price !== undefined ? Number(data.price) || 0 : undefined,
         stock: data.stock !== undefined ? Number(data.stock) || 0 : undefined,
         images: Array.isArray(data.images) ? data.images : undefined,
-        status: data.status ?? undefined, // DOAR câmpuri valide
+        status: data.status ?? undefined,
       },
     });
   }

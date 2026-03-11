@@ -13,7 +13,6 @@ import {
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -32,6 +31,13 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  // SEARCH PRODUCTS  ← ADĂUGAT
+  @Get('search')
+  search(@Req() req: any) {
+    const q = req.query.q || "";
+    return this.productsService.search(q);
   }
 
   // GET PRODUCT BY ID
