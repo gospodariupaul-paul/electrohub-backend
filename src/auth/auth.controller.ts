@@ -16,7 +16,6 @@ export class AuthController {
   async login(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
-    // JWT COOKIE
     res.cookie('jwt', accessToken, {
       httpOnly: true,
       secure: true,
@@ -24,7 +23,6 @@ export class AuthController {
       path: '/',
     });
 
-    // REFRESH TOKEN COOKIE
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
@@ -59,14 +57,13 @@ export class AuthController {
     return { message: 'Token refreshed' };
   }
 
-  // 🔥 RUTA CARE LIPSEA — FIXUL PROBLEMEI
+  // 🔥 RUTA CARE LIPSEA
   @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: Request) {
     return req.user;
   }
 
-  // 🔥 LOGOUT CORECT — ia userul din JWT, nu din body
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
