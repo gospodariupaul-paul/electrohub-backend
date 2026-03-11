@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class ProductsService {
     });
   }
 
-  // SEARCH PRODUCTS  ← ADĂUGAT
+  // SEARCH PRODUCTS (ADĂUGAT)
   async search(q: string) {
     return this.prisma.product.findMany({
       where: {
@@ -92,14 +92,18 @@ export class ProductsService {
     });
   }
 
-  // DELETE PRODUCT (SOFT DELETE)
-  async remove(id: number) {
+  // DELETE PRODUCT (SOFT DELETE) — MODIFICAT DOAR CE TREBUIE
+  async remove(id: number, userId: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
     });
 
     if (!product) {
       throw new NotFoundException("Produsul nu există");
+    }
+
+    if (product.userId !== userId) {
+      throw new ForbiddenException("Nu poți șterge produsul altui utilizator");
     }
 
     return this.prisma.product.update({

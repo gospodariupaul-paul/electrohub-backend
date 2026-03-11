@@ -33,7 +33,7 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  // SEARCH PRODUCTS  ← ADĂUGAT
+  // SEARCH PRODUCTS (ADĂUGAT)
   @Get('search')
   search(@Req() req: any) {
     const q = req.query.q || "";
@@ -73,10 +73,10 @@ export class ProductsController {
     return this.productsService.update(Number(id), { status: 'sold' });
   }
 
-  // DELETE PRODUCT (SOFT DELETE)
+  // DELETE PRODUCT (SOFT DELETE) — MODIFICAT DOAR CE TREBUIE
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(Number(id));
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.productsService.remove(Number(id), req.user.id);
   }
 }
