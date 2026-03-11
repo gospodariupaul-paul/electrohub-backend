@@ -1,124 +1,70 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  // CREATE PRODUCT
-  async create(data: any) {
-    const category = await this.prisma.category.findFirst({
-      where: {
-        name: { equals: data.category, mode: 'insensitive' },
-      },
-    });
-
-    if (!category) {
-      throw new NotFoundException(`Categoria '${data.category}' nu există.`);
-    }
-
+  async create(dto: any, userId: number) {
     return this.prisma.product.create({
       data: {
-        name: data.name || "",
-        price: Number(data.price) || 0,
-        stock: Number(data.stock) || 0,
-        description: data.description || "",
-        images: Array.isArray(data.images) ? data.images : [],
-        status: "active",
-        categoryId: category.id,
-        userId: Number(data.userId),
+        ...dto,
+        userId,
       },
     });
   }
 
-  // GET ACTIVE PRODUCTS
   async findAll() {
     return this.prisma.product.findMany({
-      where: { status: "active" },
-      orderBy: { createdAt: "desc" },
+      where: { status: 'active' },
     });
   }
 
-  // SEARCH PRODUCTS (ADĂUGAT)
-  async search(q: string) {
-    return this.prisma.product.findMany({
-      where: {
-        status: "active",
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { description: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  // GET ALL PRODUCTS FOR ADMIN
-  async findAllAdmin() {
-    return this.prisma.product.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  // GET PRODUCT BY ID
-  async findOne(id: number) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException("Produsul nu există");
-    }
-
-    return product;
-  }
-
-  // UPDATE PRODUCT
-  async update(id: number, data: any) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException("Produsul nu există");
-    }
-
-    return this.prisma.product.update({
-      where: { id },
-      data: {
-        name: data.name ?? undefined,
-        description: data.description ?? undefined,
-        price: data.price !== undefined ? Number(data.price) || 0 : undefined,
-        stock: data.stock !== undefined ? Number(data.stock) || 0 : undefined,
-        images: Array.isArray(data.images) ? data.images : undefined,
-        status: data.status ?? undefined,
-      },
-    });
-  }
-
-  // DELETE PRODUCT (SOFT DELETE) — MODIFICAT DOAR CE TREBUIE
-  async remove(id: number, userId: number) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
-    });
-
-    if (!product) {
-      throw new NotFoundException("Produsul nu există");
-    }
-
-    if (product.userId !== userId) {
-      throw new ForbiddenException("Nu poți șterge produsul altui utilizator");
-    }
-
-    return this.prisma.product.update({
-      where: { id },
-      data: {
-        status: "deleted",
-      },
-    });
-  }
-
-  // GET PRODUCTS BY USER
   async findByUser(userId: number) {
     return this.prisma.product.findMany({
-      where: { userId, status: "active" },
-      orderBy: { createdAt: "desc" },
+      where: { userId },
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.product.findUnique({
+      where: { id },
+    });
+  }
+
+  async update(id: number, dto: any, userId: number, role: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException('Produsul nu există');
+    }
+
+    // 🔥 Adminul poate modifica ORICE
+    if (product.userId !== userId && role !== 'admin') {
+      throw new ForbiddenException('Nu poți modifica produsul altui utilizator');
+    }
+
+    return this.prisma.product.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
+  async remove(id: number, userId: number, role: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException('Produsul nu există');
+    }
+
+    // 🔥 FIX FINAL: Adminul poate șterge ORICE produs
+    if (product.userId !== userId && role !== 'admin') {
+      throw new ForbiddenException('Nu poți șterge produsul altui utilizator');
+    }
+
+    return this.prisma.product.update({
+      where: { id },
+      data: { status: 'deleted' },
     });
   }
 }

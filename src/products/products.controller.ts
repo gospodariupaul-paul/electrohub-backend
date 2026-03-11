@@ -3,80 +3,50 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Delete,
-  Put,
-  UseGuards,
   Req,
-  NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // CREATE PRODUCT
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() body: any, @Req() req: any) {
-    return this.productsService.create({
-      ...body,
-      userId: req.user.id,
-    });
+  create(@Body() createProductDto: any, @Req() req) {
+    return this.productsService.create(createProductDto, req.user.id);
   }
 
-  // GET ALL PRODUCTS
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
-  // SEARCH PRODUCTS (ADĂUGAT)
-  @Get('search')
-  search(@Req() req: any) {
-    const q = req.query.q || "";
-    return this.productsService.search(q);
+  @Get('user/:id')
+  findByUser(@Param('id') id: string) {
+    return this.productsService.findByUser(Number(id));
   }
 
-  // GET PRODUCT BY ID
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(Number(id));
   }
 
-  // GET PRODUCTS BY USER
   @UseGuards(JwtAuthGuard)
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.productsService.findByUser(Number(userId));
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: any, @Req() req) {
+    return this.productsService.update(Number(id), dto, req.user.id, req.user.role);
   }
 
-  // GET PRODUCTS BY CATEGORY
-  @Get('category/:slug')
-  async findByCategory(@Param('slug') slug: string) {
-    return this.productsService.findAll(); // simplificat, fără eroare
-  }
-
-  // UPDATE PRODUCT
-  @UseGuards(JwtAuthGuard)
-  @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    return this.productsService.update(Number(id), body);
-  }
-
-  // MARK PRODUCT AS SOLD
-  @UseGuards(JwtAuthGuard)
-  @Post('mark-sold/:id')
-  async markAsSold(@Param('id') id: string) {
-    return this.productsService.update(Number(id), { status: 'sold' });
-  }
-
-  // DELETE PRODUCT (SOFT DELETE) — MODIFICAT DOAR CE TREBUIE
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: any) {
-    return this.productsService.remove(Number(id), req.user.id);
+  remove(@Param('id') id: string, @Req() req) {
+    // 🔥 FIX: trimitem și rolul
+    return this.productsService.remove(Number(id), req.user.id, req.user.role);
   }
 }
