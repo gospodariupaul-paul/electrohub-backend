@@ -5,14 +5,14 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Necesare pentru cookie-uri cross-site
   app.use(cookieParser());
 
+  // Preluăm URL-urile din .env cu fallback-uri
+  const FRONTEND_URL = process.env.FRONTEND_URL || 'https://electrohub-frontend.vercel.app';
+  const LOCAL_URL = process.env.LOCAL_URL || 'http://localhost:3000';
+
   app.enableCors({
-    origin: [
-      process.env.FRONTEND_URL,
-      process.env.LOCAL_URL
-    ],
+    origin: [FRONTEND_URL, LOCAL_URL],
     credentials: true,
     methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
