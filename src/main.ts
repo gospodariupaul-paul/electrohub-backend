@@ -1,13 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
 
-  // Preluăm URL-urile din .env cu fallback-uri
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   const FRONTEND_URL = process.env.FRONTEND_URL || 'https://electrohub-frontend.vercel.app';
   const LOCAL_URL = process.env.LOCAL_URL || 'http://localhost:3000';
 
