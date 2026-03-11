@@ -44,9 +44,18 @@ export class ProductsService {
       throw new ForbiddenException('Nu poți modifica produsul altui utilizator');
     }
 
+    // 🔥 FIX: filtrăm câmpurile ca să nu ajungă "new" sau alte câmpuri inexistente
+    const data: any = {
+      name: dto.name,
+      price: dto.price,
+      description: dto.description,
+      images: dto.images,
+      status: dto.status ?? product.status,
+    };
+
     return this.prisma.product.update({
       where: { id },
-      data: dto,
+      data,
     });
   }
 
@@ -57,7 +66,7 @@ export class ProductsService {
       throw new NotFoundException('Produsul nu există');
     }
 
-    // 🔥 FIX FINAL: Adminul poate șterge ORICE produs
+    // 🔥 FIX: Adminul poate șterge ORICE produs
     if (product.userId !== userId && role !== 'admin') {
       throw new ForbiddenException('Nu poți șterge produsul altui utilizator');
     }
