@@ -6,12 +6,19 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: any, userId: number) {
-    return this.prisma.product.create({
-      data: {
-        ...dto,
-        userId,
-      },
-    });
+    // ❗ NU mai folosim ...dto — filtrăm manual câmpurile permise
+    const data: any = {
+      name: dto.name,
+      price: dto.price,
+      description: dto.description,
+      images: dto.images,
+      stock: dto.stock ?? 0,
+      categoryId: dto.categoryId ?? null,
+      status: dto.status ?? 'active',
+      userId,
+    };
+
+    return this.prisma.product.create({ data });
   }
 
   async findAll() {
@@ -39,12 +46,11 @@ export class ProductsService {
       throw new NotFoundException('Produsul nu există');
     }
 
-    // 🔥 Adminul poate modifica ORICE
     if (product.userId !== userId && role !== 'admin') {
       throw new ForbiddenException('Nu poți modifica produsul altui utilizator');
     }
 
-    // 🔥 FIX: filtrăm câmpurile ca să nu ajungă "new" sau alte câmpuri inexistente
+    // ❗ Filtrăm câmpurile permise
     const data: any = {
       name: dto.name,
       price: dto.price,
@@ -66,7 +72,6 @@ export class ProductsService {
       throw new NotFoundException('Produsul nu există');
     }
 
-    // 🔥 FIX: Adminul poate șterge ORICE produs
     if (product.userId !== userId && role !== 'admin') {
       throw new ForbiddenException('Nu poți șterge produsul altui utilizator');
     }
