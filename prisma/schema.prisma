@@ -94,17 +94,17 @@ model Conversation {
 }
 
 model Message {
-  id               Int          @id @default(autoincrement())
-  conversationId   Int
-  senderId         Int
-  text             String
-  createdAt        DateTime     @default(now())
-  isRead           Boolean      @default(false)
-  deletedForUserIds Int[]       @default([])
-  deletedForAll     Boolean     @default(false)
+  id                Int          @id @default(autoincrement())
+  conversationId    Int
+  senderId          Int
+  text              String
+  createdAt         DateTime     @default(now())
+  isRead            Boolean      @default(false)
+  deletedForUserIds Int[]        @default([])
+  deletedForAll     Boolean      @default(false)
 
-  conversation     Conversation @relation(fields: [conversationId], references: [id])
-  sender           User         @relation(fields: [senderId], references: [id])
+  conversation      Conversation @relation(fields: [conversationId], references: [id])
+  sender            User         @relation(fields: [senderId], references: [id])
 }
 
 model Notification {
