@@ -6,7 +6,7 @@ import { NotificationService } from '../notification/notification.service';
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
-    private notificationService: NotificationService, // 🔥 ADĂUGAT
+    private notificationService: NotificationService, // 🔥 NECESAR
   ) {}
 
   async create(dto: any, userId: number) {

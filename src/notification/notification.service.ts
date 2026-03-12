@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class NotificationService {
   constructor(private prisma: PrismaService) {}
 
-  // 🔥 METODĂ NOUĂ — CREAȚI NOTIFICARE
+  // 🔥 METODA CARE LIPSEA — CREAȚI NOTIFICARE
   async createNotification(userId: number, message: string) {
     return this.prisma.notification.create({
       data: {
