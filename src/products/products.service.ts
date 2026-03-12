@@ -1,9 +1,13 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service'; // 🔥 ADĂUGAT
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService, // 🔥 ADĂUGAT
+  ) {}
 
   async create(dto: any, userId: number) {
     const data: any = {
@@ -17,7 +21,15 @@ export class ProductsService {
       userId,
     };
 
-    return this.prisma.product.create({ data });
+    const product = await this.prisma.product.create({ data });
+
+    // 🔥 NOTIFICARE — SINGURA LINIE CARE LIPSEA
+    await this.notificationService.createNotification(
+      userId,
+      `Ai publicat un nou anunț: ${product.name}`
+    );
+
+    return product;
   }
 
   async findAll() {
@@ -38,7 +50,6 @@ export class ProductsService {
     });
   }
 
-  // 🔥 METODĂ NOUĂ — SEARCH
   async search(q: string) {
     return this.prisma.product.findMany({
       where: {
