@@ -60,3 +60,8 @@ dist/
 # Allow Prisma engines to be committed
 !node_modules/.prisma/
 !node_modules/@prisma/
+node_modules/
+dist/
+
+!node_modules/.prisma/
+!node_modules/@prisma/
