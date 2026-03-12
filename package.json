@@ -1,10 +1,7 @@
 {
   "name": "electrohub-backend",
-  "version": "1.0.1",
-
-  "engines": {
-    "node": "20.x"
-  },
+  "version": "1.0.2",
+  "forceRebuild": "true",
   "description": "",
   "main": "dist/main.js",
   "scripts": {
