@@ -6,7 +6,6 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: any, userId: number) {
-    // ❗ NU mai folosim ...dto — filtrăm manual câmpurile permise
     const data: any = {
       name: dto.name,
       price: dto.price,
@@ -39,7 +38,20 @@ export class ProductsService {
     });
   }
 
-  // 🔥 SINGURA METODĂ NOUĂ — NECESARĂ PENTRU CATEGORII
+  // 🔥 METODĂ NOUĂ — SEARCH
+  async search(q: string) {
+    return this.prisma.product.findMany({
+      where: {
+        status: 'active',
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findByCategory(categoryId: number) {
     return this.prisma.product.findMany({
       where: {
@@ -61,7 +73,6 @@ export class ProductsService {
       throw new ForbiddenException('Nu poți modifica produsul altui utilizator');
     }
 
-    // ❗ Filtrăm câmpurile permise
     const data: any = {
       name: dto.name,
       price: dto.price,
