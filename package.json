@@ -1,10 +1,13 @@
 {
   "name": "electrohub-backend",
-  "version": "1.0.3",
-
-  "engines": {
-    "node": "18.x"
+  "version": "1.0.2",
+  "forceRebuild": "true",
+  "scripts": {
+    "start": "nest start"
   },
+  ...
+}
+
   "description": "",
   "main": "dist/main.js",
   "scripts": {
