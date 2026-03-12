@@ -32,6 +32,12 @@ export class ProductsController {
     return this.productsService.findByUser(Number(id));
   }
 
+  // 🔥 RUTA NOUĂ — SINGURA MODIFICARE NECESARĂ
+  @Get('category/:id')
+  findByCategory(@Param('id') id: string) {
+    return this.productsService.findByCategory(Number(id));
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(Number(id));

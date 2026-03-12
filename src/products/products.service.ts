@@ -39,6 +39,17 @@ export class ProductsService {
     });
   }
 
+  // 🔥 SINGURA METODĂ NOUĂ — NECESARĂ PENTRU CATEGORII
+  async findByCategory(categoryId: number) {
+    return this.prisma.product.findMany({
+      where: {
+        categoryId,
+        status: 'active',
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async update(id: number, dto: any, userId: number, role: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
