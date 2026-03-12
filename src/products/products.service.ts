@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationService } from '../notification/notification.service'; // 🔥 ADĂUGAT
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ProductsService {
@@ -23,10 +23,10 @@ export class ProductsService {
 
     const product = await this.prisma.product.create({ data });
 
-    // 🔥 NOTIFICARE — SINGURA LINIE CARE LIPSEA
+    // 🔥 AICI SE CREEAZĂ NOTIFICAREA
     await this.notificationService.createNotification(
       userId,
-      `Ai publicat un nou anunț: ${product.name}`
+      `Un utilizator a publicat un anunț nou: ${product.name}`
     );
 
     return product;

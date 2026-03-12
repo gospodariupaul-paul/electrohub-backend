@@ -5,7 +5,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class NotificationService {
   constructor(private prisma: PrismaService) {}
 
-  // 🔥 EXISTENT — notificări normale
+  // 🔥 METODĂ NOUĂ — CREAȚI NOTIFICARE
+  async createNotification(userId: number, message: string) {
+    return this.prisma.notification.create({
+      data: {
+        userId,
+        message,
+        read: false,
+      },
+    });
+  }
+
   async getByUser(userId: number) {
     return this.prisma.notification.findMany({
       where: { userId },
@@ -26,7 +36,6 @@ export class NotificationService {
     });
   }
 
-  // 🔥 NOU — GET SETTINGS
   async getSettings(userId: number) {
     let settings = await this.prisma.notificationSettings.findUnique({
       where: { userId },
@@ -41,7 +50,6 @@ export class NotificationService {
     return settings;
   }
 
-  // 🔥 NOU — UPDATE SETTINGS
   async updateSettings(userId: number, dto: any) {
     return this.prisma.notificationSettings.upsert({
       where: { userId },
