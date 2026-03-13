@@ -24,16 +24,16 @@ export class ProductsService {
     const product = await this.prisma.product.create({ data });
 
     // 🔥 NOTIFICARE COMPLETĂ CU LINK + IMAGINI
-    await this.notificationService.createNotification(
-      userId,
-      `Un utilizator a publicat un anunț nou: ${product.name}`,
-      `/products/${product.id}`,
-      Array.isArray(product.images)
-        ? product.images
-        : product.images
-        ? [product.images]
-        : []
-    );
+   await this.notificationService.createNotification(
+  userId,
+  `Un utilizator a publicat un anunț nou: ${product.name}`,
+  `/product/${product.id}`,   // 🔥 RUTA CORECTĂ
+  Array.isArray(product.images)
+    ? product.images
+    : product.images
+    ? [product.images]
+    : []
+);
 
     return product;
   }
