@@ -7,15 +7,15 @@ export class NotificationService {
 
   async createNotification(
     userId: number,
-    text: string,        // 🔥 trebuie să se numească EXACT ca în Prisma
+    text: string,
     link?: string,
     images?: string[]
   ) {
     return this.prisma.notification.create({
       data: {
         userId,
-        text,            // 🔥 NU message — în Prisma este "text"
-        link: link ?? null,
+        text,
+        link: link ?? null,   // 🔥 link corect
         images: images ?? [],
       },
     });
