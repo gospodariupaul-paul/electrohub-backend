@@ -5,24 +5,22 @@ import { PrismaService } from '../prisma/prisma.service';
 export class NotificationService {
   constructor(private prisma: PrismaService) {}
 
-  // Creează notificare compatibilă cu Prisma
   async createNotification(
     userId: number,
-    message: string,
+    text: string,        // 🔥 trebuie să se numească EXACT ca în Prisma
     link?: string,
     images?: string[]
   ) {
     return this.prisma.notification.create({
       data: {
         userId,
-        message,
+        text,            // 🔥 NU message — în Prisma este "text"
         link: link ?? null,
         images: images ?? [],
       },
     });
   }
 
-  // Ia notificările utilizatorului
   async getByUser(userId: number) {
     return this.prisma.notification.findMany({
       where: { userId },
@@ -30,7 +28,6 @@ export class NotificationService {
     });
   }
 
-  // Marchează notificarea ca citită
   async markAsRead(id: number) {
     return this.prisma.notification.update({
       where: { id },
@@ -38,14 +35,12 @@ export class NotificationService {
     });
   }
 
-  // Șterge notificare
   async delete(id: number) {
     return this.prisma.notification.delete({
       where: { id },
     });
   }
 
-  // Setări notificări
   async getSettings(userId: number) {
     return this.prisma.notificationSettings.findUnique({
       where: { userId },
