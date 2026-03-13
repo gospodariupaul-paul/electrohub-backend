@@ -6,6 +6,7 @@ import {
   Delete, 
   Body, 
   Req, 
+  Param,
   UseGuards 
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
