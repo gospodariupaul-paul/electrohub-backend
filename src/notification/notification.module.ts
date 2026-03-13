@@ -6,9 +6,10 @@ import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
-    PassportModule, // 🔥 OBLIGATORIU pentru req.user
+    PassportModule, // necesar pentru req.user
   ],
   controllers: [NotificationController],
   providers: [NotificationService, PrismaService],
+  exports: [NotificationService], // 🔥 OBLIGATORIU pentru ProductsModule
 })
 export class NotificationModule {}

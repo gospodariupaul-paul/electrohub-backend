@@ -10,7 +10,7 @@ import { NotificationModule } from '../notification/notification.module'; // �
   imports: [
     PrismaModule,       // acces DB
     CloudinaryModule,   // upload imagini
-    PassportModule,     // 🔥 OBLIGATORIU pentru req.user
+    PassportModule,     // necesar pentru req.user
     NotificationModule, // 🔥 ADĂUGAT — REZOLVĂ EROAREA
   ],
   controllers: [ProductsController],
