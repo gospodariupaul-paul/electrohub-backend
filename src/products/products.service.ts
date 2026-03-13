@@ -48,7 +48,7 @@ export class ProductsService {
         keywords: []
       },
       {
-        id: 6, // Drones
+        id: 8, // Drones
         keywords: [
           "drona", "drone", "dji", "mavic", "phantom", "mini"
         ]
