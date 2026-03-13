@@ -1,119 +1,57 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
-export class ProductsService {
-  constructor(
-    private prisma: PrismaService,
-    private notificationService: NotificationService,
-  ) {}
+export class NotificationService {
+  constructor(private prisma: PrismaService) {}
 
-  async create(dto: any, userId: number) {
-    const data: any = {
-      name: dto.name,
-      price: dto.price,
-      description: dto.description,
-      images: dto.images,
-      stock: dto.stock ?? 0,
-      categoryId: dto.categoryId ?? null,
-      status: dto.status ?? 'active',
-      userId,
-    };
-
-    const product = await this.prisma.product.create({ data });
-
-    // 🔥 NOTIFICARE CORECTĂ (cu link + imagini)
-    await this.notificationService.createNotification(
-      userId,
-      `Un utilizator a publicat un anunț nou: ${product.name}`,
-      `/products/${product.id}`,
-      product.images || []
-    );
-
-    return product;
-  }
-
-  async findAll() {
-    return this.prisma.product.findMany({
-      where: { status: 'active' },
+  // 🔥 Creează notificare cu: mesaj, link, imagini
+  async createNotification(userId: number, message: string, link?: string, images?: string[]) {
+    return this.prisma.notification.create({
+      data: {
+        userId,
+        message,
+        link: link ?? null,
+        images: images ?? [],
+      },
     });
   }
 
-  async findByUser(userId: number) {
-    return this.prisma.product.findMany({
+  // 🔥 Ia notificările utilizatorului
+  async getByUser(userId: number) {
+    return this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // 🔥 Marchează ca citită
+  async markAsRead(id: number) {
+    return this.prisma.notification.update({
+      where: { id },
+      data: { read: true },
+    });
+  }
+
+  // 🔥 Șterge notificare
+  async delete(id: number) {
+    return this.prisma.notification.delete({
+      where: { id },
+    });
+  }
+
+  // 🔥 Setări notificări
+  async getSettings(userId: number) {
+    return this.prisma.notificationSettings.findUnique({
       where: { userId },
     });
   }
 
-  async findOne(id: number) {
-    return this.prisma.product.findUnique({
-      where: { id },
-    });
-  }
-
-  async search(q: string) {
-    return this.prisma.product.findMany({
-      where: {
-        status: 'active',
-        OR: [
-          { name: { contains: q, mode: 'insensitive' } },
-          { description: { contains: q, mode: 'insensitive' } },
-        ],
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findByCategory(categoryId: number) {
-    return this.prisma.product.findMany({
-      where: {
-        categoryId,
-        status: 'active',
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async update(id: number, dto: any, userId: number, role: string) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException('Produsul nu există');
-    }
-
-    if (product.userId !== userId && role !== 'admin') {
-      throw new ForbiddenException('Nu poți modifica produsul altui utilizator');
-    }
-
-    const data: any = {
-      name: dto.name,
-      price: dto.price,
-      description: dto.description,
-      images: dto.images,
-      status: dto.status ?? product.status,
-    };
-
-    return this.prisma.product.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async remove(id: number, userId: number, role: string) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException('Produsul nu există');
-    }
-
-    if (product.userId !== userId && role !== 'admin') {
-      throw new ForbiddenException('Nu poți șterge produsul altui utilizator');
-    }
-
-    return this.prisma.product.update({
-      where: { id },
-      data: { status: 'deleted' },
+  async saveSettings(userId: number, settings: any) {
+    return this.prisma.notificationSettings.upsert({
+      where: { userId },
+      update: settings,
+      create: { userId, ...settings },
     });
   }
 }
