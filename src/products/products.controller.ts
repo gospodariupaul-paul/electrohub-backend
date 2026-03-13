@@ -8,16 +8,17 @@ import {
   Delete,
   Req,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { NotificationService } from '../notification/notification.service'; // 🔥 ADĂUGAT
+import { NotificationService } from '../notification/notification.service';
 
 @Controller('products')
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
-    private readonly notificationService: NotificationService, // 🔥 ADĂUGAT
+    private readonly notificationService: NotificationService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -25,10 +26,9 @@ export class ProductsController {
   async create(@Body() createProductDto: any, @Req() req) {
     const product = await this.productsService.create(createProductDto, req.user.id);
 
-    // 🔥 AICI SE CREEAZĂ NOTIFICAREA LA PRODUS NOU
     await this.notificationService.createNotification(
       req.user.id,
-      `Produsul tău "${createProductDto.title}" a fost adăugat cu succes!`
+      `Produsul tău "${createProductDto.name}" a fost adăugat cu succes!`
     );
 
     return product;
@@ -44,7 +44,6 @@ export class ProductsController {
     return this.productsService.findByUser(Number(id));
   }
 
-  // 🔥 RUTA NOUĂ — CĂUTARE PRODUSE
   @Get('search')
   search(@Req() req) {
     return this.productsService.search(req.query.q);
@@ -55,9 +54,16 @@ export class ProductsController {
     return this.productsService.findByCategory(Number(id));
   }
 
+  // 🔥 SINGURA MODIFICARE — protecție pentru ID invalid
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(Number(id));
+    const numericId = Number(id);
+
+    if (isNaN(numericId)) {
+      throw new NotFoundException('ID invalid');
+    }
+
+    return this.productsService.findOne(numericId);
   }
 
   @UseGuards(JwtAuthGuard)
