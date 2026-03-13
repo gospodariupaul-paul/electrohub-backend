@@ -2,7 +2,6 @@ import {
   Controller, 
   Get, 
   Post, 
-  Param, 
   Patch, 
   Delete, 
   Body, 
@@ -17,7 +16,7 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
-  // 🔥 SETTINGS — trebuie să fie primele!
+  // 🔥 SETTINGS
   @UseGuards(JwtAuthGuard)
   @Get('settings/me')
   getSettings(@Req() req) {
@@ -30,17 +29,20 @@ export class NotificationController {
     return this.notificationService.updateSettings(Number(req.user.id), dto);
   }
 
-  // 🔥 NOTIFICĂRI NORMALE
-  @Get(':userId')
-  getByUser(@Param('userId') userId: string) {
-    return this.notificationService.getByUser(Number(userId));
+  // 🔥 NOTIFICĂRI — CORECT, DOAR USERUL LOGAT
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  getMyNotifications(@Req() req) {
+    return this.notificationService.getByUser(Number(req.user.id));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('read/:id')
   markAsRead(@Param('id') id: string) {
     return this.notificationService.markAsRead(Number(id));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.notificationService.delete(Number(id));
