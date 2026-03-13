@@ -6,7 +6,7 @@ import { NotificationService } from '../notification/notification.service';
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
-    private notificationService: NotificationService, // 🔥 NECESAR
+    private notificationService: NotificationService,
   ) {}
 
   async create(dto: any, userId: number) {
@@ -23,10 +23,16 @@ export class ProductsService {
 
     const product = await this.prisma.product.create({ data });
 
-    // 🔥 AICI SE CREEAZĂ NOTIFICAREA
+    // 🔥 NOTIFICARE COMPLETĂ CU LINK + IMAGINI
     await this.notificationService.createNotification(
       userId,
-      `Un utilizator a publicat un anunț nou: ${product.name}`
+      `Un utilizator a publicat un anunț nou: ${product.name}`,
+      `/products/${product.id}`,
+      Array.isArray(product.images)
+        ? product.images
+        : product.images
+        ? [product.images]
+        : []
     );
 
     return product;
