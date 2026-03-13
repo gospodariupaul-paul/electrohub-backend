@@ -15,7 +15,7 @@ export class NotificationService {
       data: {
         userId,
         text,
-        link: link ?? null,   // 🔥 link corect
+        link: link ?? null,   // 🔥 aici vine link-ul corect
         images: images ?? [],
       },
     });
