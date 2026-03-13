@@ -17,7 +17,6 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
-  // 🔥 SETTINGS
   @UseGuards(JwtAuthGuard)
   @Get('settings/me')
   getSettings(@Req() req) {
@@ -30,7 +29,7 @@ export class NotificationController {
     return this.notificationService.updateSettings(Number(req.user.id), dto);
   }
 
-  // 🔥 NOTIFICĂRI — CORECT, DOAR USERUL LOGAT
+  // 🔥 RUTA CORECTĂ
   @UseGuards(JwtAuthGuard)
   @Get()
   getMyNotifications(@Req() req) {
