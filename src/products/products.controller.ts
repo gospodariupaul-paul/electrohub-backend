@@ -11,15 +11,27 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { NotificationService } from '../notification/notification.service'; // 🔥 ADĂUGAT
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly notificationService: NotificationService, // 🔥 ADĂUGAT
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createProductDto: any, @Req() req) {
-    return this.productsService.create(createProductDto, req.user.id);
+  async create(@Body() createProductDto: any, @Req() req) {
+    const product = await this.productsService.create(createProductDto, req.user.id);
+
+    // 🔥 AICI SE CREEAZĂ NOTIFICAREA LA PRODUS NOU
+    await this.notificationService.createNotification(
+      req.user.id,
+      `Produsul tău "${createProductDto.title}" a fost adăugat cu succes!`
+    );
+
+    return product;
   }
 
   @Get()
