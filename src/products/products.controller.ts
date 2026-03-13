@@ -12,26 +12,17 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { NotificationService } from '../notification/notification.service';
 
 @Controller('products')
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
-    private readonly notificationService: NotificationService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createProductDto: any, @Req() req) {
-    const product = await this.productsService.create(createProductDto, req.user.id);
-
-    await this.notificationService.createNotification(
-      req.user.id,
-      `Produsul tău "${createProductDto.name}" a fost adăugat cu succes!`
-    );
-
-    return product;
+    return this.productsService.create(createProductDto, req.user.id);
   }
 
   @Get()
@@ -54,7 +45,6 @@ export class ProductsController {
     return this.productsService.findByCategory(Number(id));
   }
 
-  // 🔥 SINGURA MODIFICARE — protecție pentru ID invalid
   @Get(':id')
   findOne(@Param('id') id: string) {
     const numericId = Number(id);
