@@ -25,11 +25,10 @@ export class NotificationController {
 
   @UseGuards(JwtAuthGuard)
   @Post('settings')
-  updateSettings(@Req() req, @Body() dto: UpdateSettingsDto) {
-    return this.notificationService.updateSettings(Number(req.user.id), dto);
+  saveSettings(@Req() req, @Body() dto: UpdateSettingsDto) {
+    return this.notificationService.saveSettings(Number(req.user.id), dto);
   }
 
-  // 🔥 RUTA CORECTĂ
   @UseGuards(JwtAuthGuard)
   @Get()
   getMyNotifications(@Req() req) {
