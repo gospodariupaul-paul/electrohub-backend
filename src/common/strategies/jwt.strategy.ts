@@ -7,19 +7,24 @@ import { Request } from 'express';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
+      // 🔥 EXTRACTOR CORECT — ia token-ul din cookie
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req?.cookies?.jwt || null, // 🔥 token din cookie
+        (req: Request) => {
+          return req?.cookies?.jwt || null;
+        },
       ]),
+
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_ACCESS_SECRET,
     });
   }
 
+  // 🔥 Ce ajunge în req.user
   async validate(payload: any) {
     return {
-      id: payload.sub,
+      id: payload.sub,   // user.id
       email: payload.email,
-      role: payload.role, // 🔥 FIX: rolul este returnat corect
+      role: payload.role,
     };
   }
 }
