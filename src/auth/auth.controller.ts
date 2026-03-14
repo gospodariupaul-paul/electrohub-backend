@@ -1,91 +1,90 @@
-import { 
-  Controller, 
-  Post, 
-  Body, 
-  Res, 
-  Req, 
-  UseGuards, 
-  Get 
-} from '@nestjs/common';
-import type { Response, Request } from 'express';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  Get,
+} from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { Request, Response } from "express";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  register(@Body() dto: any) {
-    return this.authService.register(dto);
-  }
+  @Post("login")
+  async login(@Body() body, @Res({ passthrough: true }) res: Response) {
+    const { accessToken, refreshToken, user } =
+      await this.authService.login(body);
 
-  @Post('login')
-  async login(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
-    const { accessToken, refreshToken, user } = await this.authService.login(dto);
-
-    res.cookie('jwt', accessToken, {
+    res.cookie("jwt", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
-      path: '/',
+      sameSite: "none",
+      path: "/",
     });
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
-      path: '/',
+      sameSite: "none",
+      path: "/",
     });
 
-    return {
-      message: 'Login successful',
-      user,
-    };
-  }
-
-  @Post('refresh')
-  async refresh(@Body() body: any, @Res({ passthrough: true }) res: Response) {
-    const { accessToken, refreshToken } = await this.authService.refresh(body.refresh_token);
-
-    res.cookie('jwt', accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-    });
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-    });
-
-    return { message: 'Token refreshed' };
+    return { user };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('me')
-  me(@Req() req: Request) {
-    return req.user;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('logout')
+  @Post("logout")
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const user = req.user as any;
+    const user = req.user;
 
-    // 🔥 Dacă user nu există, nu încercăm să facem update
-    if (!user || !user.id) {
-      return { message: 'Already logged out' };
+    // 🔥 Dacă nu există user, nu mai dăm eroare
+    if (!user || !user["id"]) {
+      res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/",
+      });
+
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/",
+      });
+
+      return { message: "Already logged out" };
     }
 
-    await this.authService.logout(user.id);
+    // 🔥 Marcăm userul offline
+    await this.authService.logout(user["id"]);
 
-    res.clearCookie('jwt', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
+    // 🔥 Ștergem cookie-urile corect (HTTP-Only)
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
 
-    return { message: 'Logged out successfully' };
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
+
+    return { message: "Logged out successfully" };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("me")
+  async me(@Req() req: Request) {
+    return req.user;
   }
 }
