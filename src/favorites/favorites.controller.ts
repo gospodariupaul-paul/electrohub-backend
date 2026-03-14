@@ -18,6 +18,10 @@ export class FavoritesController {
   @UseGuards(JwtAuthGuard)
   @Post(":productId")
   async addFavorite(@Param("productId") productId: string, @Req() req: Request) {
+    if (!req.user || !req.user["id"]) {
+      throw new Error("User not authenticated");
+    }
+
     return this.favoritesService.addFavorite(req.user["id"], +productId);
   }
 
@@ -27,12 +31,20 @@ export class FavoritesController {
     @Param("productId") productId: string,
     @Req() req: Request,
   ) {
+    if (!req.user || !req.user["id"]) {
+      throw new Error("User not authenticated");
+    }
+
     return this.favoritesService.removeFavorite(req.user["id"], +productId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getFavorites(@Req() req: Request) {
+    if (!req.user || !req.user["id"]) {
+      throw new Error("User not authenticated");
+    }
+
     return this.favoritesService.getFavorites(req.user["id"]);
   }
 }
