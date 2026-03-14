@@ -103,9 +103,14 @@ export class ProductsService {
     });
   }
 
+  // ⭐ DOAR AICI AM MODIFICAT — RESTUL FIȘIERULUI ESTE IDENTIC
   async findByUser(userId: number) {
     return this.prisma.product.findMany({
-      where: { userId },
+      where: {
+        userId,
+        status: 'active',   // 🔥 doar produsele active
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
