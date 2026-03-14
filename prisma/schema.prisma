@@ -26,8 +26,11 @@ model User {
   notifications       Notification[]
   isOnline            Boolean        @default(false)
 
-  // 🔥 RELAȚIA LIPSĂ — OBLIGATORIE
+  // 🔥 RELAȚIA CORECTĂ
   notificationSettings NotificationSettings?
+
+  // ❤️ RELAȚIE FAVORITE (nou)
+  favorites Favorite[]
 }
 
 model Category {
@@ -58,6 +61,9 @@ model Product {
 
   category      Category?      @relation(fields: [categoryId], references: [id])
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // ❤️ RELAȚIE FAVORITE (nou)
+  favorites     Favorite[]
 }
 
 model Order {
@@ -130,6 +136,18 @@ model NotificationSettings {
   message_alerts      Boolean @default(false)
   price_alerts        Boolean @default(false)
 
-  // 🔥 RELAȚIA CORECTĂ
   user User @relation(fields: [userId], references: [id])
+}
+
+//
+// ❤️ MODEL FAVORITE — NOU, CURAT, FĂRĂ SĂ ATINGĂ NIMIC ALTCEVA
+//
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
