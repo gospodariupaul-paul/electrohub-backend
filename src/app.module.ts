@@ -13,6 +13,9 @@ import { MessageModule } from './message/message.module';
 import { PusherService } from './pusher/pusher.service';
 import { NotificationModule } from './notification/notification.module';
 
+// 🔥 Import nou — doar asta trebuie adăugat
+import { FavoritesModule } from './favorites/favorites.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -23,6 +26,9 @@ import { NotificationModule } from './notification/notification.module';
     ConversationModule,
     MessageModule,
     NotificationModule,
+
+    // ❤️ Modulul pentru favorite
+    FavoritesModule,
   ],
   controllers: [],
   providers: [PrismaService, PusherService],
