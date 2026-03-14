@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 @Controller("auth")
 export class AuthController {
@@ -42,7 +42,6 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
 
-    // 🔥 Dacă nu există user, nu mai dăm eroare
     if (!user || !user["id"]) {
       res.clearCookie("jwt", {
         httpOnly: true,
@@ -61,10 +60,8 @@ export class AuthController {
       return { message: "Already logged out" };
     }
 
-    // 🔥 Marcăm userul offline
     await this.authService.logout(user["id"]);
 
-    // 🔥 Ștergem cookie-urile corect (HTTP-Only)
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: true,
