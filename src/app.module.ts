@@ -12,9 +12,10 @@ import { MessageModule } from './message/message.module';
 
 import { PusherService } from './pusher/pusher.service';
 import { NotificationModule } from './notification/notification.module';
-
-// 🔥 Import nou — doar asta trebuie adăugat
 import { FavoritesModule } from './favorites/favorites.module';
+
+// 🔥 Importăm HealthController
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -26,11 +27,11 @@ import { FavoritesModule } from './favorites/favorites.module';
     ConversationModule,
     MessageModule,
     NotificationModule,
-
-    // ❤️ Modulul pentru favorite
     FavoritesModule,
   ],
-  controllers: [],
+  controllers: [
+    HealthController, // 🔥 AICI îl adăugăm
+  ],
   providers: [PrismaService, PusherService],
 })
 export class AppModule {}
