@@ -76,7 +76,11 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user as any;
 
-    // 🔥 FIX: JwtStrategy returnează "id", nu "sub"
+    // 🔥 Dacă user nu există, nu încercăm să facem update
+    if (!user || !user.id) {
+      return { message: 'Already logged out' };
+    }
+
     await this.authService.logout(user.id);
 
     res.clearCookie('jwt', { path: '/' });
