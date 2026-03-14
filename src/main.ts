@@ -16,15 +16,9 @@ async function bootstrap() {
     }),
   );
 
-  const FRONTEND_URL = process.env.FRONTEND_URL || 'https://electrohub-frontend.vercel.app';
-  const LOCAL_URL = process.env.LOCAL_URL || 'http://localhost:3000';
-
   app.enableCors({
-    origin: [FRONTEND_URL, LOCAL_URL],
+    origin: 'https://electrohub-frontend.vercel.app',
     credentials: true,
-    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Set-Cookie'],
   });
 
   const port = process.env.PORT || 3000;
