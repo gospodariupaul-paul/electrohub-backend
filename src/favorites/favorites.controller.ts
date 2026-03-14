@@ -1,32 +1,38 @@
-import { Controller, Post, Delete, Get, Param, UseGuards, Req } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Delete,
+  Param,
+  UseGuards,
+  Req,
+  Get,
+} from "@nestjs/common";
 import { FavoritesService } from "./favorites.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import type { Request } from "express";
 
-
 @Controller("favorites")
-@UseGuards(AuthGuard)
 export class FavoritesController {
-  constructor(
-    private readonly favoritesService: FavoritesService,
-    private readonly context: RequestContext
-  ) {}
+  constructor(private readonly favoritesService: FavoritesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post(":productId")
-  add(@Req() req: Request, @Param("productId") productId: string) {
-    this.context.user = req.user; // 🔥 FIX
-    return this.favoritesService.addFavorite(Number(productId));
+  async addFavorite(@Param("productId") productId: string, @Req() req: Request) {
+    return this.favoritesService.addFavorite(req.user["id"], +productId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(":productId")
-  remove(@Req() req: Request, @Param("productId") productId: string) {
-    this.context.user = req.user; // 🔥 FIX
-    return this.favoritesService.removeFavorite(Number(productId));
+  async removeFavorite(
+    @Param("productId") productId: string,
+    @Req() req: Request,
+  ) {
+    return this.favoritesService.removeFavorite(req.user["id"], +productId);
   }
 
-  @Get("me")
-  getMyFavorites(@Req() req: Request) {
-    this.context.user = req.user; // 🔥 FIX
-    return this.favoritesService.getMyFavorites();
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getFavorites(@Req() req: Request) {
+    return this.favoritesService.getFavorites(req.user["id"]);
   }
 }
