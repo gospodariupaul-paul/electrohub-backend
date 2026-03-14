@@ -25,6 +25,9 @@ model User {
   products            Product[]
   notifications       Notification[]
   isOnline            Boolean        @default(false)
+
+  // 🔥 RELAȚIA LIPSĂ — OBLIGATORIE
+  notificationSettings NotificationSettings?
 }
 
 model Category {
@@ -126,4 +129,7 @@ model NotificationSettings {
   product_alerts      Boolean @default(false)
   message_alerts      Boolean @default(false)
   price_alerts        Boolean @default(false)
+
+  // 🔥 RELAȚIA CORECTĂ
+  user User @relation(fields: [userId], references: [id])
 }
