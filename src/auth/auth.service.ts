@@ -39,13 +39,13 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    // 🔥 Marchează userul ca online
+    // 🔥 Marchează userul ca ONLINE
     await this.prisma.user.update({
       where: { id: user.id },
       data: { isOnline: true },
     });
 
-    // 🔥 FIX: payload complet cu rol
+    // Payload complet
     const payload = {
       sub: user.id,
       email: user.email,
@@ -76,7 +76,6 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
-      // 🔥 FIX: rolul este păstrat în tokenul nou
       const newAccessToken = await this.jwtService.signAsync(
         {
           sub: payload.sub,
@@ -110,7 +109,7 @@ export class AuthService {
     }
   }
 
-  // 🔥 Logout corect
+  // 🔥 LOGOUT REAL — userul devine OFFLINE
   async logout(userId: number) {
     await this.prisma.user.update({
       where: { id: userId },

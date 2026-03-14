@@ -65,20 +65,23 @@ export class AuthController {
     return { message: 'Token refreshed' };
   }
 
-  // 🔥 RUTA CARE LIPSEA — ACUM FUNCȚIONEAZĂ
+  // 🔥 RUTA ME — corectă
   @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: Request) {
     return req.user;
   }
 
+  // 🔥 LOGOUT REAL — AICI AM FĂCUT MODIFICAREA
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user as any;
 
+    // 🔥 AICI ESTE FIXUL — MARCHEAZĂ USERUL CA OFFLINE
     await this.authService.logout(user.sub);
 
+    // Ștergem cookie-urile
     res.clearCookie('jwt', { path: '/' });
     res.clearCookie('refreshToken', { path: '/' });
 

@@ -44,7 +44,7 @@ export class UsersController {
     });
   }
 
-  // 🔥 ENDPOINT NOU — returnează utilizatorii online
+  // 🔥 ENDPOINT CORECT — returnează DOAR utilizatorii online
   @Get('online')
   @UseGuards(JwtAuthGuard)
   async getOnlineUsers() {
