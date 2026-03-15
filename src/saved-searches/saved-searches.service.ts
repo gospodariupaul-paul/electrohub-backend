@@ -26,9 +26,15 @@ export class SavedSearchesService {
     return this.prisma.savedSearch.delete({
       where: {
         id,
-        // asigură-te că ștergi doar ce aparține userului
         userId,
       },
+    });
+  }
+
+  // ⭐ METODA LIPSA — AICI ERA EROAREA
+  async deleteAll(userId: number) {
+    return this.prisma.savedSearch.deleteMany({
+      where: { userId },
     });
   }
 }
