@@ -151,3 +151,10 @@ model Favorite {
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 }
+model SavedSearch {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  query     String
+  filters   Json
+  createdAt DateTime @default(now())
+}
