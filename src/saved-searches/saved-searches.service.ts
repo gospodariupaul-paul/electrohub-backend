@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class SavedSearchesService {
   constructor(private prisma: PrismaService) {}
 
-  create(userId: number, query: string, filters: any) {
+  async create(userId: number, query: string, filters: any) {
     return this.prisma.savedSearch.create({
-      data: { userId, query, filters },
+      data: {
+        userId,
+        query,
+        filters,
+      },
     });
   }
 
-  findAll(userId: number) {
+  async findAll(userId: number) {
     return this.prisma.savedSearch.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  delete(id: number, userId: number) {
-    return this.prisma.savedSearch.deleteMany({
-      where: { id, userId },
+  async delete(id: number, userId: number) {
+    return this.prisma.savedSearch.delete({
+      where: {
+        id,
+        // asigură-te că ștergi doar ce aparține userului
+        userId,
+      },
     });
   }
 }

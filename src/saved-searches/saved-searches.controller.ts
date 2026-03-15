@@ -22,4 +22,11 @@ export class SavedSearchesController {
     const userId = 1; // TODO: înlocuiești cu user-ul logat
     return this.service.delete(Number(id), userId);
   }
+
+  // ⭐ ȘTERGE TOT
+  @Delete()
+  deleteAll() {
+    const userId = 1; // TODO: înlocuiești cu user-ul logat
+    return this.service.deleteAll(userId);
+  }
 }
