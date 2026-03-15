@@ -26,11 +26,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 🔥 AICI conectăm ruta Express în NestJS
+  // 🔥 AICI conectăm Express în NestJS
   const expressApp = app.getHttpAdapter().getInstance();
 
-  // 🔥 FĂRĂ ASTA, req.body ESTE GOL → 500 ERROR
+  // 🔥 Body parser — TREBUIE să fie înainte de rute
   expressApp.use(require("express").json());
+  expressApp.use(require("express").urlencoded({ extended: true }));
 
   // 🔥 Rutele tale Express
   expressApp.use('/api', userRoutes);
