@@ -14,6 +14,9 @@ import { PusherService } from './pusher/pusher.service';
 import { NotificationModule } from './notification/notification.module';
 import { FavoritesModule } from './favorites/favorites.module';
 
+// 🔥 Importăm modulul nou
+import { SavedSearchesModule } from './saved-searches/saved-searches.module';
+
 // 🔥 Importăm HealthController
 import { HealthController } from './health.controller';
 
@@ -28,6 +31,9 @@ import { HealthController } from './health.controller';
     MessageModule,
     NotificationModule,
     FavoritesModule,
+
+    // 🔥 AICI îl adăugăm
+    SavedSearchesModule,
   ],
   controllers: [
     HealthController, // 🔥 AICI îl adăugăm
