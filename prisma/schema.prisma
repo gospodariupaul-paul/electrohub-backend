@@ -29,8 +29,11 @@ model User {
   // 🔥 RELAȚIA CORECTĂ
   notificationSettings NotificationSettings?
 
-  // ❤️ RELAȚIE FAVORITE (nou)
+  // ❤️ RELAȚIE FAVORITE
   favorites Favorite[]
+
+  // ⭐ RELAȚIE CU SAVED SEARCHES (ADĂUGATĂ)
+  savedSearches SavedSearch[]
 }
 
 model Category {
@@ -62,7 +65,7 @@ model Product {
   category      Category?      @relation(fields: [categoryId], references: [id])
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // ❤️ RELAȚIE FAVORITE (nou)
+  // ❤️ RELAȚIE FAVORITE
   favorites     Favorite[]
 }
 
@@ -140,7 +143,7 @@ model NotificationSettings {
 }
 
 //
-// ❤️ MODEL FAVORITE — NOU, CURAT, FĂRĂ SĂ ATINGĂ NIMIC ALTCEVA
+// ❤️ MODEL FAVORITE
 //
 model Favorite {
   id        Int      @id @default(autoincrement())
@@ -151,10 +154,17 @@ model Favorite {
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 }
+
+//
+// ⭐ MODEL SAVED SEARCH — COMPLET, CORECT, CU RELAȚIE
+//
 model SavedSearch {
   id        Int      @id @default(autoincrement())
   userId    Int
   query     String
   filters   Json
   createdAt DateTime @default(now())
+
+  // 🔥 RELAȚIE CORECTĂ CU USER
+  user User @relation(fields: [userId], references: [id])
 }
