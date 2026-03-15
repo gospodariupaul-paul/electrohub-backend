@@ -22,6 +22,7 @@ export class SavedSearchesService {
     });
   }
 
+  // ⭐ ȘTERGERE INDIVIDUALĂ — FOARTE IMPORTANT deleteMany()
   async delete(id: number, userId: number) {
     return this.prisma.savedSearch.deleteMany({
       where: {
@@ -31,6 +32,7 @@ export class SavedSearchesService {
     });
   }
 
+  // ⭐ ȘTERGERE TOTALĂ
   async deleteAll(userId: number) {
     return this.prisma.savedSearch.deleteMany({
       where: { userId },
