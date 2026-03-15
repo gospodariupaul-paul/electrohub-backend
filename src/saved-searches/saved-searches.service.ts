@@ -23,7 +23,7 @@ export class SavedSearchesService {
   }
 
   async delete(id: number, userId: number) {
-    return this.prisma.savedSearch.delete({
+    return this.prisma.savedSearch.deleteMany({
       where: {
         id,
         userId,
@@ -31,7 +31,6 @@ export class SavedSearchesService {
     });
   }
 
-  // ⭐ METODA LIPSA — AICI ERA EROAREA
   async deleteAll(userId: number) {
     return this.prisma.savedSearch.deleteMany({
       where: { userId },
