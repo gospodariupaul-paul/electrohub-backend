@@ -6,6 +6,8 @@ import {
   Body,
   UseGuards,
   Get,
+  Put,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -44,10 +46,16 @@ export class UsersController {
     });
   }
 
-  // 🔥 ENDPOINT CORECT — returnează DOAR utilizatorii online
   @Get('online')
   @UseGuards(JwtAuthGuard)
   async getOnlineUsers() {
     return this.usersService.getOnlineUsers();
+  }
+
+  // 🔥 UPDATE PROFIL — endpoint complet
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateUser(@Param('id') id: string, @Body() body: any) {
+    return this.usersService.updateUser(Number(id), body);
   }
 }

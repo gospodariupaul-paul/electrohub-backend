@@ -17,7 +17,6 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
-  // 🔥 SETEAZĂ USERUL ONLINE LA LOGIN
   async setUserOnline(userId: number) {
     return this.prisma.user.update({
       where: { id: userId },
@@ -25,7 +24,6 @@ export class UsersService {
     });
   }
 
-  // 🔥 SETEAZĂ USERUL OFFLINE LA LOGOUT
   async setUserOffline(userId: number) {
     return this.prisma.user.update({
       where: { id: userId },
@@ -33,7 +31,6 @@ export class UsersService {
     });
   }
 
-  // 🔥 RETURNARE UTILIZATORI ONLINE
   getOnlineUsers() {
     return this.prisma.user.findMany({
       where: { isOnline: true },
@@ -44,6 +41,24 @@ export class UsersService {
         imageUrl: true,
         role: true,
         isOnline: true,
+      },
+    });
+  }
+
+  // 🔥 METODA COMPLETĂ — salvează TOT ce vine din EditProfile
+  async updateUser(id: number, data: any) {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        city: data.city,
+        county: data.county,
+        address: data.address,
+        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+        gender: data.gender,
+        avatarUrl: data.avatarUrl,
       },
     });
   }
