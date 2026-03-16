@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { pool } from "../db"; // conexiunea ta la PostgreSQL
+import { pool } from "../db";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.put("/users/:id", async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       `
-      UPDATE users
+      UPDATE "User"
       SET name = $1, email = $2, phone = $3
       WHERE id = $4
       RETURNING id, name, email, phone
