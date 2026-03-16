@@ -107,7 +107,6 @@ export class AuthService {
     }
   }
 
-  // 🔥 LOGOUT FĂRĂ ERORI — 100% SIGUR
   async logout(userId: number) {
     if (!userId) {
       return { message: 'User already logged out' };
@@ -121,7 +120,7 @@ export class AuthService {
     return { message: 'User logged out' };
   }
 
-  // 🔥 METODA NOUĂ — returnează user-ul COMPLET pentru /auth/me
+  // 🔥 METODA COMPLETĂ — include toate câmpurile noi
   async getUserById(id: number) {
     return this.prisma.user.findUnique({
       where: { id },
@@ -131,6 +130,12 @@ export class AuthService {
         role: true,
         name: true,
         phone: true,
+        city: true,
+        county: true,
+        address: true,
+        birthDate: true,
+        gender: true,
+        avatarUrl: true,
         createdAt: true,
         imageUrl: true,
         isOnline: true,
