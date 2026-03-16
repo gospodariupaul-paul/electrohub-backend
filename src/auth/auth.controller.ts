@@ -82,7 +82,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get("me")
   async me(@Req() req: Request) {
-    const userId = req.user["id"];
+    const userId = req.user!["id"]; // 🔥 FIX: req.user! elimină eroarea TS18048
     return this.authService.getUserById(userId);
   }
 }
