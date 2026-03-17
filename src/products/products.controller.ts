@@ -45,6 +45,12 @@ export class ProductsController {
     return this.productsService.findByCategory(Number(id));
   }
 
+  // 🔥 RUTA NOUĂ
+  @Get("seller/:id")
+  getSeller(@Param("id") id: string) {
+    return this.productsService.getSellerProfile(Number(id));
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     const numericId = Number(id);
@@ -53,7 +59,6 @@ export class ProductsController {
       throw new NotFoundException('ID invalid');
     }
 
-    // 🔥 AICI ESTE SINGURA MODIFICARE
     return this.productsService.findOne(numericId);
   }
 
