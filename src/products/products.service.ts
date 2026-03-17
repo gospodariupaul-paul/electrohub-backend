@@ -75,9 +75,14 @@ export class ProductsService {
       description: dto.description,
       images: dto.images,
       stock: dto.stock ?? 0,
-      categoryId: autoCategoryId, // 🔥 CATEGORIA SETATĂ AUTOMAT
+      categoryId: autoCategoryId,
       status: dto.status ?? 'active',
       userId,
+
+      // 🔥 ADĂUGAT — câmpuri noi
+      condition: dto.condition,
+      storage: dto.storage,
+      location: dto.location,
     };
 
     const product = await this.prisma.product.create({ data });
@@ -86,7 +91,7 @@ export class ProductsService {
     await this.notificationService.createNotification(
       userId,
       `Un utilizator a publicat un anunț nou: ${product.name}`,
-      `/product/${product.id}`,   // 🔥 RUTA CORECTĂ
+      `/product/${product.id}`,
       Array.isArray(product.images)
         ? product.images
         : product.images
@@ -103,12 +108,11 @@ export class ProductsService {
     });
   }
 
-  // ⭐ DOAR AICI AM MODIFICAT — RESTUL FIȘIERULUI ESTE IDENTIC
   async findByUser(userId: number) {
     return this.prisma.product.findMany({
       where: {
         userId,
-        status: 'active',   // 🔥 doar produsele active
+        status: 'active',
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -160,6 +164,11 @@ export class ProductsService {
       description: dto.description,
       images: dto.images,
       status: dto.status ?? product.status,
+
+      // 🔥 ADĂUGAT — să poți modifica ulterior
+      condition: dto.condition ?? product.condition,
+      storage: dto.storage ?? product.storage,
+      location: dto.location ?? product.location,
     };
 
     return this.prisma.product.update({
