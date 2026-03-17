@@ -14,12 +14,12 @@ model User {
   password            String
   name                String
   phone               String?
-  city                String?        // 🔥 ADĂUGAT
-  county              String?        // 🔥 ADĂUGAT
-  address             String?        // 🔥 ADĂUGAT
-  birthDate           DateTime?      // 🔥 ADĂUGAT
-  gender              String?        // 🔥 ADĂUGAT
-  avatarUrl           String?        // 🔥 ADĂUGAT
+  city                String?
+  county              String?
+  address             String?
+  birthDate           DateTime?
+  gender              String?
+  avatarUrl           String?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   description         String?
@@ -33,13 +33,10 @@ model User {
   notifications       Notification[]
   isOnline            Boolean        @default(false)
 
-  // 🔥 RELAȚIA CORECTĂ
   notificationSettings NotificationSettings?
 
-  // ❤️ RELAȚIE FAVORITE
   favorites Favorite[]
 
-  // ⭐ RELAȚIE CU SAVED SEARCHES (ADĂUGATĂ)
   savedSearches SavedSearch[]
 }
 
@@ -66,13 +63,18 @@ model Product {
   userId        Int
   status        String         @default("active")
 
+  // 🔥 câmpurile noi — puse corect
+  condition     String?
+  storage       String?
+  location      String?
+
   conversations Conversation[]
   orderItems    OrderItem[]
 
   category      Category?      @relation(fields: [categoryId], references: [id])
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // ❤️ RELAȚIE FAVORITE
+  // ❤️ RELAȚIE FAVORITE — aici era problema
   favorites     Favorite[]
 }
 
@@ -149,9 +151,6 @@ model NotificationSettings {
   user User @relation(fields: [userId], references: [id])
 }
 
-//
-// ❤️ MODEL FAVORITE
-//
 model Favorite {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -162,9 +161,6 @@ model Favorite {
   product Product @relation(fields: [productId], references: [id])
 }
 
-//
-// ⭐ MODEL SAVED SEARCH — COMPLET, CORECT, CU RELAȚIE
-//
 model SavedSearch {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -172,6 +168,5 @@ model SavedSearch {
   filters   Json
   createdAt DateTime @default(now())
 
-  // 🔥 RELAȚIE CORECTĂ CU USER
   user User @relation(fields: [userId], references: [id])
 }
