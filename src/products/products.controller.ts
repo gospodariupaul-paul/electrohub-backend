@@ -53,6 +53,7 @@ export class ProductsController {
       throw new NotFoundException('ID invalid');
     }
 
+    // 🔥 AICI ESTE SINGURA MODIFICARE
     return this.productsService.findOne(numericId);
   }
 
