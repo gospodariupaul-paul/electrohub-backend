@@ -15,14 +15,21 @@ export class VerificationController {
 
   private getUserId(req: Request): number {
     const token = req.cookies?.access_token;
-    if (!token) throw new UnauthorizedException("Trebuie să fii autentificat.");
+    if (!token) {
+      throw new UnauthorizedException("Trebuie să fii autentificat.");
+    }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+    // 🔥 FIX pentru eroarea din Docker: adăugăm "!" ca să garantăm că nu e undefined
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+
     return decoded.id;
   }
 
   @Post("request")
-  requestCode(@Req() req: Request, @Body() body: { method: "email" | "phone" }) {
+  requestCode(
+    @Req() req: Request,
+    @Body() body: { method: "email" | "phone" }
+  ) {
     const userId = this.getUserId(req);
     return this.verificationService.requestVerification(userId, body.method);
   }
