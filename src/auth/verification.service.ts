@@ -18,21 +18,48 @@ export class VerificationService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
+  // 🔥 Yahoo + Gmail fallback
   async sendEmailCode(email: string, code: string) {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
+    // 1️⃣ Yahoo Mail (principal)
+    const yahooTransporter = nodemailer.createTransport({
+      service: "yahoo",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.YAHOO_USER,
+        pass: process.env.YAHOO_PASS,
       },
     });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    try {
+      await yahooTransporter.sendMail({
+        from: process.env.YAHOO_USER,
+        to: email,
+        subject: "Codul tău de verificare",
+        text: `Codul tău este: ${code}`,
+      });
+
+      console.log("📮 Email trimis prin Yahoo");
+      return;
+    } catch (err) {
+      console.error("❌ Yahoo a eșuat, încerc Gmail...");
+    }
+
+    // 2️⃣ Gmail (fallback)
+    const gmailTransporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+
+    await gmailTransporter.sendMail({
+      from: process.env.GMAIL_USER,
       to: email,
       subject: "Codul tău de verificare",
       text: `Codul tău este: ${code}`,
     });
+
+    console.log("📧 Email trimis prin Gmail (fallback)");
   }
 
   async sendSmsCode(phone: string, code: string) {
