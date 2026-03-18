@@ -3,15 +3,13 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 
-// 🔥 Importăm ruta Express pentru users
-import userRoutes from './routes/users';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Middleware standard
   app.use(cookieParser());
 
+  // Validare globală
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,17 +24,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 🔥 AICI conectăm Express în NestJS
-  const expressApp = app.getHttpAdapter().getInstance();
-
-  // 🔥 Body parser — TREBUIE să fie înainte de rute
-  expressApp.use(require("express").json());
-  expressApp.use(require("express").urlencoded({ extended: true }));
-
-  // 🔥 Rutele tale Express
-  expressApp.use('/api', userRoutes);
-
-  // Pornire server
+  // Pornire server pe portul Railway
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
   console.log(`Server running on port ${port}`);
