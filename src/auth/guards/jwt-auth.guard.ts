@@ -10,6 +10,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const req = context.switchToHttp().getRequest();
 
     const publicPaths = [
+      "/",
       "/auth/login",
       "/auth/register",
       "/auth/refresh",
@@ -17,17 +18,30 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
       "/categories",
       "/verify/request",
       "/verify/confirm",
+      "/utilizatori-online",
+      "/dashboard",
+      "/settings",
+      "/notifications",
+      "/favorites",
+      "/my-account",
     ];
 
-    if (publicPaths.some(path => req.path.includes(path))) {
+    // rute publice
+    if (publicPaths.some(path => req.path.startsWith(path))) {
       return user;
     }
 
+    // GET fără token → nu aruncăm eroare
+    if (req.method === "GET" && !user) {
+      return null;
+    }
+
+    // token lipsă sau invalid
     if (err || !user) {
       throw new UnauthorizedException("Trebuie să fii autentificat.");
     }
 
-    // 🔥 FIX: verificăm doar dacă user există
+    // cont neverificat
     if (user && !user.isVerified) {
       throw new UnauthorizedException("Cont neverificat");
     }
