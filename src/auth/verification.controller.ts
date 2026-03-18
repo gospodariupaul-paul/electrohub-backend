@@ -14,7 +14,6 @@ export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
   private getUserId(req: Request): number {
-    // 🔥 Folosim cookie-ul corect: "jwt"
     const token = req.cookies?.jwt;
 
     if (!token) {
@@ -22,18 +21,16 @@ export class VerificationController {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as any;
-
-    // Dacă în token ai "sub", folosești sub
     return decoded.sub;
   }
 
   @Post("request")
   requestCode(
     @Req() req: Request,
-    @Body() body: { method: "email" | "phone" }
+    @Body() body: { method: "email" }
   ) {
     const userId = this.getUserId(req);
-    return this.verificationService.requestVerification(userId, body.method);
+    return this.verificationService.requestVerification(userId, "email");
   }
 
   @Post("confirm")
