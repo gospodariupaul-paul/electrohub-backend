@@ -22,7 +22,7 @@ import { AddressesModule } from './addresses/addresses.module';
 import { HealthController } from './health.controller';
 
 // 🔥 Importăm modulul de verificare
-import { VerificationModule } from './verification/verification.module';
+import { VerificationModule } from './auth/verification.module';
 
 @Module({
   imports: [
