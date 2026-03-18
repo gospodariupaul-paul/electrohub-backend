@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Req, UseGuards, UnauthorizedException } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AddressesService } from "./addresses.service";
 import type { Request } from "express";
@@ -10,7 +10,8 @@ export class AddressesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   getAddresses(@Req() req: Request) {
-    const userId = req.user["id"];
+    if (!req.user) throw new UnauthorizedException();
+    const userId = (req.user as any).id;
     return this.addressesService.getAddresses(userId);
   }
 
@@ -20,7 +21,8 @@ export class AddressesController {
     @Req() req: Request,
     @Body() body: { name: string; address: string; city: string }
   ) {
-    const userId = req.user["id"];
+    if (!req.user) throw new UnauthorizedException();
+    const userId = (req.user as any).id;
     return this.addressesService.addAddress(userId, body);
   }
 }
