@@ -24,6 +24,9 @@ import { HealthController } from './health.controller';
 // 🔥 Importăm modulul de verificare
 import { VerificationModule } from './auth/verification.module';
 
+// 🔥 Importăm modulul de email
+import { EmailModule } from './email/email.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -40,8 +43,9 @@ import { VerificationModule } from './auth/verification.module';
     SavedSearchesModule,
     AddressesModule,
 
-    // 🔥 AICI îl adăugăm
+    // 🔥 Module pentru verificare și email
     VerificationModule,
+    EmailModule,
   ],
   controllers: [
     HealthController,
