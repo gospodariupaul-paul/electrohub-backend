@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Req, UseGuards, UnauthorizedException } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  UnauthorizedException,
+  Delete,
+  Param,
+  Put,
+} from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AddressesService } from "./addresses.service";
 import type { Request } from "express";
@@ -24,5 +35,25 @@ export class AddressesController {
     if (!req.user) throw new UnauthorizedException();
     const userId = (req.user as any).id;
     return this.addressesService.addAddress(userId, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(":id")
+  deleteAddress(@Req() req: Request, @Param("id") id: string) {
+    if (!req.user) throw new UnauthorizedException();
+    const userId = (req.user as any).id;
+    return this.addressesService.deleteAddress(userId, Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(":id")
+  updateAddress(
+    @Req() req: Request,
+    @Param("id") id: string,
+    @Body() body: { name: string; address: string; city: string }
+  ) {
+    if (!req.user) throw new UnauthorizedException();
+    const userId = (req.user as any).id;
+    return this.addressesService.updateAddress(userId, Number(id), body);
   }
 }
