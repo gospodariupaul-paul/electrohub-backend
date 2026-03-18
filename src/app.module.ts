@@ -17,6 +17,9 @@ import { FavoritesModule } from './favorites/favorites.module';
 // 🔥 Importăm modulul nou
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
 
+// 🔥 Importăm modulul pentru adrese
+import { AddressesModule } from './addresses/addresses.module';
+
 // 🔥 Importăm HealthController
 import { HealthController } from './health.controller';
 
@@ -32,8 +35,9 @@ import { HealthController } from './health.controller';
     NotificationModule,
     FavoritesModule,
 
-    // 🔥 AICI îl adăugăm
+    // 🔥 Module noi
     SavedSearchesModule,
+    AddressesModule,
   ],
   controllers: [
     HealthController, // 🔥 AICI îl adăugăm
