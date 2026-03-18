@@ -15,6 +15,29 @@ import type { Request, Response } from "express";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // 🔥 REGISTER — LIPIT EXACT UNDE TREBUIE
+  @Post("register")
+  async register(@Body() body, @Res({ passthrough: true }) res: Response) {
+    const { accessToken, refreshToken, user } =
+      await this.authService.register(body);
+
+    res.cookie("jwt", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
+
+    return { user };
+  }
+
   @Post("login")
   async login(@Body() body, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } =
@@ -86,7 +109,7 @@ export class AuthController {
     return this.authService.getUserById(userId);
   }
 
-  // 🔥🔥🔥 METODA NOUĂ — CHANGE PASSWORD
+  // 🔥 CHANGE PASSWORD — exact cum era
   @UseGuards(JwtAuthGuard)
   @Post("change-password")
   async changePassword(
