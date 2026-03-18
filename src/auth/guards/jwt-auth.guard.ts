@@ -13,12 +13,14 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 
     const req = context.switchToHttp().getRequest();
 
-    // 🔥 BLOCĂM CONTUL DACĂ NU ESTE VERIFICAT
-    if (
-      !user.isVerified &&
-      req.path !== "/verify/request" &&
-      req.path !== "/verify/confirm"
-    ) {
+    // Rute permise pentru cont neverificat
+    const allowedPaths = [
+      "/verify/request",
+      "/verify/confirm",
+    ];
+
+    // Dacă userul NU este verificat, dar ruta NU este una permisă → blocăm
+    if (!user.isVerified && !allowedPaths.some(path => req.path.includes(path))) {
       throw new UnauthorizedException("Cont neverificat");
     }
 
