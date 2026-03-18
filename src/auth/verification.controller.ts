@@ -14,15 +14,17 @@ export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
   private getUserId(req: Request): number {
-    const token = req.cookies?.access_token;
+    // 🔥 Folosim cookie-ul corect: "jwt"
+    const token = req.cookies?.jwt;
+
     if (!token) {
       throw new UnauthorizedException("Trebuie să fii autentificat.");
     }
 
-    // 🔥 FIX pentru eroarea din Docker: adăugăm "!" ca să garantăm că nu e undefined
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-    return decoded.id;
+    // Dacă în token ai "sub", folosești sub
+    return decoded.sub;
   }
 
   @Post("request")
