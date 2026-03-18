@@ -3,37 +3,33 @@ import {
   Post,
   Body,
   Req,
-  UseGuards,
   UnauthorizedException,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { VerificationService } from "./verification.service";
 import type { Request } from "express";
+import * as jwt from "jsonwebtoken";
 
 @Controller("verify")
 export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Post("request")
-  requestCode(
-    @Req() req: Request,
-    @Body() body: { method: "email" | "phone" }
-  ) {
-    if (!req.user) throw new UnauthorizedException();
-    return this.verificationService.requestVerification(
-      (req.user as any).id,
-      body.method
-    );
+  private getUserId(req: Request): number {
+    const token = req.cookies?.access_token;
+    if (!token) throw new UnauthorizedException("Trebuie să fii autentificat.");
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+    return decoded.id;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Post("request")
+  requestCode(@Req() req: Request, @Body() body: { method: "email" | "phone" }) {
+    const userId = this.getUserId(req);
+    return this.verificationService.requestVerification(userId, body.method);
+  }
+
   @Post("confirm")
   confirmCode(@Req() req: Request, @Body() body: { code: string }) {
-    if (!req.user) throw new UnauthorizedException();
-    return this.verificationService.verifyCode(
-      (req.user as any).id,
-      body.code
-    );
+    const userId = this.getUserId(req);
+    return this.verificationService.verifyCode(userId, body.code);
   }
 }
