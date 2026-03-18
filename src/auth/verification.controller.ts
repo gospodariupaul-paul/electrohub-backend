@@ -21,7 +21,7 @@ export class VerificationController {
       throw new UnauthorizedException("Trebuie să fii autentificat.");
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as any;
 
     // Dacă în token ai "sub", folosești sub
     return decoded.sub;
