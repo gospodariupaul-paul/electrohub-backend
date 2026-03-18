@@ -23,8 +23,27 @@ export class AuthService {
       },
     });
 
+    // 🔥 GENERĂM TOKEN-URI EXACT CA LA LOGIN
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '1d',
+    });
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '7d',
+    });
+
     return {
       message: 'User created successfully',
+      accessToken,
+      refreshToken,
       user,
     };
   }
@@ -120,7 +139,6 @@ export class AuthService {
     return { message: 'User logged out' };
   }
 
-  // 🔥 METODA COMPLETĂ — include toate câmpurile noi
   async getUserById(id: number) {
     return this.prisma.user.findUnique({
       where: { id },
@@ -143,13 +161,11 @@ export class AuthService {
     });
   }
 
-  // 🔥🔥🔥 METODA NOUĂ — CHANGE PASSWORD
   async changePassword(
     userId: number,
     currentPassword: string,
     newPassword: string,
   ) {
-    // 1. Luăm utilizatorul
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -158,16 +174,13 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    // 2. Verificăm parola actuală
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Parola actuală este greșită');
     }
 
-    // 3. Criptăm parola nouă
     const hashed = await bcrypt.hash(newPassword, 10);
 
-    // 4. Salvăm parola nouă
     await this.prisma.user.update({
       where: { id: userId },
       data: { password: hashed },
