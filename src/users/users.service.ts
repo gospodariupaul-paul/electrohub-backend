@@ -56,9 +56,14 @@ export class UsersService {
         city: data.city,
         county: data.county,
         address: data.address,
+
+        // 🔥 birthDate — conversie corectă
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
+
         gender: data.gender,
-        avatarUrl: data.avatarUrl,
+
+        // 🔥 avatarUrl din frontend → imageUrl în DB
+        imageUrl: data.avatarUrl || null,
       },
     });
   }
