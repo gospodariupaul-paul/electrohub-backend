@@ -13,14 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
       ignoreExpiration: false,
 
-      // 🔥 SECRETUL CORECT — același cu cel folosit la generarea token-ului
-      secretOrKey: process.env.JWT_SECRET,
+      // 🔥 SECRETUL CORECT — trebuie să fie JWT_ACCESS_SECRET
+      secretOrKey: process.env.JWT_ACCESS_SECRET,
     });
   }
 
   async validate(payload: any) {
     return {
-      id: payload.sub,
+      id: payload.sub,        // 🔥 FIX: token-ul tău folosește "sub", nu "id"
       email: payload.email,
       role: payload.role,
       isVerified: payload.isVerified,
