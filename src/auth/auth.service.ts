@@ -142,4 +142,37 @@ export class AuthService {
       },
     });
   }
+
+  // 🔥🔥🔥 METODA NOUĂ — CHANGE PASSWORD
+  async changePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    // 1. Luăm utilizatorul
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // 2. Verificăm parola actuală
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Parola actuală este greșită');
+    }
+
+    // 3. Criptăm parola nouă
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    // 4. Salvăm parola nouă
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
+    });
+
+    return { message: 'Parola a fost schimbată cu succes' };
+  }
 }

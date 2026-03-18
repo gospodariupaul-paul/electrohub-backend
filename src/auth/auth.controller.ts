@@ -82,7 +82,22 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get("me")
   async me(@Req() req: Request) {
-    const userId = req.user!["id"]; // 🔥 FIX: req.user! elimină eroarea TS18048
+    const userId = req.user!["id"];
     return this.authService.getUserById(userId);
+  }
+
+  // 🔥🔥🔥 METODA NOUĂ — CHANGE PASSWORD
+  @UseGuards(JwtAuthGuard)
+  @Post("change-password")
+  async changePassword(
+    @Req() req: Request,
+    @Body() body: { currentPassword: string; newPassword: string }
+  ) {
+    const userId = req.user!["id"];
+    return this.authService.changePassword(
+      userId,
+      body.currentPassword,
+      body.newPassword
+    );
   }
 }
