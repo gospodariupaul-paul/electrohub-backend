@@ -39,8 +39,13 @@ model User {
 
   savedSearches SavedSearch[]
 
-  // 🔥 ADĂUGAT — relația cu adresele salvate
+  // 🔥 relația cu adresele salvate
   addresses Address[]
+
+  // 🔥 ADĂUGAT — câmpuri pentru verificarea contului
+  isVerified    Boolean   @default(false)
+  verifyCode    String?
+  verifyExpires DateTime?
 }
 
 model Category {
@@ -173,7 +178,7 @@ model SavedSearch {
 }
 
 //////////////////////////////////////////////////////
-// 🔥 MODELUL NOU — Address (exact cum trebuie)
+// 🔥 MODELUL Address — neschimbat
 //////////////////////////////////////////////////////
 
 model Address {
