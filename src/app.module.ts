@@ -14,14 +14,15 @@ import { PusherService } from './pusher/pusher.service';
 import { NotificationModule } from './notification/notification.module';
 import { FavoritesModule } from './favorites/favorites.module';
 
-// 🔥 Importăm modulul nou
+// 🔥 Module noi
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
-
-// 🔥 Importăm modulul pentru adrese
 import { AddressesModule } from './addresses/addresses.module';
 
 // 🔥 Importăm HealthController
 import { HealthController } from './health.controller';
+
+// 🔥 Importăm modulul de verificare
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
   imports: [
@@ -38,9 +39,12 @@ import { HealthController } from './health.controller';
     // 🔥 Module noi
     SavedSearchesModule,
     AddressesModule,
+
+    // 🔥 AICI îl adăugăm
+    VerificationModule,
   ],
   controllers: [
-    HealthController, // 🔥 AICI îl adăugăm
+    HealthController,
   ],
   providers: [PrismaService, PusherService],
 })
