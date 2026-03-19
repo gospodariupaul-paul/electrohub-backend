@@ -21,7 +21,12 @@ export class FavoritesController {
     @Param("productId") productId: string,
     @Req() req: Request,
   ) {
-    return this.favoritesService.addFavorite(req.user["id"], +productId);
+    if (!req.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = (req.user as any).id;
+    return this.favoritesService.addFavorite(userId, +productId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -30,12 +35,22 @@ export class FavoritesController {
     @Param("productId") productId: string,
     @Req() req: Request,
   ) {
-    return this.favoritesService.removeFavorite(req.user["id"], +productId);
+    if (!req.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = (req.user as any).id;
+    return this.favoritesService.removeFavorite(userId, +productId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getFavorites(@Req() req: Request) {
-    return this.favoritesService.getFavorites(req.user["id"]);
+    if (!req.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = (req.user as any).id;
+    return this.favoritesService.getFavorites(userId);
   }
 }
