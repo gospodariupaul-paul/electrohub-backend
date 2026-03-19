@@ -25,17 +25,6 @@ import { HealthController } from './health.controller';
 import { VerificationModule } from './auth/verification.module';
 import { EmailModule } from './email/email.module';
 
-// 🔥 Controller pentru ruta ROOT (Railway healthcheck)
-import { Controller, Get } from '@nestjs/common';
-
-@Controller()
-export class RootController {
-  @Get()
-  root() {
-    return { status: 'ok' };
-  }
-}
-
 @Module({
   imports: [
     AuthModule,
@@ -57,7 +46,6 @@ export class RootController {
     EmailModule,
   ],
   controllers: [
-    RootController,   // 🔥 AICI e cheia pentru Railway
     HealthController,
   ],
   providers: [PrismaService, PusherService],
