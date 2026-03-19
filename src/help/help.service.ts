@@ -29,8 +29,10 @@ export class HelpService {
 
   async sendContactMessage(dto: ContactDto) {
     try {
+      console.log("=== CONTACT FORM A FOST APELAT ===");
+
       await this.resend.emails.send({
-        from: 'ElectroHub <noreply@electrohub.ro>',
+        from: 'onboarding@resend.dev',
         to: 'gospopaul2006@yahoo.com',
         subject: `Mesaj nou de la ${dto.name}`,
         html: `
@@ -42,6 +44,8 @@ export class HelpService {
           <p>${dto.message}</p>
         `,
       });
+
+      console.log("=== EMAIL TRIMIS CĂTRE RESEND ===");
 
       return { message: 'Mesajul tău a fost trimis cu succes.' };
     } catch (error) {
