@@ -5,7 +5,8 @@
   "main": "dist/main.js",
   "scripts": {
     "prebuild": "prisma generate",
-    "build": "rimraf dist && nest build"
+    "build": "rimraf dist && nest build",
+    "postinstall": "npm run build",
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "start:dev": "nest start --watch",
