@@ -23,5 +23,6 @@ RUN npm run build
 # Expose port
 EXPOSE 8080
 
-# Start the app
-CMD ["node", "dist/main.js"]
+# Start the app (Node devine PID 1)
+ENTRYPOINT ["node", "dist/main.js"]
+CMD []
