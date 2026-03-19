@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ContactDto } from './dto/contact.dto';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class HelpService {
+  private resend = new Resend(process.env.RESEND_API_KEY);
+
   getFaq() {
     return [
       {
@@ -26,34 +28,26 @@ export class HelpService {
   }
 
   async sendContactMessage(dto: ContactDto) {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.mail.yahoo.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'gospopaul2006@yahoo.com',
-        pass: 're_cTQGfkKt_5HWJhuvN6H1UsXbY9dXZTWz2', // pune parola ta aici
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+    try {
+      await this.resend.emails.send({
+        from: 'ElectroHub <noreply@electrohub.ro>',
+        to: 'gospopaul2006@yahoo.com',
+        subject: `Mesaj nou de la ${dto.name}`,
+        html: `
+          <h2>Mesaj nou din formularul de contact</h2>
+          <p><strong>Nume:</strong> ${dto.name}</p>
+          <p><strong>Email:</strong> ${dto.email}</p>
+          <p><strong>Subiect:</strong> ${dto.subject}</p>
+          <p><strong>Mesaj:</strong></p>
+          <p>${dto.message}</p>
+        `,
+      });
 
-    await transporter.sendMail({
-      from: `"ElectroHub Contact" <gospopaul2006@yahoo.com>`,
-      to: 'gospopaul2006@yahoo.com',
-      subject: `Mesaj nou de la ${dto.name}`,
-      html: `
-        <h2>Mesaj nou din formularul de contact</h2>
-        <p><strong>Nume:</strong> ${dto.name}</p>
-        <p><strong>Email:</strong> ${dto.email}</p>
-        <p><strong>Subiect:</strong> ${dto.subject}</p>
-        <p><strong>Mesaj:</strong></p>
-        <p>${dto.message}</p>
-      `,
-    });
-
-    return { message: 'Mesajul tău a fost trimis cu succes.' };
+      return { message: 'Mesajul tău a fost trimis cu succes.' };
+    } catch (error) {
+      console.error('EROARE RESEND:', error);
+      return { message: 'Eroare la trimiterea mesajului.' };
+    }
   }
 
   getPolicies() {
