@@ -21,7 +21,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Expose port
-EXPOSE 8080
+EXPOSE 3000
 
 # Start the app (Node devine PID 1)
 ENTRYPOINT ["node", "dist/main.js"]
