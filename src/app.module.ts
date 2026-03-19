@@ -14,18 +14,27 @@ import { PusherService } from './pusher/pusher.service';
 import { NotificationModule } from './notification/notification.module';
 import { FavoritesModule } from './favorites/favorites.module';
 
-// 🔥 Module noi
+// Module noi
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
 import { AddressesModule } from './addresses/addresses.module';
 
-// 🔥 Importăm HealthController
+// Health
 import { HealthController } from './health.controller';
 
-// 🔥 Importăm modulul de verificare
+// Verificare email
 import { VerificationModule } from './auth/verification.module';
-
-// 🔥 Importăm modulul de email
 import { EmailModule } from './email/email.module';
+
+// 🔥 Controller pentru ruta ROOT (Railway healthcheck)
+import { Controller, Get } from '@nestjs/common';
+
+@Controller()
+export class RootController {
+  @Get()
+  root() {
+    return { status: 'ok' };
+  }
+}
 
 @Module({
   imports: [
@@ -39,15 +48,16 @@ import { EmailModule } from './email/email.module';
     NotificationModule,
     FavoritesModule,
 
-    // 🔥 Module noi
+    // Module noi
     SavedSearchesModule,
     AddressesModule,
 
-    // 🔥 Module pentru verificare și email
+    // Module pentru verificare și email
     VerificationModule,
     EmailModule,
   ],
   controllers: [
+    RootController,   // 🔥 AICI e cheia pentru Railway
     HealthController,
   ],
   providers: [PrismaService, PusherService],
