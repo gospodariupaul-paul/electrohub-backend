@@ -18,9 +18,12 @@ async function bootstrap() {
     }),
   );
 
-  // CORS pentru frontend
+  // CORS pentru toate domeniile Vercel ale proiectului
   app.enableCors({
-    origin: 'https://electrohub-frontend.vercel.app',
+    origin: [
+      'https://electrohub-frontend.vercel.app',
+      /\.vercel\.app$/,
+    ],
     credentials: true,
   });
 
