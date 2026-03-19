@@ -25,6 +25,9 @@ import { HealthController } from './health.controller';
 import { VerificationModule } from './auth/verification.module';
 import { EmailModule } from './email/email.module';
 
+// AJUTOR / CONTACT / FAQ
+import { HelpModule } from './help/help.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -44,6 +47,9 @@ import { EmailModule } from './email/email.module';
     // Module pentru verificare și email
     VerificationModule,
     EmailModule,
+
+    // Modulul de Ajutor / Contact / FAQ
+    HelpModule,
   ],
   controllers: [
     HealthController,
