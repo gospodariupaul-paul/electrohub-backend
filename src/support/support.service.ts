@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 
 @Injectable()
@@ -23,6 +23,26 @@ export class SupportService {
         createdAt: true,
       },
     });
+  }
+
+  // 🔥 User: un singur mesaj după ID
+  async getOneByUser(id: number, userId: number) {
+    const msg = await this.prisma.supportMessage.findFirst({
+      where: { id, userId },
+      select: {
+        id: true,
+        subject: true,
+        message: true,
+        reply: true,
+        createdAt: true,
+      },
+    });
+
+    if (!msg) {
+      throw new NotFoundException("Mesajul nu există.");
+    }
+
+    return msg;
   }
 
   // 🔥 User: numărul de răspunsuri primite de la admin

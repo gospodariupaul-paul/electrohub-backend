@@ -27,6 +27,13 @@ export class SupportController {
     return this.supportService.getByUser(req.user.id);
   }
 
+  // User vede un singur mesaj după ID
+  @UseGuards(JwtAuthGuard)
+  @Get("my/:id")
+  async getMyMessage(@Req() req, @Param("id") id: string) {
+    return this.supportService.getOneByUser(Number(id), req.user.id);
+  }
+
   // 🔥 User: numărul de răspunsuri primite de la admin
   @UseGuards(JwtAuthGuard)
   @Get("my/unread")
