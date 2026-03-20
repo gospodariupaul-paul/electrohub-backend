@@ -27,6 +27,13 @@ export class SupportController {
     return this.supportService.getByUser(req.user.id);
   }
 
+  // 🔥 User: numărul de răspunsuri primite de la admin
+  @UseGuards(JwtAuthGuard)
+  @Get("my/unread")
+  async getUnreadReplies(@Req() req) {
+    return this.supportService.countUnreadReplies(req.user.id);
+  }
+
   // Admin vede toate mesajele
   @UseGuards(JwtAuthGuard)
   @Get("admin")

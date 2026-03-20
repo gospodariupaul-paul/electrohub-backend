@@ -25,6 +25,16 @@ export class SupportService {
     });
   }
 
+  // 🔥 User: numărul de răspunsuri primite de la admin
+  async countUnreadReplies(userId: number) {
+    return this.prisma.supportMessage.count({
+      where: {
+        userId,
+        reply: { not: null }
+      }
+    });
+  }
+
   // 🔥 Admin: toate mesajele
   async getAll() {
     return this.prisma.supportMessage.findMany({
