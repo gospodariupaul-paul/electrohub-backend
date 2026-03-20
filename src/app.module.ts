@@ -28,6 +28,9 @@ import { EmailModule } from './email/email.module';
 // AJUTOR / CONTACT / FAQ
 import { HelpModule } from './help/help.module';
 
+// 🔥 SUPORT — modulul pentru mesajele către admin
+import { SupportModule } from './support/support.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -50,6 +53,9 @@ import { HelpModule } from './help/help.module';
 
     // Modulul de Ajutor / Contact / FAQ
     HelpModule,
+
+    // 🔥 Modulul de mesaje către admin
+    SupportModule,
   ],
   controllers: [
     HealthController,
