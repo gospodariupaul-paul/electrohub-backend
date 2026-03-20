@@ -31,6 +31,9 @@ import { HelpModule } from './help/help.module';
 // 🔥 SUPORT — modulul pentru mesajele către admin
 import { SupportModule } from './support/support.module';
 
+// ⭐ RATING — modulul nou pentru ratinguri
+import { RatingModule } from './rating/rating.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -56,6 +59,9 @@ import { SupportModule } from './support/support.module';
 
     // 🔥 Modulul de mesaje către admin
     SupportModule,
+
+    // ⭐ Modulul de ratinguri
+    RatingModule,
   ],
   controllers: [
     HealthController,
