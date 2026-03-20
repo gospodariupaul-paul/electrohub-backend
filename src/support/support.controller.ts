@@ -34,12 +34,18 @@ export class SupportController {
     return this.supportService.countUnreadReplies(req.user.id);
   }
 
+  // 🔥 User: șterge un mesaj de suport
+  @UseGuards(JwtAuthGuard)
+  @Patch("delete/:id")
+  async deleteMessage(@Req() req, @Param("id") id: string) {
+    return this.supportService.deleteMessage(req.user.id, Number(id));
+  }
+
   // Admin vede toate mesajele
   @UseGuards(JwtAuthGuard)
   @Get("admin")
   async getAllMessages(@Req() req) {
     if (req.user.role !== "admin") return [];
-
     return this.supportService.getAll();
   }
 
@@ -48,7 +54,6 @@ export class SupportController {
   @Get("admin/:id")
   async getMessage(@Req() req, @Param("id") id: string) {
     if (req.user.role !== "admin") return null;
-
     return this.supportService.getOne(Number(id));
   }
 
@@ -61,7 +66,6 @@ export class SupportController {
     @Body() body: { reply: string }
   ) {
     if (req.user.role !== "admin") return null;
-
     return this.supportService.reply(Number(id), body.reply);
   }
 }

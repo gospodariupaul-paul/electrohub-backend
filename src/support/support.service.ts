@@ -35,6 +35,16 @@ export class SupportService {
     });
   }
 
+  // 🔥 User: șterge un mesaj de suport
+  async deleteMessage(userId: number, id: number) {
+    return this.prisma.supportMessage.deleteMany({
+      where: {
+        id,
+        userId
+      }
+    });
+  }
+
   // 🔥 Admin: toate mesajele
   async getAll() {
     return this.prisma.supportMessage.findMany({
