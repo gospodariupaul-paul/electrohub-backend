@@ -68,4 +68,12 @@ export class SupportController {
     if (req.user.role !== "admin") return null;
     return this.supportService.reply(Number(id), body.reply);
   }
+
+  // 🔥 Admin: șterge orice mesaj
+  @UseGuards(JwtAuthGuard)
+  @Patch("admin/delete/:id")
+  async adminDeleteMessage(@Req() req, @Param("id") id: string) {
+    if (req.user.role !== "admin") return null;
+    return this.supportService.adminDelete(Number(id));
+  }
 }

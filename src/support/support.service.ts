@@ -68,4 +68,11 @@ export class SupportService {
       data: { reply },
     });
   }
+
+  // 🔥 Admin: șterge orice mesaj
+  async adminDelete(id: number) {
+    return this.prisma.supportMessage.delete({
+      where: { id }
+    });
+  }
 }
