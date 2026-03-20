@@ -10,6 +10,21 @@ export class SupportService {
     return this.prisma.supportMessage.create({ data });
   }
 
+  // 🔥 User: mesajele lui + răspunsurile adminului
+  async getByUser(userId: number) {
+    return this.prisma.supportMessage.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        subject: true,
+        message: true,
+        reply: true,
+        createdAt: true,
+      },
+    });
+  }
+
   // 🔥 Admin: toate mesajele
   async getAll() {
     return this.prisma.supportMessage.findMany({

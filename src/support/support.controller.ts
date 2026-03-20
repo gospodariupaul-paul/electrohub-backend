@@ -20,6 +20,13 @@ export class SupportController {
     });
   }
 
+  // User vede mesajele lui + răspunsurile adminului
+  @UseGuards(JwtAuthGuard)
+  @Get("my")
+  async getMyMessages(@Req() req) {
+    return this.supportService.getByUser(req.user.id);
+  }
+
   // Admin vede toate mesajele
   @UseGuards(JwtAuthGuard)
   @Get("admin")
