@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Req, UseGuards, Get, Param, Patch } from "@nestjs/common";
 import { SupportService } from "./support.service";
-import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 @Controller("support")
 export class SupportController {
   constructor(private supportService: SupportService) {}
 
-  // 🔥 User trimite mesaj către admin
+  // User trimite mesaj către admin
   @UseGuards(JwtAuthGuard)
   @Post()
   async createSupportMessage(
@@ -20,7 +20,7 @@ export class SupportController {
     });
   }
 
-  // 🔥 Admin vede toate mesajele
+  // Admin vede toate mesajele
   @UseGuards(JwtAuthGuard)
   @Get("admin")
   async getAllMessages(@Req() req) {
@@ -29,7 +29,7 @@ export class SupportController {
     return this.supportService.getAll();
   }
 
-  // 🔥 Admin vede un mesaj
+  // Admin vede un mesaj
   @UseGuards(JwtAuthGuard)
   @Get("admin/:id")
   async getMessage(@Req() req, @Param("id") id: string) {
@@ -38,7 +38,7 @@ export class SupportController {
     return this.supportService.getOne(Number(id));
   }
 
-  // 🔥 Admin răspunde la mesaj
+  // Admin răspunde la mesaj
   @UseGuards(JwtAuthGuard)
   @Patch("admin/:id/reply")
   async replyMessage(
