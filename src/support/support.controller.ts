@@ -76,4 +76,12 @@ export class SupportController {
     if (req.user.role !== "admin") return null;
     return this.supportService.adminDelete(Number(id));
   }
+
+  // 🔥 Admin: număr mesaje fără răspuns (pentru badge)
+  @UseGuards(JwtAuthGuard)
+  @Get("admin/pending/count")
+  async getPendingCount(@Req() req) {
+    if (req.user.role !== "admin") return 0;
+    return this.supportService.countPending();
+  }
 }

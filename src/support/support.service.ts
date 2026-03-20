@@ -75,4 +75,11 @@ export class SupportService {
       where: { id }
     });
   }
+
+  // 🔥 Admin: număr mesaje fără răspuns (pentru badge)
+  async countPending() {
+    return this.prisma.supportMessage.count({
+      where: { reply: null }
+    });
+  }
 }
