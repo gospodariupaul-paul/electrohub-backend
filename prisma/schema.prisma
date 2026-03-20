@@ -39,13 +39,14 @@ model User {
 
   savedSearches SavedSearch[]
 
-  // 🔥 relația cu adresele salvate
   addresses Address[]
 
-  // 🔥 ADĂUGAT — câmpuri pentru verificarea contului
   isVerified    Boolean   @default(false)
   verifyCode    String?
   verifyExpires DateTime?
+
+  // 🔥 relație NOUĂ pentru mesajele către admin
+  supportMessages SupportMessage[]
 }
 
 model Category {
@@ -177,10 +178,6 @@ model SavedSearch {
   user User @relation(fields: [userId], references: [id])
 }
 
-//////////////////////////////////////////////////////
-// 🔥 MODELUL Address — neschimbat
-//////////////////////////////////////////////////////
-
 model Address {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -190,4 +187,19 @@ model Address {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+// 🔥 MODEL NOU — DOAR PENTRU MESAJELE CĂTRE ADMIN
+//////////////////////////////////////////////////////
+
+model SupportMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  subject   String
+  message   String
+  reply     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
