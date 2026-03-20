@@ -45,8 +45,12 @@ model User {
   verifyCode    String?
   verifyExpires DateTime?
 
-  // 🔥 relație NOUĂ pentru mesajele către admin
+  // 🔥 relație pentru mesajele către admin
   supportMessages SupportMessage[]
+
+  // 🔥 relații pentru ratinguri
+  ratingsReceived Rating[] @relation("RatingsReceived")
+  ratingsGiven    Rating[] @relation("RatingsGiven")
 }
 
 model Category {
@@ -190,7 +194,7 @@ model Address {
 }
 
 //////////////////////////////////////////////////////
-// 🔥 MODEL NOU — DOAR PENTRU MESAJELE CĂTRE ADMIN
+// 🔥 MODEL — MESAJE CĂTRE ADMIN
 //////////////////////////////////////////////////////
 
 model SupportMessage {
@@ -202,4 +206,21 @@ model SupportMessage {
   reply     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////////////////////
+// ⭐ MODEL NOU — RATINGURI
+//////////////////////////////////////////////////////
+
+model Rating {
+  id          Int      @id @default(autoincrement())
+  fromUserId  Int
+  toUserId    Int
+  stars       Int
+  comment     String?
+  transaction String?
+  createdAt   DateTime @default(now())
+
+  fromUser User @relation("RatingsGiven", fields: [fromUserId], references: [id])
+  toUser   User @relation("RatingsReceived", fields: [toUserId], references: [id])
 }
