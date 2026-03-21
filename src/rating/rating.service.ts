@@ -30,4 +30,12 @@ export class RatingService {
       orderBy: { createdAt: "desc" },
     });
   }
+
+  // ⭐⭐⭐ SETEAZĂ RATINGURILE CA VĂZUTE
+  async markRatingsAsSeen(userId: number) {
+    return this.prisma.rating.updateMany({
+      where: { toUserId: userId, seen: false },
+      data: { seen: true },
+    });
+  }
 }

@@ -39,4 +39,11 @@ export class RatingController {
       ...body,
     });
   }
+
+  // ⭐⭐⭐ MARCHEAZĂ RATINGURILE CA VĂZUTE
+  @UseGuards(JwtAuthGuard)
+  @Post("mark-seen")
+  async markSeen(@Req() req) {
+    return this.ratingService.markRatingsAsSeen(req.user.id);
+  }
 }
