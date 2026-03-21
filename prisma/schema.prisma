@@ -209,7 +209,7 @@ model SupportMessage {
 }
 
 //////////////////////////////////////////////////////
-// ⭐ MODEL NOU — RATINGURI
+// ⭐ MODEL — RATINGURI (MODIFICAT)
 //////////////////////////////////////////////////////
 
 model Rating {
@@ -220,6 +220,9 @@ model Rating {
   comment     String?
   transaction String?
   createdAt   DateTime @default(now())
+
+  // ⭐ NOU — pentru badge și notificări
+  seen        Boolean  @default(false)
 
   fromUser User @relation("RatingsGiven", fields: [fromUserId], references: [id])
   toUser   User @relation("RatingsReceived", fields: [toUserId], references: [id])
