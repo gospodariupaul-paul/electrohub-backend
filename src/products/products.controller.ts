@@ -35,6 +35,13 @@ export class ProductsController {
     return this.productsService.findByUser(Number(id));
   }
 
+  // 🔥 RUTA NOUĂ /products/my
+  @UseGuards(JwtAuthGuard)
+  @Get("my")
+  getMyProducts(@Req() req) {
+    return this.productsService.findByUser(req.user.id);
+  }
+
   @Get('search')
   search(@Req() req) {
     return this.productsService.search(req.query.q);
@@ -45,7 +52,6 @@ export class ProductsController {
     return this.productsService.findByCategory(Number(id));
   }
 
-  // 🔥 RUTA NOUĂ
   @Get("seller/:id")
   getSeller(@Param("id") id: string) {
     return this.productsService.getSellerProfile(Number(id));

@@ -192,7 +192,6 @@ export class ProductsService {
     });
   }
 
-  // 🔥 AICI ESTE FUNCȚIA NOUĂ
   async getSellerProfile(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
