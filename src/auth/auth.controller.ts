@@ -18,9 +18,9 @@ export class AuthController {
   private cookieOptions = {
     httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: "none" as const, // 🔥 FIX pentru TypeScript
     path: "/",
-    domain: "electrohub-backend-production.up.railway.app", // 🔥 OBLIGATORIU
+    domain: "electrohub-backend-production.up.railway.app", // 🔥 OBLIGATORIU în producție
   };
 
   @Post("register")
