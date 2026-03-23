@@ -6,11 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure (FASTIFY VERSION)
-  const fastify = app.getHttpAdapter().getInstance();
-  if (fastify && typeof fastify.setTrustProxy === 'function') {
-    fastify.setTrustProxy(true);
-  }
+  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure (EXPRESS VERSION)
+  // TypeScript nu știe de metoda asta, dar Express o are.
+  (app as any).set('trust proxy', 1);
 
   // Middleware standard
   app.use(cookieParser());
