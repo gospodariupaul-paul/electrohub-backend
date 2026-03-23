@@ -6,8 +6,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure
-  app.set('trust proxy', 1);
+  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure (FASTIFY VERSION)
+  const fastify = app.getHttpAdapter().getInstance();
+  if (fastify && typeof fastify.setTrustProxy === 'function') {
+    fastify.setTrustProxy(true);
+  }
 
   // Middleware standard
   app.use(cookieParser());
