@@ -15,25 +15,21 @@ import type { Request, Response } from "express";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // 🔥 REGISTER — LIPIT EXACT UNDE TREBUIE
+  private cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+    domain: "electrohub-backend-production.up.railway.app", // 🔥 OBLIGATORIU
+  };
+
   @Post("register")
   async register(@Body() body, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } =
       await this.authService.register(body);
 
-    res.cookie("jwt", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
+    res.cookie("jwt", accessToken, this.cookieOptions);
+    res.cookie("refreshToken", refreshToken, this.cookieOptions);
 
     return { user };
   }
@@ -43,19 +39,8 @@ export class AuthController {
     const { accessToken, refreshToken, user } =
       await this.authService.login(body);
 
-    res.cookie("jwt", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
+    res.cookie("jwt", accessToken, this.cookieOptions);
+    res.cookie("refreshToken", refreshToken, this.cookieOptions);
 
     return { user };
   }
@@ -65,40 +50,14 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
 
+    res.clearCookie("jwt", this.cookieOptions);
+    res.clearCookie("refreshToken", this.cookieOptions);
+
     if (!user || !user["id"]) {
-      res.clearCookie("jwt", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
-
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
-
       return { message: "Already logged out" };
     }
 
     await this.authService.logout(user["id"]);
-
-    res.clearCookie("jwt", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-    });
-
     return { message: "Logged out successfully" };
   }
 
@@ -109,7 +68,6 @@ export class AuthController {
     return this.authService.getUserById(userId);
   }
 
-  // 🔥 CHANGE PASSWORD — exact cum era
   @UseGuards(JwtAuthGuard)
   @Post("change-password")
   async changePassword(
