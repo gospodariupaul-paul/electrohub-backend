@@ -1,11 +1,24 @@
 import {
   Injectable,
   UnauthorizedException,
+  ExecutionContext,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
+  // 🔥 Prevenim crash-ul Passport când nu există cookie
+  canActivate(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+
+    // Dacă nu există cookie jwt → nu lăsăm Passport să ruleze
+    if (!req.cookies?.jwt) {
+      return false;
+    }
+
+    return super.canActivate(context);
+  }
+
   handleRequest(err: any, user: any, info: any, context: any) {
     const req = context.switchToHttp().getRequest();
 
