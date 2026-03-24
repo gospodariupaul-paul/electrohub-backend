@@ -5,12 +5,16 @@ import { PrismaService } from "src/prisma.service";
 export class SupportService {
   constructor(private prisma: PrismaService) {}
 
-  // 🔥 Creează mesaj de suport
+  // ============================
+  // USER: creează mesaj
+  // ============================
   async create(data: { userId: number; subject: string; message: string }) {
     return this.prisma.supportMessage.create({ data });
   }
 
-  // 🔥 User: mesajele lui + răspunsurile adminului
+  // ============================
+  // USER: toate mesajele lui
+  // ============================
   async getByUser(userId: number) {
     return this.prisma.supportMessage.findMany({
       where: { userId },
@@ -25,7 +29,9 @@ export class SupportService {
     });
   }
 
-  // 🔥 User: un singur mesaj după ID
+  // ============================
+  // USER: un mesaj
+  // ============================
   async getOneByUser(id: number, userId: number) {
     const msg = await this.prisma.supportMessage.findFirst({
       where: { id, userId },
@@ -45,43 +51,64 @@ export class SupportService {
     return msg;
   }
 
-  // 🔥 User: numărul de răspunsuri primite de la admin
+  // ============================
+  // USER: număr răspunsuri primite
+  // ============================
   async countUnreadReplies(userId: number) {
     return this.prisma.supportMessage.count({
       where: {
         userId,
-        reply: { not: null }
-      }
+        reply: { not: null },
+      },
     });
   }
 
-  // 🔥 User: șterge un mesaj de suport
+  // ============================
+  // USER: șterge mesajul lui
+  // ============================
   async deleteMessage(userId: number, id: number) {
     return this.prisma.supportMessage.deleteMany({
-      where: {
-        id,
-        userId
-      }
+      where: { id, userId },
     });
   }
 
-  // 🔥 Admin: toate mesajele
+  // ============================
+  // ADMIN: toate mesajele
+  // ============================
   async getAll() {
     return this.prisma.supportMessage.findMany({
       orderBy: { createdAt: "desc" },
-      include: { user: true },
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+      },
     });
   }
 
-  // 🔥 Admin: un mesaj
+  // ============================
+  // ADMIN: un mesaj
+  // ============================
   async getOne(id: number) {
-    return this.prisma.supportMessage.findUnique({
+    const msg = await this.prisma.supportMessage.findUnique({
       where: { id },
-      include: { user: true },
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+      },
     });
+
+    if (!msg) {
+      throw new NotFoundException("Mesajul nu există.");
+    }
+
+    return msg;
   }
 
-  // 🔥 Admin: răspunde la mesaj
+  // ============================
+  // ADMIN: răspunde la mesaj
+  // ============================
   async reply(id: number, reply: string) {
     return this.prisma.supportMessage.update({
       where: { id },
@@ -89,17 +116,21 @@ export class SupportService {
     });
   }
 
-  // 🔥 Admin: șterge orice mesaj
+  // ============================
+  // ADMIN: șterge mesaj
+  // ============================
   async adminDelete(id: number) {
     return this.prisma.supportMessage.delete({
-      where: { id }
+      where: { id },
     });
   }
 
-  // 🔥 Admin: număr mesaje fără răspuns (pentru badge)
+  // ============================
+  // ADMIN: număr mesaje fără răspuns
+  // ============================
   async countPending() {
     return this.prisma.supportMessage.count({
-      where: { reply: null }
+      where: { reply: null },
     });
   }
 }

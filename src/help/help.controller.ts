@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { HelpService } from './help.service';
 import { ContactDto } from './dto/contact.dto';
 
@@ -36,29 +36,5 @@ export class HelpController {
   @Get('status')
   getStatus() {
     return this.helpService.getStatus();
-  }
-
-  // ============================
-  // SUPORT INTERN — USER → ADMIN
-  // ============================
-  @Post('support')
-  saveSupportMessage(
-    @Req() req,
-    @Body() body: { subject: string; message: string }
-  ) {
-    const userId = req.user.id; // user logat
-    return this.helpService.saveSupportMessage(
-      userId,
-      body.subject,
-      body.message
-    );
-  }
-
-  // ============================
-  // SUPORT INTERN — ADMIN VEDE MESAJELE
-  // ============================
-  @Get('support')
-  getSupportMessages() {
-    return this.helpService.getSupportMessages();
   }
 }

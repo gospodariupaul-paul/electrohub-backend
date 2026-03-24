@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Req, UseGuards, Get, Param, Patch } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  Get,
+  Param,
+  Patch,
+} from "@nestjs/common";
 import { SupportService } from "./support.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
@@ -6,7 +15,9 @@ import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 export class SupportController {
   constructor(private supportService: SupportService) {}
 
-  // User trimite mesaj către admin
+  // ============================
+  // USER: trimite mesaj
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Post()
   async createSupportMessage(
@@ -20,35 +31,45 @@ export class SupportController {
     });
   }
 
-  // User vede mesajele lui + răspunsurile adminului
+  // ============================
+  // USER: vede toate mesajele lui
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("my")
   async getMyMessages(@Req() req) {
     return this.supportService.getByUser(req.user.id);
   }
 
-  // User vede un singur mesaj după ID
+  // ============================
+  // USER: vede un mesaj
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("my/:id")
   async getMyMessage(@Req() req, @Param("id") id: string) {
     return this.supportService.getOneByUser(Number(id), req.user.id);
   }
 
-  // 🔥 User: numărul de răspunsuri primite de la admin
+  // ============================
+  // USER: număr răspunsuri necitite
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("my/unread")
   async getUnreadReplies(@Req() req) {
     return this.supportService.countUnreadReplies(req.user.id);
   }
 
-  // 🔥 User: șterge un mesaj de suport
+  // ============================
+  // USER: șterge mesajul lui
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Patch("delete/:id")
   async deleteMessage(@Req() req, @Param("id") id: string) {
     return this.supportService.deleteMessage(req.user.id, Number(id));
   }
 
-  // Admin vede toate mesajele
+  // ============================
+  // ADMIN: toate mesajele
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("admin")
   async getAllMessages(@Req() req) {
@@ -56,7 +77,9 @@ export class SupportController {
     return this.supportService.getAll();
   }
 
-  // Admin vede un mesaj
+  // ============================
+  // ADMIN: un mesaj
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("admin/:id")
   async getMessage(@Req() req, @Param("id") id: string) {
@@ -64,7 +87,9 @@ export class SupportController {
     return this.supportService.getOne(Number(id));
   }
 
-  // Admin răspunde la mesaj
+  // ============================
+  // ADMIN: răspunde la mesaj
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Patch("admin/:id/reply")
   async replyMessage(
@@ -76,7 +101,9 @@ export class SupportController {
     return this.supportService.reply(Number(id), body.reply);
   }
 
-  // 🔥 Admin: șterge orice mesaj
+  // ============================
+  // ADMIN: șterge mesaj
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Patch("admin/delete/:id")
   async adminDeleteMessage(@Req() req, @Param("id") id: string) {
@@ -84,7 +111,9 @@ export class SupportController {
     return this.supportService.adminDelete(Number(id));
   }
 
-  // 🔥 Admin: număr mesaje fără răspuns (pentru badge)
+  // ============================
+  // ADMIN: număr mesaje fără răspuns
+  // ============================
   @UseGuards(JwtAuthGuard)
   @Get("admin/pending/count")
   async getPendingCount(@Req() req) {
