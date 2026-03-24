@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ContactDto } from './dto/contact.dto';
 import { Resend } from 'resend';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class HelpService {
   private resend = new Resend(process.env.RESEND_API_KEY);
 
+  constructor(private prisma: PrismaService) {}
+
+  // ============================
+  // FAQ
+  // ============================
   getFaq() {
     return [
       {
@@ -27,6 +33,9 @@ export class HelpService {
     ];
   }
 
+  // ============================
+  // FORMULAR CONTACT (EMAIL)
+  // ============================
   async sendContactMessage(dto: ContactDto) {
     try {
       console.log("=== CONTACT FORM A FOST APELAT ===");
@@ -54,6 +63,9 @@ export class HelpService {
     }
   }
 
+  // ============================
+  // POLICIES
+  // ============================
   getPolicies() {
     return {
       terms: '/policies/terms',
@@ -63,11 +75,39 @@ export class HelpService {
     };
   }
 
+  // ============================
+  // STATUS
+  // ============================
   getStatus() {
     return {
       server: 'online',
       issues: [],
       maintenance: null,
     };
+  }
+
+  // ============================
+  // MESAJE INTERNE SUPORT
+  // ============================
+
+  async saveSupportMessage(userId: number, subject: string, message: string) {
+    return this.prisma.supportMessage.create({
+      data: {
+        userId,
+        subject,
+        message,
+      },
+    });
+  }
+
+  async getSupportMessages() {
+    return this.prisma.supportMessage.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
   }
 }
