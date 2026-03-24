@@ -97,7 +97,7 @@ export class SupportService {
   }
 
   // ============================
-  // ADMIN: un mesaj
+  // ADMIN: un mesaj (cu fallback)
   // ============================
   async getOne(id: number) {
     const msg = await this.prisma.supportMessage.findUnique({
