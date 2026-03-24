@@ -32,7 +32,7 @@ export class HelpService {
       console.log("=== CONTACT FORM A FOST APELAT ===");
 
       await this.resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'ElectroHub Support <onboarding@resend.dev>',
         to: 'gospopaul2006@yahoo.com',
         subject: `Mesaj nou de la ${dto.name}`,
         html: `
