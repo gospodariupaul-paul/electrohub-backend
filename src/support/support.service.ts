@@ -73,10 +73,10 @@ export class SupportService {
   }
 
   // ============================
-  // ADMIN: toate mesajele
+  // ADMIN: toate mesajele (cu fallback)
   // ============================
   async getAll() {
-    return this.prisma.supportMessage.findMany({
+    const messages = await this.prisma.supportMessage.findMany({
       orderBy: { createdAt: "desc" },
       include: {
         user: {
@@ -84,6 +84,16 @@ export class SupportService {
         },
       },
     });
+
+    // 🔥 FIX: dacă user-ul lipsește, punem fallback
+    return messages.map((m) => ({
+      ...m,
+      user: m.user ?? {
+        id: 0,
+        email: "unknown",
+        name: "Unknown User",
+      },
+    }));
   }
 
   // ============================
@@ -103,7 +113,14 @@ export class SupportService {
       throw new NotFoundException("Mesajul nu există.");
     }
 
-    return msg;
+    return {
+      ...msg,
+      user: msg.user ?? {
+        id: 0,
+        email: "unknown",
+        name: "Unknown User",
+      },
+    };
   }
 
   // ============================
