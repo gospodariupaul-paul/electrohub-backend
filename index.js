@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import privacyRoutes from "./src/privacy/privacy.routes.js";
+app.use("/privacy", privacyRoutes);
 
 dotenv.config();
 
