@@ -31,7 +31,6 @@ export class UsersService {
         data: { isOnline: false },
       });
     } catch (e) {
-      // userul poate fi deja șters sau inexistent → ignorăm
       return null;
     }
   }
@@ -67,13 +66,16 @@ export class UsersService {
     });
   }
 
-  // 🔥 FIX FINAL — NU MAI ARUNCĂ EROARE 500
+  // 🔥 FIX FINAL — NU MAI ARUNCĂ 500 NICIODATĂ
   async deleteUser(id: number) {
-    // marchează userul offline, dar fără să crape dacă nu există
     await this.setUserOffline(id);
 
-    return this.prisma.user.delete({
-      where: { id },
-    });
+    try {
+      return await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch (e) {
+      return { message: "User already deleted" };
+    }
   }
 }
