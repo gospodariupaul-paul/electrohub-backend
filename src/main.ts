@@ -6,8 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure (EXPRESS VERSION)
-  // TypeScript nu știe de metoda asta, dar Express o are.
+  // 🔥 OBLIGATORIU pe Railway pentru cookie-uri secure
   (app as any).set('trust proxy', 1);
 
   // Middleware standard
@@ -22,13 +21,15 @@ async function bootstrap() {
     }),
   );
 
-  // CORS pentru toate domeniile Vercel ale proiectului
+  // 🔥 CORS CORECT pentru Vercel ↔ Railway
   app.enableCors({
     origin: [
       'https://electrohub-frontend.vercel.app',
       /\.vercel\.app$/,
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Pornire server pe portul Railway
