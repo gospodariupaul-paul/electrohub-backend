@@ -9,6 +9,7 @@ import {
   Put,
   Param,
   Delete,
+  Req
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -17,6 +18,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 import { UsersService } from './users.service';
+import type { Request } from "express";
 
 @Controller('users')
 export class UsersController {
@@ -59,8 +61,18 @@ export class UsersController {
     return this.usersService.updateUser(Number(id), body);
   }
 
-  // 🔥 ȘTERGERE CONT — FĂRĂ GUARD (altfel nu se execută)
+  // 🔥 ȘTERGERE CONT — CU GUARD (altfel nu ai req.user)
   @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(Number(id));
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req.user as any)?.id;
+
+    if (userId !== Number(id)) {
+      return { message: "Forbidden" };
+    }
+
+    await this.usersService.deleteUser(Number(id));
+
+    return { message: "User deleted successfully" };
   }
+}
