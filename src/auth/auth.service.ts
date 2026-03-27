@@ -188,4 +188,17 @@ export class AuthService {
 
     return { message: 'Parola a fost schimbată cu succes' };
   }
+
+  // 🔥 FIX FINAL — invalidează JWT dacă userul a fost șters
+  async validate(payload: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException("User no longer exists");
+    }
+
+    return user;
+  }
 }
