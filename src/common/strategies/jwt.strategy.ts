@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
+import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => req?.cookies?.jwt || null,
@@ -19,11 +20,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    // 🔥 FIX FINAL — verificăm dacă userul mai există în DB
+    const user = await this.authService.validate(payload);
+
     return {
-      id: payload.sub,        // 🔥 FIX: token-ul tău folosește "sub", nu "id"
-      email: payload.email,
-      role: payload.role,
-      isVerified: payload.isVerified,
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
     };
   }
 }
