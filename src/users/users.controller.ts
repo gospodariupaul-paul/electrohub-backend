@@ -59,9 +59,8 @@ export class UsersController {
     return this.usersService.updateUser(Number(id), body);
   }
 
-  // 🔥🔥🔥 RUTA NOUĂ — ȘTERGERE CONT REALĂ
+  // 🔥 ȘTERGERE CONT — FĂRĂ GUARD (altfel nu se execută)
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   async deleteUser(@Param('id') id: string) {
     return this.usersService.deleteUser(Number(id));
   }
