@@ -20,7 +20,7 @@ export class AuthController {
     secure: true,
     sameSite: "none" as const,
     path: "/",
-    // ❌ domain scos — browserul îl bloca
+    domain: ".up.railway.app", // 🔥 FIX CRUCIAL pentru cookie-uri cross-site
   };
 
   @Post("register")
