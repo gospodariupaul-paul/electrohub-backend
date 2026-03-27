@@ -62,8 +62,14 @@ export class UsersService {
     });
   }
 
-  // 🔥🔥🔥 METODA NOUĂ — ȘTERGERE CONT REALĂ
+  // 🔥🔥🔥 FIX CRUCIAL — userul devine offline înainte de ștergere
   async deleteUser(id: number) {
+    try {
+      await this.setUserOffline(id);
+    } catch (e) {
+      // dacă userul nu există, ignorăm
+    }
+
     return this.prisma.user.delete({
       where: { id },
     });
