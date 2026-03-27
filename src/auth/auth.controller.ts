@@ -15,12 +15,12 @@ import type { Request, Response } from "express";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // 🔥 COOKIE-URI CORECTE pentru Vercel ↔ Railway
   private cookieOptions = {
     httpOnly: true,
     secure: true,
     sameSite: "none" as const,
     path: "/",
-    domain: ".up.railway.app", // păstrăm domain DOAR la setare
   };
 
   @Post("register")
@@ -50,16 +50,9 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
 
-    // 🔥 IMPORTANT: la ștergere NU folosim domain
-    const clearOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none" as const,
-      path: "/",
-    };
-
-    res.clearCookie("jwt", clearOptions);
-    res.clearCookie("refreshToken", clearOptions);
+    // 🔥 ȘTERGEM COOKIE-URILE CU ACELEAȘI OPȚIUNI
+    res.clearCookie("jwt", this.cookieOptions);
+    res.clearCookie("refreshToken", this.cookieOptions);
 
     if (!user || !user["id"]) {
       return { message: "Already logged out" };
