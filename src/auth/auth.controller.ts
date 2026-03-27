@@ -20,7 +20,7 @@ export class AuthController {
     secure: true,
     sameSite: "none" as const,
     path: "/",
-    domain: ".up.railway.app", // 🔥 FIX CRUCIAL pentru cookie-uri cross-site
+    domain: ".up.railway.app", // păstrăm domain DOAR la setare
   };
 
   @Post("register")
@@ -50,8 +50,16 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
 
-    res.clearCookie("jwt", this.cookieOptions);
-    res.clearCookie("refreshToken", this.cookieOptions);
+    // 🔥 IMPORTANT: la ștergere NU folosim domain
+    const clearOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none" as const,
+      path: "/",
+    };
+
+    res.clearCookie("jwt", clearOptions);
+    res.clearCookie("refreshToken", clearOptions);
 
     if (!user || !user["id"]) {
       return { message: "Already logged out" };
