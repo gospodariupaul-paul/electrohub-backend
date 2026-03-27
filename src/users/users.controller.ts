@@ -8,6 +8,7 @@ import {
   Get,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -52,10 +53,16 @@ export class UsersController {
     return this.usersService.getOnlineUsers();
   }
 
-  // 🔥 UPDATE PROFIL — endpoint complet
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   async updateUser(@Param('id') id: string, @Body() body: any) {
     return this.usersService.updateUser(Number(id), body);
+  }
+
+  // 🔥🔥🔥 RUTA NOUĂ — ȘTERGERE CONT REALĂ
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Param('id') id: string) {
+    return this.usersService.deleteUser(Number(id));
   }
 }

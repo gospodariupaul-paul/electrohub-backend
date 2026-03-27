@@ -6,8 +6,8 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    PrismaModule,        // 🔥 AICI ERA PROBLEMA
-    CloudinaryModule,    // pentru upload imagini
+    PrismaModule,
+    CloudinaryModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -45,7 +45,6 @@ export class UsersService {
     });
   }
 
-  // 🔥 METODA COMPLETĂ — salvează TOT ce vine din EditProfile
   async updateUser(id: number, data: any) {
     return this.prisma.user.update({
       where: { id },
@@ -56,15 +55,17 @@ export class UsersService {
         city: data.city,
         county: data.county,
         address: data.address,
-
-        // 🔥 birthDate — conversie corectă
         birthDate: data.birthDate ? new Date(data.birthDate) : null,
-
         gender: data.gender,
-
-        // 🔥 avatarUrl din frontend → imageUrl în DB
         imageUrl: data.avatarUrl || null,
       },
+    });
+  }
+
+  // 🔥🔥🔥 METODA NOUĂ — ȘTERGERE CONT REALĂ
+  async deleteUser(id: number) {
+    return this.prisma.user.delete({
+      where: { id },
     });
   }
 }
