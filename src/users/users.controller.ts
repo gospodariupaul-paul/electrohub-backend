@@ -16,9 +16,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Delete(":id")
   async deleteUser(@Param("id") id: string, @Req() req: Request) {
-    const userId = req.user["id"];
+    const userId = (req.user as any)?.id; // 🔥 FIX TS
 
-    // 🔥 Permitem ștergerea DOAR a propriului cont
     if (userId !== Number(id)) {
       return { message: "Forbidden" };
     }
