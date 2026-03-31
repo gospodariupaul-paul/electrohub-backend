@@ -34,6 +34,9 @@ import { SupportModule } from './support/support.module';
 // ⭐ RATING — modulul nou pentru ratinguri
 import { RatingModule } from './rating/rating.module';
 
+// 🔥 LIVRARE — modulul NOU pentru setările de livrare
+import { DeliverySettingsModule } from './delivery/delivery-settings.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -62,6 +65,9 @@ import { RatingModule } from './rating/rating.module';
 
     // ⭐ Modulul de ratinguri
     RatingModule,
+
+    // 🔥 Modulul NOU de setări livrare
+    DeliverySettingsModule,
   ],
   controllers: [
     HealthController,
