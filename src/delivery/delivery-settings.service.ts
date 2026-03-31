@@ -1,36 +1,30 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { DeliverySettings } from "./entities/delivery-settings.entity";
-import { UpdateDeliverySettingsDto } from "./dto/update-delivery-settings.dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { UpdateDeliverySettingsDto } from './dto/update-delivery-settings.dto';
 
 @Injectable()
 export class DeliverySettingsService {
-  constructor(
-    @InjectRepository(DeliverySettings)
-    private repo: Repository<DeliverySettings>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async getForUser(userId: number) {
-    let settings = await this.repo.findOne({ where: { userId } });
+    let settings = await this.prisma.deliverySettings.findUnique({
+      where: { userId },
+    });
 
     if (!settings) {
-      settings = this.repo.create({ userId });
-      await this.repo.save(settings);
+      settings = await this.prisma.deliverySettings.create({
+        data: { userId },
+      });
     }
 
     return settings;
   }
 
   async updateForUser(userId: number, dto: UpdateDeliverySettingsDto) {
-    let settings = await this.repo.findOne({ where: { userId } });
-
-    if (!settings) {
-      settings = this.repo.create({ userId, ...dto });
-    } else {
-      Object.assign(settings, dto);
-    }
-
-    return this.repo.save(settings);
+    return this.prisma.deliverySettings.upsert({
+      where: { userId },
+      update: dto,
+      create: { userId, ...dto },
+    });
   }
 }

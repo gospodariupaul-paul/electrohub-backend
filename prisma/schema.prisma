@@ -51,6 +51,9 @@ model User {
   // 🔥 relații pentru ratinguri
   ratingsReceived Rating[] @relation("RatingsReceived")
   ratingsGiven    Rating[] @relation("RatingsGiven")
+
+  // 🔥 relație NOUĂ — setări livrare
+  deliverySettings DeliverySettings?
 }
 
 model Category {
@@ -194,7 +197,7 @@ model Address {
 }
 
 //////////////////////////////////////////////////////
-// 🔥 MODEL — MESAJE CĂTRE ADMIN (ADĂUGAT DE MINE)
+// 🔥 MODEL — MESAJE CĂTRE ADMIN
 //////////////////////////////////////////////////////
 
 model SupportMessage {
@@ -209,7 +212,7 @@ model SupportMessage {
 }
 
 //////////////////////////////////////////////////////
-// ⭐ MODEL — RATINGURI (MODIFICAT)
+// ⭐ MODEL — RATINGURI
 //////////////////////////////////////////////////////
 
 model Rating {
@@ -221,9 +224,29 @@ model Rating {
   transaction String?
   createdAt   DateTime @default(now())
 
-  // ⭐ NOU — pentru badge și notificări
   seen        Boolean  @default(false)
 
   fromUser User @relation("RatingsGiven", fields: [fromUserId], references: [id])
   toUser   User @relation("RatingsReceived", fields: [toUserId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+// 🚚 MODEL — DELIVERY SETTINGS (NOU)
+//////////////////////////////////////////////////////
+
+model DeliverySettings {
+  userId          Int     @id
+  preferredCourier String  @default("sameday")
+  preferredMethod  String  @default("address")
+  street          String?
+  number          String?
+  city            String?
+  county          String?
+  postalCode      String?
+  callBefore      Boolean  @default(false)
+  noSaturday      Boolean  @default(false)
+  cashOnDelivery  Boolean  @default(false)
+  easyboxId       String?
+
+  user User @relation(fields: [userId], references: [id])
 }
