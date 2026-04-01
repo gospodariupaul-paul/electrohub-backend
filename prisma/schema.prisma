@@ -52,7 +52,7 @@ model User {
   ratingsReceived Rating[] @relation("RatingsReceived")
   ratingsGiven    Rating[] @relation("RatingsGiven")
 
-  // 🔥 relație NOUĂ — setări livrare
+  // 🔥 relație — setări livrare
   deliverySettings DeliverySettings?
 }
 
@@ -101,6 +101,9 @@ model Order {
   status    String      @default("pending")
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
+
+  // 🔥 relație cu Shipment
+  shipments Shipment[]
 }
 
 model OrderItem {
@@ -231,22 +234,40 @@ model Rating {
 }
 
 //////////////////////////////////////////////////////
-// 🚚 MODEL — DELIVERY SETTINGS (NOU)
+// 🚚 MODEL — DELIVERY SETTINGS
 //////////////////////////////////////////////////////
 
 model DeliverySettings {
-  userId          Int     @id
+  userId           Int     @id
   preferredCourier String  @default("sameday")
   preferredMethod  String  @default("address")
-  street          String?
-  number          String?
-  city            String?
-  county          String?
-  postalCode      String?
-  callBefore      Boolean  @default(false)
-  noSaturday      Boolean  @default(false)
-  cashOnDelivery  Boolean  @default(false)
-  easyboxId       String?
+  street           String?
+  number           String?
+  city             String?
+  county           String?
+  postalCode       String?
+  callBefore       Boolean @default(false)
+  noSaturday       Boolean @default(false)
+  cashOnDelivery   Boolean @default(false)
+  easyboxId        String?
 
   user User @relation(fields: [userId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+// 📦 MODEL — SHIPMENT (AWB, tracking)
+//////////////////////////////////////////////////////
+
+model Shipment {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  courier   String
+  awb       String?
+  status    String?
+  history   Json?
+  lockerId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
 }
