@@ -54,9 +54,6 @@ model User {
 
   // 🔥 relație — setări livrare
   deliverySettings DeliverySettings?
-
-  // 🛒 relație — coșul de cumpărături
-  cartItems CartItem[]
 }
 
 model Category {
@@ -93,9 +90,6 @@ model Product {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   favorites     Favorite[]
-
-  // 🛒 relație — coș
-  cartItems CartItem[]
 }
 
 model Order {
@@ -276,20 +270,4 @@ model Shipment {
   updatedAt DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
-}
-
-//////////////////////////////////////////////////////
-// 🛒 MODEL — CART (ADĂUGAT DE MINE)
-//////////////////////////////////////////////////////
-
-model CartItem {
-  id        Int     @id @default(autoincrement())
-  userId    Int
-  productId Int
-  quantity  Int     @default(1)
-
-  user    User    @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([userId, productId])
 }
