@@ -40,6 +40,9 @@ import { DeliverySettingsModule } from './delivery/delivery-settings.module';
 // 🚚 FANCOURIER — modulul NOU pentru AWB + tracking
 import { FanCourierModule } from './couriers/fancourier/fancourier.module';
 
+// 🛒 CART — modulul NOU pentru coșul de cumpărături (ADĂUGAT)
+import { CartModule } from './cart/cart.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -74,6 +77,9 @@ import { FanCourierModule } from './couriers/fancourier/fancourier.module';
 
     // 🚚 Modulul FanCourier (AWB + tracking)
     FanCourierModule,
+
+    // 🛒 Modulul de coș (SINGURA TA CERINȚĂ)
+    CartModule,
   ],
   controllers: [
     HealthController,
