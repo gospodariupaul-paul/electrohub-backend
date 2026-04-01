@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "@/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { FanCourierClient } from "./fancourier.client";
 
 @Injectable()
@@ -10,11 +10,10 @@ export class FanCourierService {
   ) {}
 
   async generateAwb(orderId: number, data: any) {
-    // aici ulterior vei pune mapping real către API FanCourier
     const response = await this.fanClient.generateAwb(data);
     const awb = String(response.data).trim();
 
-    const shipment = await this.prisma.shipment.create({
+    return this.prisma.shipment.create({
       data: {
         orderId,
         courier: "fancourier",
@@ -22,8 +21,6 @@ export class FanCourierService {
         status: "created",
       },
     });
-
-    return shipment;
   }
 
   async trackAwb(awb: string) {
