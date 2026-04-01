@@ -37,6 +37,9 @@ import { RatingModule } from './rating/rating.module';
 // 🔥 LIVRARE — modulul NOU pentru setările de livrare
 import { DeliverySettingsModule } from './delivery/delivery-settings.module';
 
+// 🚚 FANCOURIER — modulul NOU pentru AWB + tracking
+import { FanCourierModule } from './couriers/fancourier/fancourier.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -68,6 +71,9 @@ import { DeliverySettingsModule } from './delivery/delivery-settings.module';
 
     // 🔥 Modulul NOU de setări livrare
     DeliverySettingsModule,
+
+    // 🚚 Modulul FanCourier (AWB + tracking)
+    FanCourierModule,
   ],
   controllers: [
     HealthController,
