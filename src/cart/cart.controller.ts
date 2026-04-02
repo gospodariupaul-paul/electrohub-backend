@@ -10,6 +10,11 @@ export class CartController {
   @Post("add")
   async addToCart(@Req() req, @Body() body: any) {
     const userId = req.user.userId;
+
+    // 🔥 LOGURI PENTRU RAILWAY — VEDEM EXACT CE PRIMEȘTE BACKEND-UL
+    console.log("BODY:", body);
+    console.log("USER:", userId);
+
     const { productId, quantity } = body;
 
     return this.cartService.addToCart(userId, productId, quantity);
