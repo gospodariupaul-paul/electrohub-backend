@@ -9,7 +9,7 @@ export class FanCourierLockerService {
       address
     )}`;
 
-    // ⭐ FIX: Nominatim cere User-Agent OBLIGATORIU
+    // User-Agent OBLIGATORIU pentru Nominatim
     const res = await axios.get(url, {
       headers: {
         "User-Agent": "ElectroHub/1.0 (contact: gospopaul2006@yahoo.com)"
@@ -49,8 +49,15 @@ export class FanCourierLockerService {
   }
 
   async getNearestLocker(address: string) {
-    const coords = await this.geocodeAddress(address);
+    // 1. Încercăm adresa completă
+    let coords = await this.geocodeAddress(address);
 
+    // 2. Dacă nu există → fallback automat pe localitate
+    if (!coords) {
+      coords = await this.geocodeAddress("Fantanele, Iasi");
+    }
+
+    // 3. Dacă nici fallback-ul nu merge → returnăm null
     if (!coords) {
       return {
         userLocation: null,
