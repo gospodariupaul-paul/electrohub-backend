@@ -44,7 +44,14 @@ export class FanCourierLockerService {
 
   async getNearestLocker(address: string) {
     const coords = await this.geocodeAddress(address);
-    if (!coords) return { error: "Adresa nu a putut fi geocodată" };
+
+    // ⭐ FIX SINGURUL LOC CARE TREBUIA MODIFICAT
+    if (!coords) {
+      return {
+        userLocation: null,
+        locker: null,
+      };
+    }
 
     const locker = await this.findNearestLocker(coords.lat, coords.lon);
 
