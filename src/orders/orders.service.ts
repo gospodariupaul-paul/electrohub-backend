@@ -116,4 +116,28 @@ export class OrdersService {
       data: { status },
     });
   }
+
+  // ⭐ ȘTERGE comanda + itemele + shipment-urile
+  async deleteOrder(id: number) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // 🔥 Ștergem shipment-urile
+    await this.prisma.shipment.deleteMany({
+      where: { orderId: id },
+    });
+
+    // 🔥 Ștergem item-urile comenzii
+    await this.prisma.orderItem.deleteMany({
+      where: { orderId: id },
+    });
+
+    // 🔥 Ștergem comanda
+    return this.prisma.order.delete({
+      where: { id },
+    });
+  }
 }
