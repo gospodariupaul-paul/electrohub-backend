@@ -5,6 +5,8 @@ import {
   Param,
   Req,
   UseGuards,
+  Patch,
+  Body,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,5 +35,14 @@ export class OrdersController {
   @Get('user/:id')
   getOrdersByUser(@Param('id') id: string) {
     return this.ordersService.getOrdersByUser(Number(id));
+  }
+
+  // ⭐ ADMIN schimbă statusul manual
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    return this.ordersService.updateStatus(Number(id), status);
   }
 }

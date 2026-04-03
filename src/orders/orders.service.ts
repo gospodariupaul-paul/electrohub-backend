@@ -6,7 +6,6 @@ export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
   async createOrder(userId: number) {
-    // 1. Luăm produsele din coș
     const cartItems = await this.prisma.cartItem.findMany({
       where: { userId },
       include: { product: true },
@@ -16,13 +15,11 @@ export class OrdersService {
       throw new NotFoundException('Coșul este gol.');
     }
 
-    // 2. Calculăm totalul
     const total = cartItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
       0,
     );
 
-    // 3. Creăm comanda
     const order = await this.prisma.order.create({
       data: {
         userId,
@@ -38,13 +35,12 @@ export class OrdersService {
       include: {
         items: {
           include: {
-            product: true, // 🔥 include produsul
+            product: true,
           },
         },
       },
     });
 
-    // 4. Golim coșul
     await this.prisma.cartItem.deleteMany({
       where: { userId },
     });
@@ -99,11 +95,25 @@ export class OrdersService {
       include: {
         items: {
           include: {
-            product: true, // 🔥 FIX FINAL
+            product: true,
           },
         },
       },
       orderBy: { id: 'desc' },
+    });
+  }
+
+  // ⭐ ADMIN + WEBHOOK schimbă statusul
+  async updateStatus(id: number, status: string) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { status },
     });
   }
 }
