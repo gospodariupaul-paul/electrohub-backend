@@ -35,7 +35,13 @@ export class OrdersService {
           })),
         },
       },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: true, // 🔥 AICI ERA PROBLEMA
+          },
+        },
+      },
     });
 
     // 4. Golim coșul
@@ -48,14 +54,26 @@ export class OrdersService {
 
   async findAll() {
     return this.prisma.order.findMany({
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
   }
 
   async findOne(id: number) {
     const order = await this.prisma.order.findUnique({
       where: { id },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -68,7 +86,13 @@ export class OrdersService {
   async getOrdersByUser(userId: number) {
     return this.prisma.order.findMany({
       where: { userId },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: true, // 🔥 FIX FINAL
+          },
+        },
+      },
       orderBy: { id: 'desc' },
     });
   }
