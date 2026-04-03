@@ -49,8 +49,17 @@ export class FanCourierLockerService {
     const locker = await this.findNearestLocker(coords.lat, coords.lon);
 
     return {
-      userLocation: coords,
-      locker,
+      userLocation: {
+        lat: Number(coords.lat),
+        lon: Number(coords.lon),
+      },
+      locker: locker
+        ? {
+            name: locker.name,
+            lat: Number(locker.lat),
+            lon: Number(locker.lon),
+          }
+        : null,
     };
   }
 }
