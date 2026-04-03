@@ -9,10 +9,13 @@ export class CartController {
   @UseGuards(JwtAuthGuard)
   @Post("add")
   async addToCart(@Req() req, @Body() body: any) {
-    const userId = req.user.sub; // 🔥 FIX FINAL
-
+    // 🔥 LOGURI PENTRU DEBUG
+    console.log("=== CART ADD REQUEST ===");
+    console.log("USER OBJECT:", req.user);
     console.log("BODY:", body);
-    console.log("USER:", userId);
+
+    const userId = req.user?.sub; // aici vedem dacă e undefined
+    console.log("EXTRACTED USER ID:", userId);
 
     const { productId, quantity } = body;
 
