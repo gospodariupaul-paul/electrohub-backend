@@ -25,7 +25,7 @@ export class FanCourierLockerService {
       { name: "FANbox Podu Roș", lat: 47.1450, lon: 27.5880 },
     ];
 
-    let nearest = null;
+    let nearest: { name: string; lat: number; lon: number } | null = null;
     let minDist = Infinity;
 
     for (const locker of lockers) {
