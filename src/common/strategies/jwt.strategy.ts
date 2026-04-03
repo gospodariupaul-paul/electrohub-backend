@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
@@ -17,10 +17,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Verificăm dacă userul există
+    // verificăm dacă userul există
     await this.authService.validate(payload);
 
-    // 🔥 Returnăm payload-ul original (sub, email, role)
-    return payload;
+    // 🔥 Returnăm payload + id pentru compatibilitate
+    return {
+      ...payload,
+      id: payload.sub,
+    };
   }
 }
