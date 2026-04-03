@@ -11,23 +11,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => req?.cookies?.jwt || null,
       ]),
-
       ignoreExpiration: false,
-
-      // 🔥 SECRETUL CORECT — trebuie să fie JWT_ACCESS_SECRET
       secretOrKey: process.env.JWT_ACCESS_SECRET,
     });
   }
 
   async validate(payload: any) {
-    // 🔥 FIX FINAL — verificăm dacă userul mai există în DB
-    const user = await this.authService.validate(payload);
+    // Verificăm dacă userul există
+    await this.authService.validate(payload);
 
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      isVerified: user.isVerified,
-    };
+    // 🔥 Returnăm payload-ul original (sub, email, role)
+    return payload;
   }
 }
