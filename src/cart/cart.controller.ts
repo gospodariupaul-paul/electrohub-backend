@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Req, UseGuards, Get } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  Get,
+  Delete,
+  Param,
+} from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CartService } from "./cart.service";
 
@@ -6,6 +15,7 @@ import { CartService } from "./cart.service";
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
+  // 🛒 Adaugă în coș
   @UseGuards(JwtAuthGuard)
   @Post("add")
   async addToCart(@Req() req, @Body() body: any) {
@@ -21,6 +31,7 @@ export class CartController {
     return this.cartService.addToCart(userId, productId, quantity);
   }
 
+  // 🛒 Obține coșul utilizatorului
   @UseGuards(JwtAuthGuard)
   @Get("me")
   async getMyCart(@Req() req) {
@@ -29,5 +40,16 @@ export class CartController {
     console.log("USER ID:", userId);
 
     return this.cartService.getCartForUser(userId);
+  }
+
+  // 🗑 Șterge un produs din coș
+  @UseGuards(JwtAuthGuard)
+  @Delete(":productId")
+  async deleteItem(@Req() req, @Param("productId") productId: string) {
+    const userId = req.user.sub;
+    console.log("=== CART DELETE REQUEST ===");
+    console.log("USER ID:", userId, "PRODUCT:", productId);
+
+    return this.cartService.removeFromCart(userId, Number(productId));
   }
 }
