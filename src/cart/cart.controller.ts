@@ -9,9 +9,8 @@ export class CartController {
   @UseGuards(JwtAuthGuard)
   @Post("add")
   async addToCart(@Req() req, @Body() body: any) {
-    const userId = req.user.userId;
+    const userId = req.user.sub; // 🔥 FIX FINAL
 
-    // 🔥 LOGURI PENTRU RAILWAY — VEDEM EXACT CE PRIMEȘTE BACKEND-UL
     console.log("BODY:", body);
     console.log("USER:", userId);
 
