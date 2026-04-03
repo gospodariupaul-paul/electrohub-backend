@@ -9,7 +9,13 @@ export class FanCourierLockerService {
       address
     )}`;
 
-    const res = await axios.get(url);
+    // ⭐ FIX: Nominatim cere User-Agent OBLIGATORIU
+    const res = await axios.get(url, {
+      headers: {
+        "User-Agent": "ElectroHub/1.0 (contact: gospopaul2006@yahoo.com)"
+      }
+    });
+
     if (!res.data || res.data.length === 0) return null;
 
     return {
@@ -45,7 +51,6 @@ export class FanCourierLockerService {
   async getNearestLocker(address: string) {
     const coords = await this.geocodeAddress(address);
 
-    // ⭐ FIX SINGURUL LOC CARE TREBUIA MODIFICAT
     if (!coords) {
       return {
         userLocation: null,
