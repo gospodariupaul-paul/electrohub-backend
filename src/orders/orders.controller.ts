@@ -3,7 +3,6 @@ import {
   Post,
   Get,
   Param,
-  Body,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,9 +14,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  // 🔥 Creează comanda din coș (fără body)
   @Post()
-  create(@Req() req, @Body() dto: any) {
-    return this.ordersService.createOrder(req.user.userId, dto.items);
+  create(@Req() req) {
+    return this.ordersService.createOrder(req.user.sub);
   }
 
   @Get()
@@ -30,7 +30,6 @@ export class OrdersController {
     return this.ordersService.findOne(Number(id));
   }
 
-  // 🔥 ADĂUGAT — Comenzile utilizatorului logat
   @Get('user/:id')
   getOrdersByUser(@Param('id') id: string) {
     return this.ordersService.getOrdersByUser(Number(id));
