@@ -38,7 +38,7 @@ export class OrdersService {
       include: {
         items: {
           include: {
-            product: true, // 🔥 AICI ERA PROBLEMA
+            product: true, // 🔥 include produsul
           },
         },
       },
@@ -71,6 +71,16 @@ export class OrdersService {
         items: {
           include: {
             product: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+            city: true,
+            county: true,
+            address: true,
           },
         },
       },
