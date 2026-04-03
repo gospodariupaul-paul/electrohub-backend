@@ -17,13 +17,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // verificăm dacă userul există
     await this.authService.validate(payload);
 
-    // 🔥 Returnăm payload + id pentru compatibilitate
     return {
       ...payload,
-      id: payload.sub,
+      id: payload.sub, // 🔥 compatibilitate cu frontend-ul
     };
   }
 }
