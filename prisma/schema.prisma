@@ -104,7 +104,7 @@ model Order {
   total     Float
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  status    String      @default("pending")
+  status    String      @default("processing")
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
 
