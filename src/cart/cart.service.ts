@@ -6,18 +6,35 @@ export class CartService {
   constructor(private prisma: PrismaService) {}
 
   async addToCart(userId: number, productId: number, quantity: number) {
-    return this.prisma.cartItem.upsert({
+    const item = await this.prisma.cartItem.upsert({
       where: {
-        userId_productId: { userId, productId }
+        userId_productId: { userId, productId },
       },
       update: {
-        quantity: { increment: quantity }
+        quantity: { increment: quantity },
       },
       create: {
         userId,
         productId,
-        quantity
-      }
+        quantity,
+      },
+    });
+
+    // întoarcem și produsul, ca să fie util dacă vrei în frontend
+    return this.prisma.cartItem.findUnique({
+      where: { id: item.id },
+      include: {
+        product: true,
+      },
+    });
+  }
+
+  async getCartForUser(userId: number) {
+    return this.prisma.cartItem.findMany({
+      where: { userId },
+      include: {
+        product: true,
+      },
     });
   }
 }
