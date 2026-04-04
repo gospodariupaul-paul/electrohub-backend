@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import PDFDocument from 'pdfkit';
 import * as path from 'path';
+import QRCode from 'qrcode';
 
 @Injectable()
 export class OrdersService {
@@ -153,9 +154,9 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ FACTURA PREMIUM — RETURN BUFFER (FĂRĂ opacity)
+  // ⭐ FACTURA PREMIUM COMPLETĂ
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
       const buffers: Buffer[] = [];
@@ -166,89 +167,111 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // LOGO — fără opacity, compatibil cu TypeScript strict
+      // LOGO + FUNDAL
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-
-      // fundal alb sub logo pentru claritate
-      doc.rect(50, 40, 140, 70).fill('#FFFFFF').stroke();
-      doc.fillColor('#000000');
-
+      doc.rect(50, 40, 140, 70).fill('#FFFFFF');
       doc.image(logoPath, 55, 45, { width: 120 });
+      doc.fillColor('#000000');
 
       // ANTET
       doc
-        .fontSize(20)
+        .fontSize(22)
         .text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
 
-      doc.moveDown();
+      doc.moveDown(2);
+
+      // INFO FACTURĂ
       doc.fontSize(12);
       doc.text(`Număr factură: ${invoiceNumber}`, { align: 'right' });
       doc.text(`Data: ${new Date().toLocaleDateString('ro-RO')}`, { align: 'right' });
 
       doc.moveDown(2);
 
-      // DATE FIRMĂ
-      doc.fontSize(12).text('Emitent:', { underline: true });
-      doc.text('ElectroHub SRL');
-      doc.text('CUI: 12345678');
-      doc.text('Nr. Reg. Com.: J22/123/2024');
-      doc.text('Iași, România');
+      // EMITENT + CLIENT ÎN DOUĂ COLOANE
+      const topY = doc.y;
 
-      doc.moveDown();
+      doc.fontSize(12).text('Emitent:', 50, topY, { underline: true });
+      doc.text('ElectroHub SRL', 50);
+      doc.text('CUI: 12345678', 50);
+      doc.text('Nr. Reg. Com.: J22/123/2024', 50);
+      doc.text('Iași, România', 50);
 
-      // DATE CLIENT
-      doc.fontSize(12).text('Client:', { underline: true });
-      doc.text(order.user.name);
-      doc.text(order.user.address || '');
-      doc.text(`${order.user.city || ''}, ${order.user.county || ''}`);
-      doc.text(order.user.phone || '');
-
-      doc.moveDown(2);
-
-      // LINIE SEPARARE
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-
-      doc.moveDown();
-
-      // TABEL PRODUSE
-      doc.fontSize(12).text('Produse:', { underline: true });
-      doc.moveDown(0.5);
-
-      // HEADERS
-      doc.fontSize(12).text('Produs', 50, doc.y);
-      doc.text('Cant.', 300, doc.y);
-      doc.text('Preț', 350, doc.y);
-      doc.text('Total', 450, doc.y);
-
-      doc.moveDown(0.5);
-
-      // LINIE
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-
-      doc.moveDown(0.5);
-
-      // ITEMS
-      order.items.forEach((item) => {
-        const totalItem = item.quantity * item.price;
-
-        doc.text(item.product.name, 50, doc.y);
-        doc.text(String(item.quantity), 300, doc.y);
-        doc.text(`${item.price} lei`, 350, doc.y);
-        doc.text(`${totalItem} lei`, 450, doc.y);
-
-        doc.moveDown(0.5);
-      });
-
-      doc.moveDown(1);
-
-      // TOTAL BOX
-      doc.rect(350, doc.y, 200, 40).stroke();
-      doc.fontSize(14).text(`TOTAL: ${order.total} lei`, 360, doc.y + 10);
+      doc.fontSize(12).text('Client:', 300, topY, { underline: true });
+      doc.text(order.user.name, 300);
+      doc.text(order.user.address || '', 300);
+      doc.text(`${order.user.city || ''}, ${order.user.county || ''}`, 300);
+      doc.text(order.user.phone || '', 300);
 
       doc.moveDown(3);
 
+      // LINIE SEPARARE
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+      doc.moveDown(1.5);
+
+      // TABEL PRODUSE CU BORDER COMPLET
+      doc.fontSize(14).text('Produse', { underline: true });
+      doc.moveDown(1);
+
+      const tableTop = doc.y;
+      const col1 = 50;
+      const col2 = 250;
+      const col3 = 350;
+      const col4 = 450;
+
+      // HEADER
+      doc.fontSize(12).font('Helvetica-Bold');
+      doc.text('Produs', col1, tableTop);
+      doc.text('Cant.', col2, tableTop);
+      doc.text('Preț', col3, tableTop);
+      doc.text('Total', col4, tableTop);
+
+      let y = tableTop + 20;
+
+      // BORDER EXTERIOR
+      doc.rect(45, tableTop - 5, 510, 25 + order.items.length * 25).stroke();
+
+      // LINIE SUB HEADER
+      doc.moveTo(45, tableTop + 20).lineTo(555, tableTop + 20).stroke();
+
+      // ITEMS
+      doc.font('Helvetica');
+      order.items.forEach((item) => {
+        const totalItem = item.quantity * item.price;
+
+        doc.text(item.product.name, col1, y);
+        doc.text(String(item.quantity), col2, y);
+        doc.text(`${item.price} lei`, col3, y);
+        doc.text(`${totalItem} lei`, col4, y);
+
+        doc.moveTo(45, y + 20).lineTo(555, y + 20).stroke();
+
+        y += 25;
+      });
+
+      doc.moveDown(3);
+
+      // TOTAL BOX
+      const totalY = doc.y;
+      doc.rect(350, totalY, 200, 40).stroke();
+      doc.fontSize(16).font('Helvetica-Bold').text(`TOTAL: ${order.total} lei`, 360, totalY + 10);
+
+      doc.moveDown(4);
+
+      // ȘTAMPILĂ
+      doc.circle(120, 720, 50).stroke();
+      doc.fontSize(12).text('ELECTROHUB\nOFICIAL', 85, 700, { align: 'center' });
+
+      // SEMNĂTURĂ DIGITALĂ
+      doc.moveTo(300, 740).lineTo(500, 740).stroke();
+      doc.fontSize(12).text('Semnătură digitală', 330, 745);
+
+      // QR ANAF
+      const qrData = `https://anaf.ro/verify?invoice=${invoiceNumber}`;
+      const qrImage = await QRCode.toBuffer(qrData);
+      doc.image(qrImage, 500, 680, { width: 70 });
+
       // FOOTER
-      doc.fontSize(10).text(
+      doc.fontSize(10).font('Helvetica').text(
         'Vă mulțumim pentru achiziție!',
         0,
         780,
