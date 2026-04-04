@@ -167,14 +167,14 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // ⭐⭐⭐ LOGO FINAL — FUNDAL ALBASTRU + LOGO MAI MIC ⭐⭐⭐
+      // ⭐⭐⭐ LOGO FINAL — MAI MIC + MUTAT STÂNGA + FUNDAL COMPLET ⭐⭐⭐
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
 
-      // FUNDAL ALBASTRU (DIMENSIUNE OPTIMĂ PENTRU ÎNTREG LOGO-UL)
-      doc.rect(40, 30, 220, 120).fill('#1E90FF').stroke('#000000');
+      // FUNDAL ALBASTRU (ACOPERĂ SIGLA + TEXTUL LOGO-ULUI)
+      doc.rect(30, 30, 200, 110).fill('#1E90FF').stroke('#000000');
 
-      // LOGO MAI MIC, CENTRAT, COMPLET ÎN INTERIORUL FUNDALULUI
-      doc.image(logoPath, 55, 45, { width: 190 });
+      // LOGO MAI MIC, MUTAT ÎN STÂNGA, COMPLET ÎN INTERIOR
+      doc.image(logoPath, 40, 40, { width: 180 });
       doc.fillColor('#000000');
 
       // TITLU CU DIACRITICE
