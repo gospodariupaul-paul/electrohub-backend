@@ -8,6 +8,7 @@ import {
   Patch,
   Body,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -51,5 +52,19 @@ export class OrdersController {
   @Delete(':id')
   deleteOrder(@Param('id') id: string) {
     return this.ordersService.deleteOrder(Number(id));
+  }
+
+  // ⭐ FACTURĂ PDF — ADĂUGAT FĂRĂ SĂ ATINGEM ALTCEVA
+  @Get(':id/invoice')
+  async getInvoice(@Param('id') id: string, @Res() res) {
+    const pdf = await this.ordersService.generateInvoicePdf(Number(id));
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=factura-${id}.pdf`,
+    });
+
+    pdf.pipe(res);
+    pdf.end();
   }
 }

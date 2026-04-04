@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import PDFDocument from 'pdfkit';
 
 @Injectable()
 export class OrdersService {
@@ -139,5 +140,53 @@ export class OrdersService {
     return this.prisma.order.delete({
       where: { id },
     });
+  }
+
+  // ⭐ FACTURĂ PDF — ADĂUGAT FĂRĂ SĂ ATINGEM ALTCEVA
+  async generateInvoicePdf(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: { include: { product: true } },
+        user: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const doc = new PDFDocument();
+
+    // TITLU
+    doc.fontSize(20).text("Factura fiscală", { align: "center" });
+    doc.moveDown();
+
+    // DATE FIRMĂ
+    doc.fontSize(12).text("Emitent:");
+    doc.text("ElectroHub SRL");
+    doc.text("CUI: 12345678");
+    doc.text("Nr. Reg. Com.: J22/123/2024");
+    doc.text("Iași, România");
+    doc.moveDown();
+
+    // DATE CLIENT
+    doc.text("Client:");
+    doc.text(order.user.name);
+    doc.text(order.user.address || "");
+    doc.text(`${order.user.city || ""}, ${order.user.county || ""}`);
+    doc.text(order.user.phone || "");
+    doc.moveDown();
+
+    // PRODUSE
+    doc.text("Produse:", { underline: true });
+    order.items.forEach(item => {
+      doc.text(`${item.product.name} — ${item.quantity} x ${item.price} lei`);
+    });
+
+    doc.moveDown();
+    doc.fontSize(14).text(`Total: ${order.total} lei`, { align: "right" });
+
+    return doc;
   }
 }
