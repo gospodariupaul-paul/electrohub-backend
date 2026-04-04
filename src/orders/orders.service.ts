@@ -167,10 +167,14 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // LOGO CU FUNDAL ALB + BORDER
+      // ⭐⭐⭐ VARIANTA 1 — LOGO CU FUNDAL ALBASTRU ELECTRIC ⭐⭐⭐
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-      doc.rect(50, 40, 150, 80).fill('#FFFFFF').stroke();
-      doc.image(logoPath, 55, 45, { width: 140 });
+
+      // FUNDAL ALBASTRU + BORDER GROS
+      doc.rect(50, 40, 200, 100).fill('#1E90FF').stroke('#000000');
+
+      // LOGO MĂRIT + CONTRAST MAXIM
+      doc.image(logoPath, 60, 50, { width: 180 });
       doc.fillColor('#000000');
 
       // TITLU CU DIACRITICE
