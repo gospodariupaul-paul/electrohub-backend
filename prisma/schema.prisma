@@ -108,6 +108,11 @@ model Order {
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
 
+  // 🔥 câmpuri factură
+  invoiceNumber String? @db.VarChar(50)
+  invoicePdf    Bytes?
+  invoicePath   String? @db.VarChar(255)
+
   // 🔥 relație cu Shipment
   shipments Shipment[]
 }
