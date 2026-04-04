@@ -167,14 +167,14 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // ⭐⭐⭐ VARIANTA FINALĂ — LOGO CU FUNDAL ALBASTRU URIAȘ ⭐⭐⭐
+      // ⭐⭐⭐ LOGO FINAL — FUNDAL ALBASTRU + LOGO MAI MIC ⭐⭐⭐
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
 
-      // FUNDAL ALBASTRU URIAȘ (ACOPERĂ SIGLA + TEXTUL LOGO-ULUI)
-      doc.rect(30, 20, 300, 180).fill('#1E90FF').stroke('#000000');
+      // FUNDAL ALBASTRU (DIMENSIUNE OPTIMĂ PENTRU ÎNTREG LOGO-UL)
+      doc.rect(40, 30, 220, 120).fill('#1E90FF').stroke('#000000');
 
-      // LOGO MARE, CENTRAT, CU ÎNĂLȚIME SUFICIENTĂ
-      doc.image(logoPath, 45, 35, { width: 270 });
+      // LOGO MAI MIC, CENTRAT, COMPLET ÎN INTERIORUL FUNDALULUI
+      doc.image(logoPath, 55, 45, { width: 190 });
       doc.fillColor('#000000');
 
       // TITLU CU DIACRITICE
