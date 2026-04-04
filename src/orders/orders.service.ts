@@ -167,13 +167,13 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // ⭐⭐⭐ LOGO FINAL — MAI MIC + MAI SUS + FUNDAL COMPLET ⭐⭐⭐
+      // ⭐⭐⭐ LOGO FINAL — FUNDAL MAI ÎNALT + LOGO MIC + MAI SUS ⭐⭐⭐
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
 
-      // FUNDAL ALBASTRU (ACOPERĂ TOT LOGO-UL)
-      doc.rect(40, 20, 200, 100).fill('#1E90FF').stroke('#000000');
+      // FUNDAL ALBASTRU (MAI ÎNALT, ACOPERĂ TOT LOGO-UL)
+      doc.rect(40, 20, 200, 140).fill('#1E90FF').stroke('#000000');
 
-      // LOGO MAI MIC, MUTAT MAI SUS
+      // LOGO MIC, MUTAT MAI SUS
       doc.image(logoPath, 55, 30, { width: 160 });
       doc.fillColor('#000000');
 
