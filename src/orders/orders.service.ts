@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 import * as path from 'path';
 
 @Injectable()
@@ -162,11 +162,9 @@ export class OrdersService {
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      // LOGO
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
       doc.image(logoPath, 50, 40, { width: 120 });
 
-      // FONT UTF‑8
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
@@ -205,7 +203,6 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    // Dacă există deja → returnăm direct
     if (order.invoicePdf) {
       return {
         invoiceNumber: order.invoiceNumber,
@@ -237,14 +234,13 @@ export class OrdersService {
     });
 
     if (!order || !order.invoicePdf) {
-      // dacă nu există → generăm acum
       await this.generateInvoice(orderId);
 
       const updated = await this.prisma.order.findUnique({
         where: { id: orderId },
       });
 
-      return updated.invoicePdf;
+      return updated!.invoicePdf;
     }
 
     return order.invoicePdf;

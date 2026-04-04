@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
