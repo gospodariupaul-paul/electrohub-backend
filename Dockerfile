@@ -14,6 +14,9 @@ RUN npm install
 # Copy the rest of the project
 COPY . .
 
+# ⭐ Copiem explicit folderul public (logo.png)
+COPY public ./public
+
 # Generate Prisma Client
 RUN npx prisma generate
 
