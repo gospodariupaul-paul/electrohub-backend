@@ -154,7 +154,7 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ FACTURA PREMIUM COMPLETĂ
+  // ⭐ FACTURA PREMIUM — DIACRITICE + LOGO VIZIBIL + BORDER COMPLET
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise(async (resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -163,19 +163,19 @@ export class OrdersService {
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      // FONT UTF-8
+      // FONT UTF-8 — OBLIGATORIU PESTE TOT
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // LOGO + FUNDAL
+      // LOGO CU FUNDAL ALB + BORDER
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-      doc.rect(50, 40, 140, 70).fill('#FFFFFF');
-      doc.image(logoPath, 55, 45, { width: 120 });
+      doc.rect(50, 40, 150, 80).fill('#FFFFFF').stroke();
+      doc.image(logoPath, 55, 45, { width: 140 });
       doc.fillColor('#000000');
 
-      // ANTET
+      // TITLU CU DIACRITICE
       doc
-        .fontSize(22)
+        .fontSize(24)
         .text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
 
       doc.moveDown(2);
@@ -219,7 +219,7 @@ export class OrdersService {
       const col4 = 450;
 
       // HEADER
-      doc.fontSize(12).font('Helvetica-Bold');
+      doc.fontSize(12).font(fontPath);
       doc.text('Produs', col1, tableTop);
       doc.text('Cant.', col2, tableTop);
       doc.text('Preț', col3, tableTop);
@@ -234,7 +234,7 @@ export class OrdersService {
       doc.moveTo(45, tableTop + 20).lineTo(555, tableTop + 20).stroke();
 
       // ITEMS
-      doc.font('Helvetica');
+      doc.font(fontPath);
       order.items.forEach((item) => {
         const totalItem = item.quantity * item.price;
 
@@ -253,17 +253,17 @@ export class OrdersService {
       // TOTAL BOX
       const totalY = doc.y;
       doc.rect(350, totalY, 200, 40).stroke();
-      doc.fontSize(16).font('Helvetica-Bold').text(`TOTAL: ${order.total} lei`, 360, totalY + 10);
+      doc.fontSize(16).font(fontPath).text(`TOTAL: ${order.total} lei`, 360, totalY + 10);
 
       doc.moveDown(4);
 
       // ȘTAMPILĂ
       doc.circle(120, 720, 50).stroke();
-      doc.fontSize(12).text('ELECTROHUB\nOFICIAL', 85, 700, { align: 'center' });
+      doc.fontSize(12).font(fontPath).text('ELECTROHUB\nOFICIAL', 85, 700, { align: 'center' });
 
       // SEMNĂTURĂ DIGITALĂ
       doc.moveTo(300, 740).lineTo(500, 740).stroke();
-      doc.fontSize(12).text('Semnătură digitală', 330, 745);
+      doc.fontSize(12).font(fontPath).text('Semnătură digitală', 330, 745);
 
       // QR ANAF
       const qrData = `https://anaf.ro/verify?invoice=${invoiceNumber}`;
@@ -271,7 +271,7 @@ export class OrdersService {
       doc.image(qrImage, 500, 680, { width: 70 });
 
       // FOOTER
-      doc.fontSize(10).font('Helvetica').text(
+      doc.fontSize(10).font(fontPath).text(
         'Vă mulțumim pentru achiziție!',
         0,
         780,
