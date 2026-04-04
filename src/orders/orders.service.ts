@@ -153,7 +153,7 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ GENERARE PDF — RETURN BUFFER
+  // ⭐ FACTURA PREMIUM — RETURN BUFFER
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise((resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -162,33 +162,93 @@ export class OrdersService {
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-      doc.image(logoPath, 50, 40, { width: 120 });
-
+      // FONT UTF-8
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      doc.fontSize(20).text('Factura fiscală', { align: 'center' });
+      // LOGO
+      const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+      doc.image(logoPath, 50, 40, { width: 120, opacity: 1 });
+
+      // ANTET
+      doc
+        .fontSize(20)
+        .text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
+
+      doc.moveDown();
+      doc.fontSize(12);
+      doc.text(`Număr factură: ${invoiceNumber}`, { align: 'right' });
+      doc.text(`Data: ${new Date().toLocaleDateString('ro-RO')}`, { align: 'right' });
+
+      doc.moveDown(2);
+
+      // DATE FIRMĂ
+      doc.fontSize(12).text('Emitent:', { underline: true });
+      doc.text('ElectroHub SRL');
+      doc.text('CUI: 12345678');
+      doc.text('Nr. Reg. Com.: J22/123/2024');
+      doc.text('Iași, România');
+
       doc.moveDown();
 
-      doc.fontSize(12).text(`Număr factură: ${invoiceNumber}`);
-      doc.text(`Data: ${new Date().toLocaleDateString('ro-RO')}`);
-      doc.moveDown();
-
-      doc.text('Client:');
+      // DATE CLIENT
+      doc.fontSize(12).text('Client:', { underline: true });
       doc.text(order.user.name);
       doc.text(order.user.address || '');
       doc.text(`${order.user.city || ''}, ${order.user.county || ''}`);
       doc.text(order.user.phone || '');
+
+      doc.moveDown(2);
+
+      // LINIE SEPARARE
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
       doc.moveDown();
 
-      doc.text('Produse:', { underline: true });
+      // TABEL PRODUSE
+      doc.fontSize(12).text('Produse:', { underline: true });
+      doc.moveDown(0.5);
+
+      // HEADERS
+      doc.fontSize(12).text('Produs', 50, doc.y);
+      doc.text('Cant.', 300, doc.y);
+      doc.text('Preț', 350, doc.y);
+      doc.text('Total', 450, doc.y);
+
+      doc.moveDown(0.5);
+
+      // LINIE
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
+      doc.moveDown(0.5);
+
+      // ITEMS
       order.items.forEach((item) => {
-        doc.text(`${item.product.name} — ${item.quantity} x ${item.price} lei`);
+        const totalItem = item.quantity * item.price;
+
+        doc.text(item.product.name, 50, doc.y);
+        doc.text(String(item.quantity), 300, doc.y);
+        doc.text(`${item.price} lei`, 350, doc.y);
+        doc.text(`${totalItem} lei`, 450, doc.y);
+
+        doc.moveDown(0.5);
       });
 
-      doc.moveDown();
-      doc.fontSize(14).text(`Total: ${order.total} lei`, { align: 'right' });
+      doc.moveDown(1);
+
+      // TOTAL BOX
+      doc.rect(350, doc.y, 200, 40).stroke();
+      doc.fontSize(14).text(`TOTAL: ${order.total} lei`, 360, doc.y + 10);
+
+      doc.moveDown(3);
+
+      // FOOTER
+      doc.fontSize(10).text(
+        'Vă mulțumim pentru achiziție!',
+        0,
+        780,
+        { align: 'center' }
+      );
 
       doc.end();
     });
