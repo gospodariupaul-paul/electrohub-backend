@@ -21,4 +21,10 @@ export class FanCourierController {
     const orderId = Number(id);
     return this.fanService.getShipmentsForOrder(orderId);
   }
+
+  // ⭐ WEBHOOK FanCourier → actualizează statusul comenzii
+  @Post("webhook")
+  async webhook(@Body() body: any) {
+    return this.fanService.processWebhook(body);
+  }
 }

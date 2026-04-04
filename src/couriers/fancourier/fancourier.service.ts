@@ -34,4 +34,37 @@ export class FanCourierService {
       orderBy: { createdAt: "desc" },
     });
   }
+
+  // ⭐ MAPARE STATUSURI FANCOURIER → STATUS INTERN
+  private mapStatus(fanStatus: string): string | null {
+    const map = {
+      "Colet predat curierului": "shipped",
+      "Colet în tranzit": "shipped",
+      "Colet în livrare": "shipped",
+      "Colet livrat": "delivered",
+    };
+
+    return map[fanStatus] || null;
+  }
+
+  // ⭐ PROCESARE WEBHOOK FANCOURIER
+  async processWebhook(body: any) {
+    const { awb, status } = body;
+
+    const internalStatus = this.mapStatus(status);
+    if (!internalStatus) return { ignored: true };
+
+    const shipment = await this.prisma.shipment.findFirst({
+      where: { awb },
+    });
+
+    if (!shipment) return { error: "Shipment not found" };
+
+    await this.prisma.order.update({
+      where: { id: shipment.orderId },
+      data: { status: internalStatus },
+    });
+
+    return { success: true };
+  }
 }

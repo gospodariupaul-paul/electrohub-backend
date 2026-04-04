@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import PDFDocument from 'pdfkit';
+import * as path from 'path';
 
 @Injectable()
 export class OrdersService {
@@ -104,7 +105,6 @@ export class OrdersService {
     });
   }
 
-  // ⭐ ADMIN + WEBHOOK schimbă statusul
   async updateStatus(id: number, status: string) {
     const order = await this.prisma.order.findUnique({ where: { id } });
 
@@ -118,7 +118,6 @@ export class OrdersService {
     });
   }
 
-  // ⭐ ȘTERGE comanda + itemele + shipment-urile
   async deleteOrder(id: number) {
     const order = await this.prisma.order.findUnique({ where: { id } });
 
@@ -126,23 +125,20 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // 🔥 Ștergem shipment-urile
     await this.prisma.shipment.deleteMany({
       where: { orderId: id },
     });
 
-    // 🔥 Ștergem item-urile comenzii
     await this.prisma.orderItem.deleteMany({
       where: { orderId: id },
     });
 
-    // 🔥 Ștergem comanda
     return this.prisma.order.delete({
       where: { id },
     });
   }
 
-  // ⭐ FACTURĂ PDF — ADĂUGAT FĂRĂ SĂ ATINGEM ALTCEVA
+  // ⭐ FACTURĂ PDF — CU FONT UTF-8
   async generateInvoicePdf(orderId: number) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -157,6 +153,10 @@ export class OrdersService {
     }
 
     const doc = new PDFDocument();
+
+    // ⭐ FONTUL CORECT — AICI ESTE SINGURA MODIFICARE
+    const fontPath = path.resolve(__dirname, '..', '..', 'fonts', 'DejaVuSans.ttf');
+    doc.font(fontPath);
 
     // TITLU
     doc.fontSize(20).text("Factura fiscală", { align: "center" });
