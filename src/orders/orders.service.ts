@@ -153,7 +153,7 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ FACTURA PREMIUM — RETURN BUFFER
+  // ⭐ FACTURA PREMIUM — RETURN BUFFER (FĂRĂ opacity)
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise((resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -166,9 +166,14 @@ export class OrdersService {
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
-      // LOGO
+      // LOGO — fără opacity, compatibil cu TypeScript strict
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-      doc.image(logoPath, 50, 40, { width: 120, opacity: 1 });
+
+      // fundal alb sub logo pentru claritate
+      doc.rect(50, 40, 140, 70).fill('#FFFFFF').stroke();
+      doc.fillColor('#000000');
+
+      doc.image(logoPath, 55, 45, { width: 120 });
 
       // ANTET
       doc
