@@ -9,7 +9,6 @@ export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
   async createOrder(userId: number) {
-    // 1️⃣ Luăm produsele din coș
     const cartItems = await this.prisma.cartItem.findMany({
       where: { userId },
       include: { product: true },
@@ -19,24 +18,20 @@ export class OrdersService {
       throw new NotFoundException('Coșul este gol.');
     }
 
-    // 2️⃣ Calculăm totalul
     const total = cartItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
       0,
     );
 
-    // 3️⃣ Luăm setările de livrare ale utilizatorului
     const settings = await this.prisma.deliverySettings.findUnique({
       where: { userId },
     });
 
-    // 4️⃣ Creăm comanda cu setările incluse
     const order = await this.prisma.order.create({
       data: {
         userId,
         total,
 
-        // ⭐ AICI SE FOLOSESC SETĂRILE DE LIVRARE
         courier: settings?.preferredCourier || "sameday",
         street: settings?.street || "",
         number: settings?.number || "",
@@ -48,7 +43,6 @@ export class OrdersService {
         cashOnDelivery: settings?.cashOnDelivery || false,
         easyboxId: settings?.easyboxId || "",
 
-        // ⭐ Produsele comenzii
         items: {
           create: cartItems.map((item) => ({
             productId: item.productId,
@@ -66,7 +60,6 @@ export class OrdersService {
       },
     });
 
-    // 5️⃣ Golește coșul
     await this.prisma.cartItem.deleteMany({
       where: { userId },
     });
@@ -162,7 +155,6 @@ export class OrdersService {
     });
   }
 
-  // ⭐ GENERARE NUMĂR FACTURĂ
   private async generateInvoiceNumber() {
     const now = new Date();
     const year = now.getFullYear();
@@ -177,7 +169,6 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ FACTURA PREMIUM — DIACRITICE + LOGO + TVA + BORDER COMPLET
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise(async (resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -209,17 +200,32 @@ export class OrdersService {
 
       const topY = doc.y;
 
+      // ⭐ EMITENT
       doc.fontSize(12).text('Emitent:', 50, topY, { underline: true });
       doc.text('ElectroHub SRL', 50);
       doc.text('CUI: 12345678', 50);
       doc.text('Nr. Reg. Com.: J22/123/2024', 50);
       doc.text('Iași, România', 50);
 
-      doc.fontSize(12).text('Client:', 300, topY, { underline: true });
+      // ⭐ CLIENT – ADRESĂ DE FACTURARE
+      doc.fontSize(12).text('Client (Facturare):', 300, topY, { underline: true });
       doc.text(order.user.name, 300);
       doc.text(order.user.address || '', 300);
       doc.text(`${order.user.city || ''}, ${order.user.county || ''}`, 300);
       doc.text(order.user.phone || '', 300);
+
+      doc.moveDown(2);
+
+      // ⭐ ADRESĂ DE LIVRARE
+      doc.fontSize(12).text('Adresă de livrare:', 300);
+      doc.text(`${order.street} ${order.number}`, 300);
+      doc.text(`${order.city}, ${order.county}`, 300);
+      doc.text(order.postalCode || '', 300);
+
+      if (order.easyboxId) doc.text(`EasyBox: ${order.easyboxId}`, 300);
+      if (order.callBefore) doc.text(`• Sună înainte`, 300);
+      if (order.noSaturday) doc.text(`• Fără livrare sâmbăta`, 300);
+      if (order.cashOnDelivery) doc.text(`• Ramburs`, 300);
 
       doc.moveDown(3);
 
