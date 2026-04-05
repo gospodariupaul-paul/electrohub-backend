@@ -168,7 +168,6 @@ export class OrdersService {
 
     return `INV-${year}-${month}-${next}`;
   }
-
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise(async (resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -186,9 +185,7 @@ export class OrdersService {
       doc.image(logoPath, 55, 30, { width: 160 });
       doc.fillColor('#000000');
 
-      doc
-        .fontSize(24)
-        .text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
+      doc.fontSize(24).text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
 
       doc.moveDown(2);
 
@@ -200,18 +197,15 @@ export class OrdersService {
 
       const topY = doc.y;
 
-      // ⭐ EMITENT
+      // EMITENT
       doc.fontSize(12).text('Emitent:', 50, topY, { underline: true });
       doc.text('ElectroHub SRL', 50);
       doc.text('CUI: 12345678', 50);
       doc.text('Nr. Reg. Com.: J22/123/2024', 50);
       doc.text('Iași, România', 50);
 
-      // ⭐ SECȚIUNE PREMIUM — ADRESE FACTURARE + LIVRARE
-
-      // 🔵 CHENAR FACTURARE
+      // ⭐ CHENAR FACTURARE
       doc.rect(280, topY - 5, 250, 120).stroke('#1E90FF');
-
       doc.fontSize(12).fillColor('#1E90FF').text('📄 Adresă de facturare', 290, topY);
       doc.fillColor('#000000');
 
@@ -220,11 +214,11 @@ export class OrdersService {
       doc.text(`${order.user.city || ''}, ${order.user.county || ''}`, 290);
       doc.text(order.user.phone || '', 290);
 
-      // 🔵 CHENAR LIVRARE
+      // ⭐ CHENAR LIVRARE — FIX: înălțime mărită
       const deliveryTop = topY + 140;
+      const deliveryHeight = 200;
 
-      doc.rect(280, deliveryTop - 5, 250, 150).stroke('#00BFFF');
-
+      doc.rect(280, deliveryTop - 5, 250, deliveryHeight).stroke('#00BFFF');
       doc.fontSize(12).fillColor('#00BFFF').text('🚚 Adresă de livrare', 290, deliveryTop);
       doc.fillColor('#000000');
 
@@ -237,7 +231,8 @@ export class OrdersService {
       if (order.noSaturday) doc.text(`• Fără livrare sâmbăta`, 290);
       if (order.cashOnDelivery) doc.text(`• Ramburs`, 290);
 
-      doc.moveDown(3);
+      // ⭐ FIX: mutăm secțiunea PRODUSE sub chenar
+      doc.y = deliveryTop + deliveryHeight + 20;
 
       doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
       doc.moveDown(1.5);
