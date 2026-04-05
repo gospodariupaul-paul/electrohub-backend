@@ -154,7 +154,7 @@ export class OrdersService {
     return `INV-${year}-${month}-${next}`;
   }
 
-  // ⭐ FACTURA PREMIUM — DIACRITICE + LOGO VIZIBIL + BORDER COMPLET
+  // ⭐ FACTURA PREMIUM — DIACRITICE + LOGO + TVA + BORDER COMPLET
   private async generatePdf(order: any, invoiceNumber: string): Promise<Buffer> {
     return new Promise(async (resolve) => {
       const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -163,21 +163,21 @@ export class OrdersService {
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      // FONT UTF-8 — OBLIGATORIU PESTE TOT
+      // FONT UTF-8
       const fontPath = path.resolve(process.cwd(), 'fonts', 'DejaVuSans.ttf');
       doc.font(fontPath);
 
       // ⭐⭐⭐ LOGO FINAL — FUNDAL MAI ÎNALT + LOGO MIC + MAI SUS ⭐⭐⭐
       const logoPath = path.join(process.cwd(), 'public', 'logo.png');
 
-      // FUNDAL ALBASTRU (MAI ÎNALT, ACOPERĂ TOT LOGO-UL)
+      // FUNDAL ALBASTRU (MAI ÎNALT)
       doc.rect(40, 20, 200, 140).fill('#1E90FF').stroke('#000000');
 
-      // LOGO MIC, MUTAT MAI SUS
+      // LOGO MIC, MAI SUS
       doc.image(logoPath, 55, 30, { width: 160 });
       doc.fillColor('#000000');
 
-      // TITLU CU DIACRITICE
+      // TITLU
       doc
         .fontSize(24)
         .text('FACTURĂ FISCALĂ', 0, 50, { align: 'right' });
@@ -191,7 +191,7 @@ export class OrdersService {
 
       doc.moveDown(2);
 
-      // EMITENT + CLIENT ÎN DOUĂ COLOANE
+      // EMITENT + CLIENT
       const topY = doc.y;
 
       doc.fontSize(12).text('Emitent:', 50, topY, { underline: true });
@@ -211,16 +211,25 @@ export class OrdersService {
       // LINIE SEPARARE
       doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
       doc.moveDown(1.5);
+      // ⭐ CALCUL TVA
+      const totalFaraTVA = order.total / 1.19;
+      const tva = order.total - totalFaraTVA;
 
-      // TABEL PRODUSE CU BORDER COMPLET
+      // ⭐ TABEL PRODUSE CU BORDER COMPLET
       doc.fontSize(14).text('Produse', { underline: true });
       doc.moveDown(1);
 
       const tableTop = doc.y;
       const col1 = 50;
-      const col2 = 250;
-      const col3 = 350;
-      const col4 = 450;
+      const col2 = 260;
+      const col3 = 330;
+      const col4 = 420;
+
+      const rowHeight = 25;
+      const tableHeight = rowHeight * (order.items.length + 1);
+
+      // BORDER EXTERIOR
+      doc.rect(45, tableTop - 5, 500, tableHeight + 5).stroke();
 
       // HEADER
       doc.fontSize(12).font(fontPath);
@@ -229,16 +238,17 @@ export class OrdersService {
       doc.text('Preț', col3, tableTop);
       doc.text('Total', col4, tableTop);
 
-      let y = tableTop + 20;
-
-      // BORDER EXTERIOR
-      doc.rect(45, tableTop - 5, 510, 25 + order.items.length * 25).stroke();
-
       // LINIE SUB HEADER
-      doc.moveTo(45, tableTop + 20).lineTo(555, tableTop + 20).stroke();
+      doc.moveTo(45, tableTop + rowHeight).lineTo(545, tableTop + rowHeight).stroke();
+
+      // Linii verticale
+      doc.moveTo(col2 - 10, tableTop - 5).lineTo(col2 - 10, tableTop + tableHeight).stroke();
+      doc.moveTo(col3 - 10, tableTop - 5).lineTo(col3 - 10, tableTop + tableHeight).stroke();
+      doc.moveTo(col4 - 10, tableTop - 5).lineTo(col4 - 10, tableTop + tableHeight).stroke();
+
+      let y = tableTop + rowHeight + 5;
 
       // ITEMS
-      doc.font(fontPath);
       order.items.forEach((item) => {
         const totalItem = item.quantity * item.price;
 
@@ -247,17 +257,19 @@ export class OrdersService {
         doc.text(`${item.price} lei`, col3, y);
         doc.text(`${totalItem} lei`, col4, y);
 
-        doc.moveTo(45, y + 20).lineTo(555, y + 20).stroke();
+        // Linie orizontală sub rând
+        doc.moveTo(45, y + rowHeight - 5).lineTo(545, y + rowHeight - 5).stroke();
 
-        y += 25;
+        y += rowHeight;
       });
 
-      doc.moveDown(3);
+      doc.moveDown(2);
 
-      // TOTAL BOX
-      const totalY = doc.y;
-      doc.rect(350, totalY, 200, 40).stroke();
-      doc.fontSize(16).font(fontPath).text(`TOTAL: ${order.total} lei`, 360, totalY + 10);
+      // ⭐ TOTALURI TVA
+      doc.fontSize(12).font(fontPath);
+      doc.text(`Total fără TVA: ${totalFaraTVA.toFixed(2)} lei`, 350);
+      doc.text(`TVA (19%): ${tva.toFixed(2)} lei`, 350);
+      doc.fontSize(16).text(`TOTAL DE PLATĂ: ${order.total} lei`, 350);
 
       doc.moveDown(4);
 
