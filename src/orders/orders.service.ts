@@ -207,25 +207,35 @@ export class OrdersService {
       doc.text('Nr. Reg. Com.: J22/123/2024', 50);
       doc.text('Iași, România', 50);
 
-      // ⭐ CLIENT – ADRESĂ DE FACTURARE
-      doc.fontSize(12).text('Client (Facturare):', 300, topY, { underline: true });
-      doc.text(order.user.name, 300);
-      doc.text(order.user.address || '', 300);
-      doc.text(`${order.user.city || ''}, ${order.user.county || ''}`, 300);
-      doc.text(order.user.phone || '', 300);
+      // ⭐ SECȚIUNE PREMIUM — ADRESE FACTURARE + LIVRARE
 
-      doc.moveDown(2);
+      // 🔵 CHENAR FACTURARE
+      doc.rect(280, topY - 5, 250, 120).stroke('#1E90FF');
 
-      // ⭐ ADRESĂ DE LIVRARE
-      doc.fontSize(12).text('Adresă de livrare:', 300);
-      doc.text(`${order.street} ${order.number}`, 300);
-      doc.text(`${order.city}, ${order.county}`, 300);
-      doc.text(order.postalCode || '', 300);
+      doc.fontSize(12).fillColor('#1E90FF').text('📄 Adresă de facturare', 290, topY);
+      doc.fillColor('#000000');
 
-      if (order.easyboxId) doc.text(`EasyBox: ${order.easyboxId}`, 300);
-      if (order.callBefore) doc.text(`• Sună înainte`, 300);
-      if (order.noSaturday) doc.text(`• Fără livrare sâmbăta`, 300);
-      if (order.cashOnDelivery) doc.text(`• Ramburs`, 300);
+      doc.text(order.user.name, 290, topY + 20);
+      doc.text(order.user.address || '', 290);
+      doc.text(`${order.user.city || ''}, ${order.user.county || ''}`, 290);
+      doc.text(order.user.phone || '', 290);
+
+      // 🔵 CHENAR LIVRARE
+      const deliveryTop = topY + 140;
+
+      doc.rect(280, deliveryTop - 5, 250, 150).stroke('#00BFFF');
+
+      doc.fontSize(12).fillColor('#00BFFF').text('🚚 Adresă de livrare', 290, deliveryTop);
+      doc.fillColor('#000000');
+
+      doc.text(`${order.street} ${order.number}`, 290, deliveryTop + 20);
+      doc.text(`${order.city}, ${order.county}`, 290);
+      doc.text(order.postalCode || '', 290);
+
+      if (order.easyboxId) doc.text(`EasyBox: ${order.easyboxId}`, 290);
+      if (order.callBefore) doc.text(`• Sună înainte`, 290);
+      if (order.noSaturday) doc.text(`• Fără livrare sâmbăta`, 290);
+      if (order.cashOnDelivery) doc.text(`• Ramburs`, 290);
 
       doc.moveDown(3);
 
