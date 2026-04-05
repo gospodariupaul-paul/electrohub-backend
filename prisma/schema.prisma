@@ -45,17 +45,13 @@ model User {
   verifyCode    String?
   verifyExpires DateTime?
 
-  // 🔥 relație pentru mesajele către admin
   supportMessages SupportMessage[]
 
-  // 🔥 relații pentru ratinguri
   ratingsReceived Rating[] @relation("RatingsReceived")
   ratingsGiven    Rating[] @relation("RatingsGiven")
 
-  // 🔥 relație — setări livrare
   deliverySettings DeliverySettings?
 
-  // 🛒 relație — coșul de cumpărături
   cartItems CartItem[]
 }
 
@@ -94,7 +90,6 @@ model Product {
 
   favorites     Favorite[]
 
-  // 🛒 relație — coș
   cartItems CartItem[]
 }
 
@@ -112,6 +107,18 @@ model Order {
   invoiceNumber String? @db.VarChar(50)
   invoicePdf    Bytes?
   invoicePath   String? @db.VarChar(255)
+
+  // ⭐🔥 câmpuri livrare (ADĂUGATE)
+  courier        String?   @default("sameday")
+  street         String?
+  number         String?
+  city           String?
+  county         String?
+  postalCode     String?
+  callBefore     Boolean   @default(false)
+  noSaturday     Boolean   @default(false)
+  cashOnDelivery Boolean   @default(false)
+  easyboxId      String?
 
   // 🔥 relație cu Shipment
   shipments Shipment[]
@@ -210,10 +217,6 @@ model Address {
   user User @relation(fields: [userId], references: [id])
 }
 
-//////////////////////////////////////////////////////
-// 🔥 MODEL — MESAJE CĂTRE ADMIN
-//////////////////////////////////////////////////////
-
 model SupportMessage {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -224,10 +227,6 @@ model SupportMessage {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-//////////////////////////////////////////////////////
-// ⭐ MODEL — RATINGURI
-//////////////////////////////////////////////////////
 
 model Rating {
   id          Int      @id @default(autoincrement())
@@ -243,10 +242,6 @@ model Rating {
   fromUser User @relation("RatingsGiven", fields: [fromUserId], references: [id])
   toUser   User @relation("RatingsReceived", fields: [toUserId], references: [id])
 }
-
-//////////////////////////////////////////////////////
-// 🚚 MODEL — DELIVERY SETTINGS
-//////////////////////////////////////////////////////
 
 model DeliverySettings {
   userId           Int     @id
@@ -265,10 +260,6 @@ model DeliverySettings {
   user User @relation(fields: [userId], references: [id])
 }
 
-//////////////////////////////////////////////////////
-// 📦 MODEL — SHIPMENT (AWB, tracking)
-//////////////////////////////////////////////////////
-
 model Shipment {
   id        Int      @id @default(autoincrement())
   orderId   Int
@@ -282,10 +273,6 @@ model Shipment {
 
   order Order @relation(fields: [orderId], references: [id])
 }
-
-//////////////////////////////////////////////////////
-// 🛒 MODEL — CART (ADĂUGAT CORECT)
-//////////////////////////////////////////////////////
 
 model CartItem {
   id        Int     @id @default(autoincrement())
