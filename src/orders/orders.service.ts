@@ -216,7 +216,7 @@ export class OrdersService {
 
       // ⭐ CHENAR LIVRARE — FIX: înălțime mărită
       const deliveryTop = topY + 140;
-      const deliveryHeight = 200;
+      const deliveryHeight = 90;
 
       doc.rect(280, deliveryTop - 5, 250, deliveryHeight).stroke('#00BFFF');
       doc.fontSize(12).fillColor('#00BFFF').text('🚚 Adresă de livrare', 290, deliveryTop);
