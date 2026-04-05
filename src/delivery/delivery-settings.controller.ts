@@ -15,6 +15,6 @@ export class DeliverySettingsController {
 
   @Patch('me')
   updateMySettings(@Req() req: any, @Body() dto: UpdateDeliverySettingsDto) {
-    return this.service.updateForUser(req.user.sub, dto);
+    return this.service.updateForUser(req.user.sub, dto ?? {});
   }
 }
