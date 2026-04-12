@@ -21,18 +21,15 @@ async function bootstrap() {
     }),
   );
 
-  // 🔥 CORS CORECT pentru Vercel ↔ Railway
+  // 🔥 CORS CORECT pentru Render
   app.enableCors({
-    origin: [
-      'https://electrohub-frontend.vercel.app',
-      /\.vercel\.app$/,
-    ],
+    origin: "https://electrohub-frontend.vercel.app",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Pornire server pe portul Railway
+  // Pornire server pe portul Railway / Render
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
   console.log(`Server running on port ${port}`);
