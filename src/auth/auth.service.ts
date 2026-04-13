@@ -10,6 +10,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // 🔥 Actualizare prezență (online/offline)
+  async updateLastSeen(userId: number, date: Date = new Date()) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { lastSeen: date },
+    });
+  }
+
   async register(dto: any) {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
@@ -23,7 +31,6 @@ export class AuthService {
       },
     });
 
-    // 🔥 GENERĂM TOKEN-URI EXACT CA LA LOGIN
     const payload = {
       sub: user.id,
       email: user.email,
@@ -58,10 +65,8 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { isOnline: true },
-    });
+    // 🔥 Userul devine "online" → actualizăm lastSeen
+    await this.updateLastSeen(user.id);
 
     const payload = {
       sub: user.id,
@@ -131,10 +136,11 @@ export class AuthService {
       return { message: 'User already logged out' };
     }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { isOnline: false },
-    });
+    // 🔥 Userul devine "offline" → lastSeen = acum - 10 minute
+    await this.updateLastSeen(
+      userId,
+      new Date(Date.now() - 10 * 60 * 1000),
+    );
 
     return { message: 'User logged out' };
   }
@@ -156,7 +162,7 @@ export class AuthService {
         avatarUrl: true,
         createdAt: true,
         imageUrl: true,
-        isOnline: true,
+        lastSeen: true, // 🔥 înlocuit isOnline
       },
     });
   }
@@ -189,7 +195,6 @@ export class AuthService {
     return { message: 'Parola a fost schimbată cu succes' };
   }
 
-  // 🔥 FIX FINAL — invalidează JWT dacă userul a fost șters
   async validate(payload: any) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },

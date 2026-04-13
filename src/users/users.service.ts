@@ -17,34 +17,41 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
+  // 🔥 User devine "online" → actualizăm lastSeen
   async setUserOnline(userId: number) {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { isOnline: true },
+      data: { lastSeen: new Date() },
     });
   }
 
+  // 🔥 User devine "offline" → lastSeen = acum - 10 minute
   async setUserOffline(userId: number) {
     try {
       return await this.prisma.user.update({
         where: { id: userId },
-        data: { isOnline: false },
+        data: { lastSeen: new Date(Date.now() - 10 * 60 * 1000) },
       });
     } catch (e) {
       return null;
     }
   }
 
+  // 🔥 Useri online = activi în ultimele 2 minute
   getOnlineUsers() {
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+
     return this.prisma.user.findMany({
-      where: { isOnline: true },
+      where: {
+        lastSeen: { gt: twoMinutesAgo },
+      },
       select: {
         id: true,
         name: true,
         email: true,
         imageUrl: true,
         role: true,
-        isOnline: true,
+        lastSeen: true,
       },
     });
   }
@@ -66,7 +73,7 @@ export class UsersService {
     });
   }
 
-  // 🔥 FIX FINAL — NU MAI ARUNCĂ 500 NICIODATĂ
+  // 🔥 Ștergere user — îl marcăm offline înainte
   async deleteUser(id: number) {
     await this.setUserOffline(id);
 
