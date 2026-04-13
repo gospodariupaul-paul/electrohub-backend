@@ -17,11 +17,14 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
+  // 🔥 COOKIE-URI CORECTE pentru Vercel ↔ Render
   private cookieOptions = {
     httpOnly: true,
     secure: true,
     sameSite: "none" as const,
     path: "/",
+    domain: "electrohub-frontend.vercel.app", // 🔥 FIX CRITIC
+    maxAge: 24 * 60 * 60 * 1000, // 1 zi
   };
 
   @Post("register")
@@ -32,7 +35,6 @@ export class AuthController {
     res.cookie("jwt", accessToken, this.cookieOptions);
     res.cookie("refreshToken", refreshToken, this.cookieOptions);
 
-    // user devine "online"
     await this.authService.updateLastSeen(user.id);
 
     return { user };
@@ -46,7 +48,6 @@ export class AuthController {
     res.cookie("jwt", accessToken, this.cookieOptions);
     res.cookie("refreshToken", refreshToken, this.cookieOptions);
 
-    // user devine "online"
     await this.authService.updateLastSeen(user.id);
 
     return { user };
@@ -57,14 +58,22 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
 
-    res.clearCookie("jwt", this.cookieOptions);
-    res.clearCookie("refreshToken", this.cookieOptions);
+    // 🔥 ȘTERGERE REALĂ A COOKIE-URILOR
+    res.cookie("jwt", "", {
+      ...this.cookieOptions,
+      expires: new Date(0),
+    });
+
+    res.cookie("refreshToken", "", {
+      ...this.cookieOptions,
+      expires: new Date(0),
+    });
 
     if (!user || !user["id"]) {
       return { message: "Already logged out" };
     }
 
-    // user devine "offline"
+    // 🔥 User devine offline instant
     await this.authService.updateLastSeen(
       user["id"],
       new Date(Date.now() - 10 * 60 * 1000),
