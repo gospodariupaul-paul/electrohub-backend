@@ -23,7 +23,7 @@ export class AuthController {
     secure: true,
     sameSite: "none" as const,
     path: "/",
-    domain: "electrohub-frontend.vercel.app", // 🔥 FIX CRITIC
+    domain: "electrohub-backend-3q94.onrender.com",
     maxAge: 24 * 60 * 60 * 1000, // 1 zi
   };
 
