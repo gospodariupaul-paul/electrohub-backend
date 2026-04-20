@@ -43,6 +43,9 @@ import { FanCourierModule } from './couriers/fancourier/fancourier.module';
 // 🛒 CART — modulul NOU pentru coșul de cumpărături (ADĂUGAT)
 import { CartModule } from './cart/cart.module';
 
+// ⭐⭐⭐ ADĂUGAT — modulul pentru apeluri (WebSocket Gateway)
+import { CallGateway } from './call/call.gateway';
+
 @Module({
   imports: [
     AuthModule,
@@ -84,6 +87,12 @@ import { CartModule } from './cart/cart.module';
   controllers: [
     HealthController,
   ],
-  providers: [PrismaService, PusherService],
+  providers: [
+    PrismaService,
+    PusherService,
+
+    // ⭐⭐⭐ ADĂUGAT — gateway-ul pentru apeluri
+    CallGateway,
+  ],
 })
 export class AppModule {}
