@@ -28,7 +28,9 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.22",
     "@nestjs/swagger": "^7.0.0",
+    "@nestjs/websockets": "^10.4.22",
     "@prisma/client": "^5.22.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.3",
@@ -52,6 +54,7 @@
     "rimraf": "^5.0.0",
     "rxjs": "^7.8.1",
     "sequelize": "^6.37.7",
+    "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.0",
     "twilio": "^5.13.0",
     "winston": "^3.10.0"
