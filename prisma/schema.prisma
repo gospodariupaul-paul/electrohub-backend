@@ -275,9 +275,9 @@ model Shipment {
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
-  userId    String
-  productId String
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
   quantity  Int      @default(1)
 
   user      User     @relation(fields: [userId], references: [id])
