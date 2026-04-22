@@ -11,7 +11,7 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# ⭐ Copiem explicit folderul public (logo.png) înainte de COPY . .
+# Copy public assets
 COPY public ./public
 
 # Copy the rest of the project
@@ -23,7 +23,10 @@ RUN npx prisma generate
 # Build the NestJS project
 RUN npm run build
 
-# Expose port
+# Set default port (Render will override it)
+ENV PORT=3000
+
+# Expose internal container port
 EXPOSE 3000
 
 # Run migrations + start the app
