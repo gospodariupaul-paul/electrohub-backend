@@ -30,4 +30,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Run migrations + start the app
-CMD ["sh", "-c", "npx prisma db push && node dist/main.js"]
+CMD ["node", "dist/main.js"]
