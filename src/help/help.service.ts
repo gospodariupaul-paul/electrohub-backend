@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ContactDto } from './dto/contact.dto';
 import { Resend } from 'resend';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class HelpService {
