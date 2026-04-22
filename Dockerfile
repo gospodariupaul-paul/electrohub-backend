@@ -11,11 +11,14 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# ⭐ Copiem explicit folderul public (logo.png) înainte de COPY . .
+# Copy public folder
 COPY public ./public
 
 # Copy the rest of the project
 COPY . .
+
+# 🔥 IMPORTANT: Ștergem .env ca să nu suprascrie variabilele Render
+RUN rm -f .env .env.local .env.production
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -23,9 +26,7 @@ RUN npx prisma generate
 # Build the NestJS project
 RUN npm run build
 
-# Expose port
 EXPOSE 3000
 
-# Start the app (Node devine PID 1)
 ENTRYPOINT ["node", "dist/main.js"]
 CMD []
