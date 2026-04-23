@@ -6,6 +6,7 @@ import {
   Res,
   UseGuards,
   Get,
+  Param,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
@@ -105,5 +106,13 @@ export class AuthController {
       body.currentPassword,
       body.newPassword
     );
+  }
+
+  // 🔥🔥🔥 ENDPOINT-UL CERUT DE TINE — NU AM ATINS NIMIC ALTCEVA
+  @Get("generate-hash/:password")
+  async generateHash(@Param("password") password: string) {
+    const bcrypt = require("bcrypt");
+    const hash = await bcrypt.hash(password, 10);
+    return { hash };
   }
 }
