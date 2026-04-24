@@ -16,7 +16,6 @@ export class CallGateway {
   @WebSocketServer()
   server: Server;
 
-  // 🔥 Când cineva inițiază un apel
   @SubscribeMessage('call-offer')
   handleOffer(
     @MessageBody() data: any,
@@ -25,7 +24,6 @@ export class CallGateway {
     client.to(data.conversationId.toString()).emit('call-offer', data);
   }
 
-  // 🔥 Când cineva acceptă apelul
   @SubscribeMessage('call-answer')
   handleAnswer(
     @MessageBody() data: any,
@@ -34,7 +32,6 @@ export class CallGateway {
     client.to(data.conversationId.toString()).emit('call-answer', data);
   }
 
-  // 🔥 Când se trimit ICE candidates
   @SubscribeMessage('ice-candidate')
   handleCandidate(
     @MessageBody() data: any,
@@ -43,7 +40,6 @@ export class CallGateway {
     client.to(data.conversationId.toString()).emit('ice-candidate', data);
   }
 
-  // 🔥 Când cineva închide apelul
   @SubscribeMessage('call-end')
   handleEnd(
     @MessageBody() data: any,
@@ -52,7 +48,6 @@ export class CallGateway {
     client.to(data.conversationId.toString()).emit('call-end', data);
   }
 
-  // 🔥 Când un user intră în cameră (conversație)
   @SubscribeMessage('join-call-room')
   handleJoinRoom(
     @MessageBody() data: any,
