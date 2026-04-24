@@ -115,4 +115,10 @@ export class AuthController {
     const hash = await bcrypt.hash(password, 10);
     return { hash };
   }
+
+  // 🔥🔥🔥 ENDPOINT HEALTH-CHECK — PERFECT PENTRU CRON-JOB
+  @Get("health")
+  healthCheck() {
+    return { status: "ok", timestamp: Date.now() };
+  }
 }
