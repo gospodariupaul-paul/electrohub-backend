@@ -22,7 +22,7 @@ export class CallGateway {
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(data.conversationId.toString()).emit('call-offer', data);
+    client.to(data.conversationId.toString()).emit('call-offer', data);
   }
 
   // 🔥 Când cineva acceptă apelul
@@ -31,7 +31,7 @@ export class CallGateway {
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(data.conversationId.toString()).emit('call-answer', data);
+    client.to(data.conversationId.toString()).emit('call-answer', data);
   }
 
   // 🔥 Când se trimit ICE candidates
@@ -40,7 +40,7 @@ export class CallGateway {
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(data.conversationId.toString()).emit('ice-candidate', data);
+    client.to(data.conversationId.toString()).emit('ice-candidate', data);
   }
 
   // 🔥 Când cineva închide apelul
@@ -49,7 +49,7 @@ export class CallGateway {
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(data.conversationId.toString()).emit('call-end', data);
+    client.to(data.conversationId.toString()).emit('call-end', data);
   }
 
   // 🔥 Când un user intră în cameră (conversație)
